@@ -5,7 +5,7 @@ description: Scaffold a new reusable workflow skill by asking scoping questions 
 
 # Skill Write: Scaffold a New Skill
 
-If the user provides a name or description in their request, use it as the starting point. Otherwise, start by asking what the skill should accomplish.
+If the user provides a name or description (via `$ARGUMENTS` or conversational context), use it as the starting point. Otherwise, ask what the skill should accomplish.
 
 ## Workflow
 
@@ -14,7 +14,7 @@ If the user provides a name or description in their request, use it as the start
     - **Description**: High-signal, single-line "when to use" statement.
     - **Workflow**: 3-5 clear, numbered steps.
     - **Rules**: Critical guardrails (max 5).
-    - **Model Tier**: Gemini `pro` (complex logic) or `flash` (speed/simple tasks).
+    - **Model Tier**: `pro` (complex logic) or `flash` (speed/simple tasks).
 2.  **Draft**: Present the full content for both `.claude/commands/<name>.md` and `.gemini/skills/<name>/SKILL.md`.
 3.  **Confirm**: Ask `Write files? (yes/no/edit)`. If the user provides edits, update the drafts and re-confirm.
 4.  **Execute**: 
@@ -24,8 +24,7 @@ If the user provides a name or description in their request, use it as the start
 
 ## File Format
 
-Claude command frontmatter:
-
+### Claude Command Frontmatter
 ```yaml
 ---
 name: <name>
@@ -34,12 +33,23 @@ model: <opus|sonnet|flash>
 ---
 ```
 
-Gemini skill frontmatter omits `model` (unsupported). Both files share the same workflow and rules body. Claude command appends `## User Input\n\n$ARGUMENTS`.
+### Gemini Skill Frontmatter
+```yaml
+---
+name: <name>
+description: <description>
+---
+```
+
+**Mapping Logic**:
+- **Claude**: Maps `pro` -> `sonnet` (or `opus`) and `flash` -> `sonnet`. Appends `## User Input\n\n$ARGUMENTS`.
+- **Gemini**: Omits the `model` field.
 
 ## Rules
 
 - One question at a time to avoid overwhelming the user.
 - Never write files without explicit confirmation.
 - Always generate both the Claude and Gemini versions.
-- Keep `SKILL.md` and command files under 100 lines for context efficiency.
+- Ensure the Gemini skill is in its own directory (`.gemini/skills/<name>/SKILL.md`).
+- Skills must be under 100 lines.
 - No AI attribution, ASCII only.
