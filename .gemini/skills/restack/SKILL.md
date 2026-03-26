@@ -20,8 +20,8 @@ description: Rebase open branches onto main after squash-merged PRs have caused 
    - On conflict: stop, tell user to resolve and run `git rebase --continue`, then re-run `restack`
    - Ask `Force-push <branch>? (yes/no)`. If yes: `git push --force-with-lease origin <branch>`
    - If `<old-base>` was a merged intermediate branch (not main): `git branch -d <old-base>`
-5. **Report**: Summarize what was rebased/pushed. Remind user to update PR bases: `gh pr edit <number> --base <new-base>`
-
+   - If a PR exists for `<branch>`, offer to update its base: `gh pr edit <branch> --base <new-base>`
+   5. **Report**: Summarize what was rebased/pushed and which PR bases were updated.
 ## Rules
 
 - Use `--force-with-lease`, not `--force`

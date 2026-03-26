@@ -21,6 +21,7 @@ tasks:
         for f in "$HOME/.claude/commands/"*.md; do remove_stale "$f"; done
         for f in "$HOME/.claude/agents/gemini-operative/"*.md; do remove_stale "$f"; done
         for dir in "$HOME/.gemini/skills/"/*/; do remove_stale "${dir}SKILL.md"; done
+        for f in "$HOME/.gemini/agents/"*.md; do remove_stale "$f"; done
 
   install:claude:
     desc: Symlink Claude commands and agents into ~/.claude
@@ -34,7 +35,7 @@ tasks:
       - ln -sf "$(pwd)/.claude/agents/gemini-operative/AGENT.md" "$HOME/.claude/agents/gemini-operative/AGENT.md"
 
   install:gemini:
-    desc: Symlink Gemini skills into ~/.gemini
+    desc: Symlink Gemini skills and agents into ~/.gemini
     deps: [clean:stale]
     cmds:
       - |
@@ -42,6 +43,11 @@ tasks:
           name=$(basename "$dir")
           mkdir -p "$HOME/.gemini/skills/$name"
           ln -sf "$(pwd)/${dir}SKILL.md" "$HOME/.gemini/skills/$name/SKILL.md"
+        done
+      - mkdir -p $HOME/.gemini/agents
+      - |
+        for f in .gemini/agents/*.md; do
+          ln -sf "$(pwd)/$f" "$HOME/.gemini/agents/$(basename $f)"
         done
 
   verify:
@@ -63,5 +69,8 @@ tasks:
         check "$HOME/.claude/agents/gemini-operative/AGENT.md"
         for dir in .gemini/skills/*/; do
           check "$HOME/.gemini/skills/$(basename $dir)/SKILL.md"
+        done
+        for f in .gemini/agents/*.md; do
+          check "$HOME/.gemini/agents/$(basename $f)"
         done
         exit $failed
