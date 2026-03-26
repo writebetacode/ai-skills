@@ -2,6 +2,26 @@
 
 A collection of skills and agents for [Claude Code](https://claude.ai/code) and [Gemini CLI](https://github.com/google-gemini/gemini-cli) that bring structured, opinionated workflows to everyday software development tasks.
 
+## Installation
+
+Requires [Task](https://taskfile.dev) (`brew install go-task`).
+
+```bash
+git clone https://github.com/writebetacode/ai-skills
+cd ai-skills
+task install
+```
+
+This symlinks all skills and agents into `~/.claude` and `~/.gemini` so updates pulled from the repo apply immediately without reinstalling. Stale symlinks pointing back to this repo are cleaned up automatically before each install.
+
+You can also install per platform or verify the current state:
+
+```bash
+task install:claude   # Claude only
+task install:gemini   # Gemini only
+task verify           # check all symlinks are in place
+```
+
 ## What's included
 
 Skills are available for both Claude Code (`.claude/`) and Gemini CLI (`.gemini/`).

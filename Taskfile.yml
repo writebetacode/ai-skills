@@ -1,0 +1,67 @@
+version: '3'
+
+tasks:
+  install:
+    desc: Symlink all skills and agents into ~/.claude and ~/.gemini
+    deps: [install:claude, install:gemini]
+
+  clean:stale:
+    internal: true
+    desc: Remove stale symlinks in ~/.claude and ~/.gemini pointing to this repo
+    cmds:
+      - |
+        repo="$(pwd)"
+        remove_stale() {
+          local f="$1"
+          if [ -L "$f" ] && [ ! -e "$f" ]; then
+            target="$(readlink "$f")"
+            case "$target" in "$repo"/*) rm "$f"; echo "REMOVED $f" ;; esac
+          fi
+        }
+        for f in "$HOME/.claude/commands/"*.md; do remove_stale "$f"; done
+        for f in "$HOME/.claude/agents/gemini-operative/"*.md; do remove_stale "$f"; done
+        for dir in "$HOME/.gemini/skills/"/*/; do remove_stale "${dir}SKILL.md"; done
+
+  install:claude:
+    desc: Symlink Claude commands and agents into ~/.claude
+    deps: [clean:stale]
+    cmds:
+      - mkdir -p $HOME/.claude/commands $HOME/.claude/agents/gemini-operative
+      - |
+        for f in .claude/commands/*.md; do
+          ln -sf "$(pwd)/$f" "$HOME/.claude/commands/$(basename $f)"
+        done
+      - ln -sf "$(pwd)/.claude/agents/gemini-operative/AGENT.md" "$HOME/.claude/agents/gemini-operative/AGENT.md"
+
+  install:gemini:
+    desc: Symlink Gemini skills into ~/.gemini
+    deps: [clean:stale]
+    cmds:
+      - |
+        for dir in .gemini/skills/*/; do
+          name=$(basename "$dir")
+          mkdir -p "$HOME/.gemini/skills/$name"
+          ln -sf "$(pwd)/${dir}SKILL.md" "$HOME/.gemini/skills/$name/SKILL.md"
+        done
+
+  verify:
+    desc: Verify all skills and agents are installed
+    cmds:
+      - |
+        failed=0
+        check() {
+          if [ -e "$1" ]; then
+            echo "OK  $1"
+          else
+            echo "ERR $1"
+            failed=1
+          fi
+        }
+        for f in .claude/commands/*.md; do
+          check "$HOME/.claude/commands/$(basename $f)"
+        done
+        check "$HOME/.claude/agents/gemini-operative/AGENT.md"
+        for dir in .gemini/skills/*/; do
+          check "$HOME/.gemini/skills/$(basename $dir)/SKILL.md"
+        done
+        exit $failed
