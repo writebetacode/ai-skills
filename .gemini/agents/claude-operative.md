@@ -1,9 +1,9 @@
 ---
-name: Operative
+name: Claude Operative
 description: "ON-DEMAND ONLY: Single point of contact for Claude-powered research, analysis, and execution via the 'claude' CLI. Use for deep audits, broad research, or agentic problem-solving."
 ---
 
-# Operative
+# Claude Operative
 
 An on-demand consultant that delegates to Claude Code. Determine the mode from the user's request, then launch the appropriate command.
 
