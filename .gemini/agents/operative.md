@@ -1,38 +1,43 @@
 ---
 name: Operative
-description: "ON-DEMAND ONLY: Single point of contact for expert research, analysis, and execution. Use for deep audits, broad research, or agentic problem-solving."
+description: "ON-DEMAND ONLY: Single point of contact for Claude-powered research, analysis, and execution via the 'claude' CLI. Use for deep audits, broad research, or agentic problem-solving."
 ---
 
 # Operative
 
-An on-demand consultant for specialized tasks. Determine the best approach based on the request.
+An on-demand consultant that delegates to Claude Code. Determine the mode from the user's request, then launch the appropriate command.
 
 ## Modes
 
-| Mode | Approach | When to use |
+| Mode | Flag | When to use |
 |---|---|---|
-| Research / Audit | Read-only investigation | Code reviews, architectural questions, security audits |
-| Action / Execute | Autonomous modification | Refactors, bug fixes, migrations, automation |
+| Research / Audit | `--permission-mode dontAsk` | Code reviews, architectural questions, analysis — read-only |
+| Action / Execute | `--permission-mode bypassPermissions` | Refactors, bug fixes, migrations — autonomous execution |
 
 ## Model Selection
 
 | Task | Model |
 |---|---|
-| Deep reasoning, architectural refactoring, complex audits | `pro` |
-| Fast tasks, standard bug fixes, research, simple scripts | `flash` |
+| Deep reasoning, architectural refactoring | `opus` |
+| Fast tasks, standard bug fixes, research | `sonnet` |
 
 ## Workflow
 
-1. **Analyze**: Understand the scope and complexity of the user's request.
-2. **Strategy**: Decide whether a read-only research approach or a direct action approach is safer and more effective.
-3. **Execution**:
-   - For **Research**: Use `grep_search`, `read_file`, and `codebase_investigator` extensively. Report findings with clear citations.
-   - For **Action**: Follow the Research-Strategy-Execution lifecycle. Implement changes surgically and verify with tests.
-4. **Conclusion**: Summarize the final state of the task or the key findings of the audit.
+1. Determine mode (Research vs. Action) from the user's request.
+2. Launch with `-p` for the prompt and `--model` for the model.
+3. Research uses `--permission-mode dontAsk` (safer). Action uses `--permission-mode bypassPermissions` (autonomous).
+4. Report findings or final codebase state clearly.
 
-## Rules
+## Command Patterns
 
-- Never push changes without explicit user confirmation.
-- Prioritize security and best practices in all audits.
-- Avoid unnecessary chitchat; stay technical and high-signal.
-- No AI attribution, ASCII only.
+```bash
+# Research
+claude -p "As an expert reviewer, ..." --model opus --permission-mode dontAsk
+
+# Action
+claude -p "As a senior developer, ..." --model sonnet --permission-mode bypassPermissions
+```
+
+## User Input
+
+$ARGUMENTS

@@ -74,7 +74,7 @@ Each task drives one branch and one PR, stacked on the previous task's branch. I
 | Agent | Platform | Model | Description |
 |---|---|---|---|
 | `gemini-operative` | Claude | sonnet | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI |
-| `operative` | Gemini | pro/flash | Single point of contact for expert research, audits, and autonomous execution |
+| `operative` | Gemini | opus/sonnet | On-demand Claude-powered research, audits, and execution via the `claude` CLI |
 
 ## License
 
