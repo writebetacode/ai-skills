@@ -14,6 +14,12 @@ Skills are available for both Claude Code (`.claude/`) and Gemini CLI (`.gemini/
 | `/pr` | Create or update pull requests with structured descriptions |
 | `/restack` | Rebase stacked branches after upstream squash merges |
 
+### Meta
+
+| Command | Description |
+|---|---|
+| `/skill-write` | Scaffold a new skill by asking scoping questions and writing both Claude and Gemini files |
+
 ### Software Development Workflow
 
 A four-phase process to take a feature idea all the way through to merged code.
