@@ -1,7 +1,6 @@
 ---
 name: sdlc-brainstorm
 description: Generate a complete specification from an initial idea through iterative one-at-a-time questioning. Use when starting a new feature, change, or project and need a spec before planning or implementation.
-model: pro
 ---
 
 # Brainstorm: Generate Specification from Prompt

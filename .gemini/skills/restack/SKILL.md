@@ -1,7 +1,6 @@
 ---
 name: restack
 description: Rebase open branches onto main after squash-merged PRs have caused conflicts in a stacked branch sequence. Use when PRs have been squash-merged and downstream branches have conflicts or duplicate commits.
-model: flash
 ---
 
 # Restack: Sync Open Branches After Squash Merge

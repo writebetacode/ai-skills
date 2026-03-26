@@ -1,7 +1,6 @@
 ---
 name: sdlc-validate
 description: Verify an implementation plan has full requirement coverage, correct structure, and no spec drift. Use after sdlc-plan and before sdlc-implement to catch issues early.
-model: pro
 ---
 
 # Validate: Check Implementation Plan Against Specification

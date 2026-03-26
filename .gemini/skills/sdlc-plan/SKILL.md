@@ -1,7 +1,6 @@
 ---
 name: sdlc-plan
 description: Break a spec into a stacked PR implementation plan with branch-per-task and full requirement traceability. Use after sdlc-brainstorm to produce a plan before implementation.
-model: pro
 ---
 
 # Plan: Generate Implementation Plan from Specification

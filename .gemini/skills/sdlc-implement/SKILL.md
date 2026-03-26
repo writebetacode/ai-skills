@@ -1,7 +1,6 @@
 ---
 name: sdlc-implement
 description: Execute a task from an implementation plan with integrated commits and PRs. Use after sdlc-validate to implement tasks one at a time with a full test-commit-PR inner loop.
-model: pro
 ---
 
 # Implement: Execute Plan with Integrated Commits and PRs
