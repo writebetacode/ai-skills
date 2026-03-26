@@ -15,7 +15,7 @@ tasks:
           local f="$1"
           if [ -L "$f" ] && [ ! -e "$f" ]; then
             target="$(readlink "$f")"
-            case "$target" in "$repo"/*) rm "$f"; echo "REMOVED $f" ;; esac
+            case "$target" in "$repo"/*) rm -f "$f"; echo "REMOVED $f" ;; esac
           fi
         }
         for f in "$HOME/.claude/commands/"*.md; do remove_stale "$f"; done
