@@ -27,12 +27,19 @@ tasks:
     desc: Symlink Claude commands and agents into ~/.claude
     deps: [clean:stale]
     cmds:
-      - mkdir -p $HOME/.claude/commands $HOME/.claude/agents/gemini-operative
+      - mkdir -p $HOME/.claude/commands
       - |
         for f in .claude/commands/*.md; do
           ln -sf "$(pwd)/$f" "$HOME/.claude/commands/$(basename $f)"
         done
-      - ln -sf "$(pwd)/.claude/agents/gemini-operative/AGENT.md" "$HOME/.claude/agents/gemini-operative/AGENT.md"
+      - |
+        if command -v gemini >/dev/null 2>&1; then
+          mkdir -p "$HOME/.claude/agents/gemini-operative"
+          ln -sf "$(pwd)/.claude/agents/gemini-operative/AGENT.md" "$HOME/.claude/agents/gemini-operative/AGENT.md"
+          echo "LINKED gemini-operative agent"
+        else
+          echo "SKIP gemini-operative (gemini not found)"
+        fi
 
   install:gemini:
     desc: Symlink Gemini skills and agents into ~/.gemini
@@ -44,11 +51,16 @@ tasks:
           mkdir -p "$HOME/.gemini/skills/$name"
           ln -sf "$(pwd)/${dir}SKILL.md" "$HOME/.gemini/skills/$name/SKILL.md"
         done
-      - mkdir -p $HOME/.gemini/agents
       - |
-        for f in .gemini/agents/*.md; do
-          ln -sf "$(pwd)/$f" "$HOME/.gemini/agents/$(basename $f)"
-        done
+        if command -v claude >/dev/null 2>&1; then
+          mkdir -p "$HOME/.gemini/agents"
+          for f in .gemini/agents/*.md; do
+            ln -sf "$(pwd)/$f" "$HOME/.gemini/agents/$(basename $f)"
+          done
+          echo "LINKED claude agents"
+        else
+          echo "SKIP claude agents (claude not found)"
+        fi
 
   verify:
     desc: Verify all skills and agents are installed
@@ -66,11 +78,15 @@ tasks:
         for f in .claude/commands/*.md; do
           check "$HOME/.claude/commands/$(basename $f)"
         done
-        check "$HOME/.claude/agents/gemini-operative/AGENT.md"
+        if command -v gemini >/dev/null 2>&1; then
+          check "$HOME/.claude/agents/gemini-operative/AGENT.md"
+        fi
         for dir in .gemini/skills/*/; do
           check "$HOME/.gemini/skills/$(basename $dir)/SKILL.md"
         done
-        for f in .gemini/agents/*.md; do
-          check "$HOME/.gemini/agents/$(basename $f)"
-        done
+        if command -v claude >/dev/null 2>&1; then
+          for f in .gemini/agents/*.md; do
+            check "$HOME/.gemini/agents/$(basename $f)"
+          done
+        fi
         exit $failed
