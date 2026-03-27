@@ -38,6 +38,11 @@ claude -p "As an expert reviewer, ..." --model opus --permission-mode dontAsk
 claude -p "As a senior developer, ..." --model sonnet --permission-mode bypassPermissions
 ```
 
+## Rules
+
+- Never invoke unless the user explicitly asks for Claude — do not self-activate because you think it would help
+- If unsure whether the user wants Claude involved, ask first
+
 ## User Input
 
 $ARGUMENTS

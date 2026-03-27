@@ -40,6 +40,11 @@ gemini -s -m pro -p "As an expert reviewer, ..."
 gemini -y -m pro -p "As a senior developer, ..."
 ```
 
+## Rules
+
+- Never invoke unless the user explicitly asks for Gemini — do not self-activate because you think it would help
+- If unsure whether the user wants Gemini involved, ask first
+
 ## User Input
 
 $ARGUMENTS
