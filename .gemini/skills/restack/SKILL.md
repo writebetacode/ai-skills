@@ -1,6 +1,6 @@
 ---
 name: restack
-description: Rebase open branches onto main after squash-merged PRs have caused conflicts in a stacked branch sequence. Use when PRs have been squash-merged and downstream branches have conflicts or duplicate commits.
+description: Rebase open branches onto the latest main — whether their intermediate base was squash-merged or main itself has new commits they are missing. Use when branches are out of sync with main for any reason.
 ---
 
 # Restack: Sync Open Branches After Squash Merge
@@ -11,8 +11,11 @@ description: Rebase open branches onto main after squash-merged PRs have caused 
 ## Workflow
 
 1. **Fetch**: `git fetch origin && git pull origin main`
-2. **Identify**: For each branch, check merged: `git branch -r --merged origin/main | grep <branch>`. Build merged list and open list. Stop if nothing is merged.
-3. **Plan**: For each open branch, determine new base — `origin/main` if its original base was merged, else the updated upstream branch. Show the full sequence and ask `Proceed? (yes/no)`.
+2. **Identify**: Build two lists of open branches that need rebasing:
+   - *Stacked*: branches whose base appears in `git branch -r --merged origin/main`
+   - *Behind*: branches not in the merged list where `git merge-base origin/main <branch>` != `git rev-parse origin/main` (main has commits the branch lacks)
+   Stop only if both lists are empty.
+3. **Plan**: For each open branch — stacked branches rebase `--onto origin/main <old-base-tip>`; behind-only branches do a plain `git rebase origin/main`. Show the full sequence and ask `Proceed? (yes/no)`.
 4. **Rebase each open branch in order**:
    - `git rev-parse origin/<old-base>` to record old base tip
    - `git checkout <branch>`
