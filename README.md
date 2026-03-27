@@ -43,7 +43,7 @@ Skills are available for both Claude Code (`.claude/`) and Gemini CLI (`.gemini/
 
 ### Software Development Workflow
 
-A four-phase process to take a feature idea all the way through to merged code.
+A five-phase process to take a feature idea all the way through to merged code.
 
 | Command | Phase | Description |
 |---|---|---|
@@ -51,8 +51,9 @@ A four-phase process to take a feature idea all the way through to merged code.
 | `/sdlc-plan` | 2 — Plan | Break a spec into stacked, reviewable PR-sized tasks |
 | `/sdlc-validate` | 3 — Validate | Verify the plan has full requirement coverage and no drift |
 | `/sdlc-implement` | 4 — Implement | Execute tasks one acceptance criterion at a time with TDD |
+| `/sdlc-complete` | 5 — Complete | Archive the finished plan and spec once all tasks are Done |
 
-The four commands share a common file layout under `plans/` (add it to `.gitignore`):
+The five commands share a common file layout under `plans/` (add it to `.gitignore`):
 
 ```
 plans/
@@ -65,7 +66,7 @@ plans/
       02-<task-name>.md
       ...
   complete/
-    YYYY-MM-DD-<slug>/            # archived after /sdlc-implement finishes
+    YYYY-MM-DD-<slug>/            # archived by /sdlc-complete
 ```
 
 Each task drives one branch and one PR, stacked on the previous task's branch. Implementation follows a strict RED → GREEN → REFACTOR loop, committing after each passing criterion.

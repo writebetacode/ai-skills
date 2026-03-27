@@ -5,7 +5,7 @@ description: Verify an implementation plan has full requirement coverage, correc
 
 # Validate: Check Implementation Plan Against Specification
 
-Flow: brainstorm → plan → **[validate]** → implement
+Flow: brainstorm → plan → **[validate]** → implement → complete
 
 Input: `plans/implementations/<slug>/`
 Validates against: `plans/specs/YYYY-MM-DD-<slug>.md`

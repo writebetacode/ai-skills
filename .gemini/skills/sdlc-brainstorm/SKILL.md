@@ -5,7 +5,7 @@ description: Generate a complete specification from an initial idea through iter
 
 # Brainstorm: Generate Specification from Prompt
 
-Flow: **[brainstorm]** → plan → validate → implement
+Flow: **[brainstorm]** → plan → validate → implement → complete
 
 If the user's request is empty, ask what to build. Do not proceed without a substantive prompt.
 

@@ -6,7 +6,7 @@ model: opus
 
 # Plan: Generate Implementation Plan from Specification
 
-Flow: brainstorm → **[plan]** → validate → implement
+Flow: brainstorm → **[plan]** → validate → implement → complete
 
 Input: `plans/specs/YYYY-MM-DD-<slug>.md`
 Output: `plans/implementations/<slug>/index.md` + task files

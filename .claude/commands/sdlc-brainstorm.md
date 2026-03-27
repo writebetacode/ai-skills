@@ -6,7 +6,7 @@ model: opus
 
 # Brainstorm: Generate Specification from Prompt
 
-Flow: **[brainstorm]** → plan → validate → implement
+Flow: **[brainstorm]** → plan → validate → implement → complete
 
 If `$ARGUMENTS` is empty, ask what to build. Do not proceed without a substantive prompt.
 
