@@ -38,4 +38,5 @@ Resolve plan directory. Verify all tasks are "Done" in index.md (warn if not, as
 - Never commit or push without user confirmation
 - Always `--assignee @me`
 - No broken ticket links — validate before use
+- No "Test Plan" section in the PR body — use only: Tickets, Summary, Why, Changes, Breaking Changes, Dependencies
 - ASCII only, no AI attribution

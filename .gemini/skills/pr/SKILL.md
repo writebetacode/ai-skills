@@ -28,3 +28,4 @@ description: Create or update a pull request with a human-readable title and str
 - Never push or create/update without user confirmation
 - No broken ticket links — validate before use
 - No AI attribution, ASCII only
+- No "Test Plan" section in the PR body — use only the sections listed above
