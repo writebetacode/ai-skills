@@ -52,7 +52,7 @@ If `$ARGUMENTS` is empty, list `plans/` directories. If none, direct to `/sdlc:p
 - Always show the full report, even if all checks pass
 - ASCII only, no AI attribution
 
-Suggest `/sdlc:implement` when valid.
+When valid, tell the user: "Run `/clear` to start a fresh context, then run `/sdlc:implement` to begin."
 
 ## User Input
 
