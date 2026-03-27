@@ -7,10 +7,10 @@ description: Break a spec into a stacked PR implementation plan with branch-per-
 
 Flow: brainstorm → **[plan]** → validate → implement → complete
 
-Input: `plans/specs/YYYY-MM-DD-<slug>.md`
-Output: `plans/implementations/<slug>/index.md` + task files
+Input: `plans/YYYY-MM-DD-<slug>/spec.md`
+Output: `plans/YYYY-MM-DD-<slug>/index.md` + task files
 
-If the user's request is empty, list `plans/specs/`. If none, direct to `sdlc-brainstorm`. Otherwise resolve as spec path (prepend `plans/specs/` if needed).
+If the user's request is empty, list `plans/` directories. If none, direct to `sdlc-brainstorm`. Otherwise resolve as plan directory (look for `spec.md` inside).
 
 ## Workflow
 
@@ -19,14 +19,14 @@ If the user's request is empty, list `plans/specs/`. If none, direct to `sdlc-br
 3. **Explore codebase**: Read reference files and search for additional relevant code. Focus on existing patterns, boundaries, and test conventions.
 4. **Decompose into tasks**: Each task = one reviewable PR via vertical slice (complete path through all affected layers — not "all models first, then all handlers"). Branch from main unless the code genuinely depends on a prior task. Every FR/NFR covered. Tests included per task. Mark parallel-safe tasks where adjacent work is independent.
 5. **Validate granularity**: Present task breakdown as numbered list (title + one-line summary). Ask: "Does the granularity feel right — too coarse, too fine, or should any tasks be merged or split?" Iterate until approved, then write.
-6. **Write files**: Ensure `plans/implementations/<slug>/` exists and `plans/` is in `.gitignore`. Write index.md and all task files.
+6. **Write files**: Ensure `plans/YYYY-MM-DD-<slug>/` exists and `plans/` is in `.gitignore`. Write index.md and all task files alongside spec.md.
 
 ## Index Format
 
 ```
 # Implementation Plan: <Spec Title>
 
-Source spec: plans/specs/<spec-filename>
+Source spec: plans/YYYY-MM-DD-<slug>/spec.md
 Date: <YYYY-MM-DD>
 
 ## Approach

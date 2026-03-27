@@ -8,10 +8,10 @@ model: opus
 
 Flow: brainstorm → plan → **[validate]** → implement → complete
 
-Input: `plans/implementations/<slug>/`
-Validates against: `plans/specs/YYYY-MM-DD-<slug>.md`
+Input: `plans/YYYY-MM-DD-<slug>/`
+Validates against: `plans/YYYY-MM-DD-<slug>/spec.md`
 
-If `$ARGUMENTS` is empty, list `plans/implementations/`. If none, direct to `/sdlc:plan`. Otherwise resolve as plan directory (prepend `plans/implementations/` if needed).
+If `$ARGUMENTS` is empty, list `plans/` directories. If none, direct to `/sdlc:plan`. Otherwise resolve as plan directory (look for `spec.md` and `index.md` inside).
 
 ## Workflow
 
@@ -35,7 +35,7 @@ If `$ARGUMENTS` is empty, list `plans/implementations/`. If none, direct to `/sd
    **Index Consistency**
    - Tasks table matches files on disk; branch names agree between index and task files
    - Dependency graph reflects actual base relationships
-   - Source spec path exists
+   - `spec.md` exists in same directory as `index.md`
 
    **Spec Drift**
    - Quoted requirement text matches spec exactly (not paraphrased or outdated)

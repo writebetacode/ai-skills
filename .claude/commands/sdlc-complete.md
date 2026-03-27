@@ -13,8 +13,8 @@ Resolve plan directory from `$ARGUMENTS`, a task file path, or prompt user.
 ## Workflow
 
 1. **Verify**: Read `index.md` — confirm all tasks show Status: Done. Warn for any not Done and ask `Proceed anyway? (yes/no)`.
-2. **Confirm**: Show the plan directory and target path `plans/complete/YYYY-MM-DD-<slug>/`. Ask `Archive? (yes/no)`.
-3. **Archive**: Move plan directory and its source spec to `plans/complete/YYYY-MM-DD-<slug>/`. Remove any empty implementation directory.
+2. **Confirm**: Show the plan directory and target path `plans/complete/<dir-name>/`. Ask `Archive? (yes/no)`.
+3. **Archive**: Move the entire `plans/YYYY-MM-DD-<slug>/` directory (spec.md, index.md, and all task files) to `plans/complete/YYYY-MM-DD-<slug>/`.
 4. **Report**: List what was archived and where.
 
 ## Rules

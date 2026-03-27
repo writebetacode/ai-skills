@@ -12,7 +12,7 @@ Resolve the task from: direct path, task number, plan directory, or prompt user.
 
 ## Implementation Mode
 
-1. **Read context**: Load the task file, index.md, source spec, CLAUDE.md/.cursorrules/AGENTS.md, docs/architecture.md, and predecessor task files in a single turn.
+1. **Read context**: Load the task file, index.md, and spec.md (all in the same `plans/YYYY-MM-DD-<slug>/` directory), plus CLAUDE.md/.cursorrules/AGENTS.md, docs/architecture.md, and predecessor task files in a single turn.
 2. **Branch setup**: Extract Branch/Base from task file. Check out if exists, create from base if not. Confirm active branch.
 3. **Progress check**: Read `[x]` markers on acceptance criteria. Report: fresh start, resuming, or complete.
 4. **TDD loop** — one criterion at a time:
