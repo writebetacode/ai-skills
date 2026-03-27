@@ -19,6 +19,7 @@ tasks:
           fi
         }
         for f in "$HOME/.claude/commands/"*.md; do remove_stale "$f"; done
+        remove_stale "$HOME/.claude/settings.json"
         for f in "$HOME/.claude/agents/gemini-operative/"*.md; do remove_stale "$f"; done
         for dir in "$HOME/.gemini/skills/"/*/; do remove_stale "${dir}SKILL.md"; done
         for f in "$HOME/.gemini/agents/"*.md; do remove_stale "$f"; done
@@ -32,6 +33,11 @@ tasks:
         for f in .claude/commands/*.md; do
           ln -sf "$(pwd)/$f" "$HOME/.claude/commands/$(basename $f)"
         done
+      - |
+        if [ -f ".claude/settings.json" ]; then
+          ln -sf "$(pwd)/.claude/settings.json" "$HOME/.claude/settings.json"
+          echo "LINKED settings.json"
+        fi
       - |
         if command -v gemini >/dev/null 2>&1; then
           mkdir -p "$HOME/.claude/agents/gemini-operative"
@@ -78,6 +84,9 @@ tasks:
         for f in .claude/commands/*.md; do
           check "$HOME/.claude/commands/$(basename $f)"
         done
+        if [ -f ".claude/settings.json" ]; then
+          check "$HOME/.claude/settings.json"
+        fi
         if command -v gemini >/dev/null 2>&1; then
           check "$HOME/.claude/agents/gemini-operative/AGENT.md"
         fi
