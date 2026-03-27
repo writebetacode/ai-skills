@@ -57,14 +57,12 @@ The five commands share a common file layout under `plans/` (add it to `.gitigno
 
 ```
 plans/
-  specs/
-    YYYY-MM-DD-<slug>.md          # output of /sdlc-brainstorm
-  implementations/
-    <slug>/
-      index.md                    # output of /sdlc-plan
-      01-<task-name>.md
-      02-<task-name>.md
-      ...
+  YYYY-MM-DD-<slug>/
+    spec.md                       # output of /sdlc-brainstorm
+    index.md                      # output of /sdlc-plan
+    01-<task-name>.md
+    02-<task-name>.md
+    ...
   complete/
     YYYY-MM-DD-<slug>/            # archived by /sdlc-complete
 ```
