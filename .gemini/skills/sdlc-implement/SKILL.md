@@ -20,9 +20,9 @@ If the user's request starts with "complete", skip to **Complete Mode**. Otherwi
    - **REFACTOR**: Clean up once green. Never while red.
    - Skip test for non-behavioral changes (config, wiring, docs).
 
-   Then: run linter, fix issues. Stage specific files (never `git add .` or `git add -A`). Conventional commit (`<type>: <desc>`, under 72 chars, imperative). Ask `Commit? (yes/no/edit)` — on edit, show message, accept correction, re-confirm. Commit via HEREDOC on yes. Mark criterion `[x]`, update index.md Status (Todo → In Progress → Done), commit the update. Continue if criteria remain.
+   Then: run linter, fix issues. Stage specific files (never `git add .` or `git add -A`). Conventional commit (`<type>: <desc>`, under 72 chars, imperative). Ask `Commit? (yes/no/edit)` — on edit, show message, accept correction, re-confirm. Commit via HEREDOC on yes. Mark criterion `[x]` and update index.md Status (Todo → In Progress → Done) locally. Continue if criteria remain.
 
-5. **PR**: Push `git push -u origin <branch>`. Build human-readable title (under 70 chars). Body: Summary | Spec Requirements | Changes | Acceptance Criteria. Ask "Draft PR?" and "Add a reviewer? (username or skip)". `gh pr create --base <base> --assignee @me` (with `--draft`/`--reviewer` as needed) or `gh pr edit`. Capture the PR URL and number. Add `## PR\n\n[#<number>](<url>)` to the task file. Stage and commit the task file (`docs: record PR URL in task file`). Show PR URL. Suggest next task or `sdlc-implement complete <plan-dir>` if last.
+5. **PR**: Push `git push -u origin <branch>`. Build human-readable title (under 70 chars). Body: **Tickets** (parse from branch name, validate with `gh issue view`, use N/A if invalid) | **Summary** (2-4 sentences, what and why) | **Why** (value and intent, not implementation details) | **Changes** (grouped by category: Domain, Tests, Config, etc.) | **Breaking Changes** (only if applicable) | **Dependencies** (only if applicable). Ask "Draft PR?" and "Add a reviewer? (username or skip)". `gh pr create --base <base> --assignee @me` (with `--draft`/`--reviewer` as needed) or `gh pr edit`. Capture the PR URL and number. Add `## PR\n\n[#<number>](<url>)` to the task file (do not commit it). Show PR URL. Suggest next task or `sdlc-implement complete <plan-dir>` if last.
 
 ## Complete Mode
 
