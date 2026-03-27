@@ -12,7 +12,7 @@ cd ai-skills
 task install
 ```
 
-This symlinks all skills and agents into `~/.claude` and `~/.gemini` so updates pulled from the repo apply immediately without reinstalling. Stale symlinks pointing back to this repo are cleaned up automatically before each install.
+This symlinks all skills and agents into `~/.claude` and `~/.gemini` so updates pulled from the repo apply immediately without reinstalling. Stale symlinks pointing back to this repo are cleaned up automatically before each install. Agents that require a specific CLI (e.g. `gemini-operative` requires `gemini`, `claude-operative` requires `claude`) are skipped silently if that CLI is not found.
 
 You can also install per platform or verify the current state:
 
@@ -33,6 +33,7 @@ Skills are available for both Claude Code (`.claude/`) and Gemini CLI (`.gemini/
 | `/commit` | Stage-aware conventional commits with user confirmation |
 | `/pr` | Create or update pull requests with structured descriptions |
 | `/restack` | Rebase stacked branches after upstream squash merges |
+| `/gh-issue` | Create consistently-formatted GitHub issues with type, priority, and optional context sections |
 
 ### Meta
 
