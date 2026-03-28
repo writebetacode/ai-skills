@@ -1,6 +1,6 @@
 ---
 name: skill-write
-description: Scaffold a new reusable workflow skill by asking scoping questions and generating both Claude command and Gemini skill files. Use when the user wants to codify a repetitive task into a skill or command.
+description: Scaffold a new reusable workflow skill by asking scoping questions and generating both Claude and Gemini skill files. Use when the user wants to codify a repetitive task into a skill.
 ---
 
 # Skill Write: Scaffold a New Skill
@@ -9,11 +9,11 @@ Use any provided name or description as a starting point, otherwise begin by ask
 
 ## Workflow
 
-Begin the discovery phase by asking scoping questions one at a time to determine the skill's name, description, workflow steps, critical rules, and the appropriate model tier. Once the details are gathered, present a full draft of the content for both the Claude command and the Gemini skill files. Ask the user for confirmation and incorporate any requested edits before proceeding to the execution phase. Finally, create the necessary directories and files, ensuring that the Gemini skill is placed in its own subdirectory, and confirm the final file paths to the user.
+Begin the discovery phase by asking scoping questions one at a time to determine the skill's name, description, workflow steps, critical rules, and the appropriate model tier. Once the details are gathered, present a full draft of the content for both the Claude skill and the Gemini skill files. Ask the user for confirmation and incorporate any requested edits before proceeding to the execution phase. Finally, create the necessary directories and files, ensuring that both skills are placed in their own subdirectory, and confirm the final file paths to the user.
 
 ## File Format
 
-### Claude Command Frontmatter
+### Claude Skill Frontmatter
 ```yaml
 ---
 name: <name>
@@ -33,6 +33,7 @@ description: <description>
 - **Claude**: Place at `.claude/skills/<name>/SKILL.md` relative to the repo root. Appends `## User Input\n\n$ARGUMENTS`.
 - **Gemini**: Place at `.gemini/skills/<name>/SKILL.md` relative to the repo root. No `## User Input` section.
 
+
 Both paths are always relative to the current repository root, never the global `~/.claude` or `~/.gemini` directories. Skills are installed globally via `task install` after being committed to the repo.
 
 ## Writing Style
@@ -45,4 +46,4 @@ When the task is to update an existing skill rather than create a new one, read 
 
 ## Rules
 
-Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. Ensure that both Claude and Gemini versions are generated and that each skill is correctly placed in its own subdirectory under the repo root. After writing skill files, update README.md to include the new skill in the appropriate table. Keep all skills under 100 lines and use only ASCII characters, excluding any AI attribution.
+Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. Ensure that both Claude and Gemini versions are generated and that each skill is correctly placed in its own subdirectory under the repo root. After writing skill files, update README.md to include the new skill in the appropriate table. Keep all skills under 100 lines and use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.

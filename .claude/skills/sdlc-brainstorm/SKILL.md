@@ -1,62 +1,102 @@
 ---
 name: sdlc-brainstorm
-description: Generate a complete specification from an initial idea through iterative one-at-a-time questioning. Use when starting a new feature, change, or project and need a spec before planning or implementation.
+description: Turn an idea into one or more specs through guided questioning, with built-in research and automatic multi-epic decomposition when scope demands it.
 ---
 
-# Brainstorm: Generate Specification from Prompt
+# Brainstorm: From Idea to Spec
 
-Flow: **[brainstorm]** → plan → validate → implement → complete
+Flow: **[brainstorm]** -> plan -> validate -> implement -> complete
 
 If `$ARGUMENTS` is empty, ask what to build. Do not proceed without a substantive prompt.
 
 ## Workflow
 
-Begin by reading relevant context from the codebase, focusing on architectural documentation and existing patterns. Search for code related to the user's prompt to record key findings and identify any root causes if the task involves a bug. Engage in an iterative questioning process, asking only one question at a time to challenge assumptions and push for specific, actionable answers. Respond fully to any questions the user asks back and present multiple architectural options with trade-offs when significant choices must be made. Continue this process until all aspects of the feature or fix are concrete and no ambiguity remains. Finally, ensure the plan directory exists and is properly ignored by git before writing the complete specification file.
+Begin by reading relevant codebase context -- architecture docs, existing patterns, and files related to the prompt. Engage in iterative questioning, asking only one question at a time to challenge assumptions and push for specific, actionable answers. Respond fully to questions the user asks back and present multiple architectural options with trade-offs when significant choices arise.
+
+When the topic is unfamiliar, technically deep, or answers raise questions the codebase cannot resolve, conduct research inline. Use built-in web search and codebase tools to gather findings. Every finding must cite its actual source -- never fabricate URLs. Write research output to `research/` inside the project folder using the Research Output structure below.
+
+As questioning progresses, monitor whether the scope naturally decomposes into multiple independent work streams with their own dependencies. If it does, propose: "This looks like a multi-epic project -- I'd like to decompose it into N epics." On confirmation, transition to multi-epic mode. If scope stays contained, continue until all aspects are concrete and write a single-epic project.
+
+## Project Structure
+
+Every brainstorm produces a project folder at `plans/YYYY-MM-DD-<slug>/` with a `MANIFEST.md` at its root. The slug describes the initiative scope. Ensure `plans/` is git-ignored before writing any output.
+
+A single-epic project has one epic under `epics/`. Write the spec to `epics/YYYY-MM-DD-<epic-slug>/spec.md`, generate the manifest with one entry at "Spec Ready", and suggest moving to the planning phase.
+
+## Multi-Epic Mode
+
+Write `epics.md` containing a numbered epic list -- each with title, 2-3 sentence scope, and supporting research findings -- followed by a `## Dependency Graph` mapping each epic to its prerequisites. Write `build-plan.md` with phased build order and critical path.
+
+Attempt to create an agent team for parallel brainstorming. If teams are unavailable, fall back to the Agent tool for subagents. Use model `opus` for all spawned agents. Spawn one research liaison that loads all research output and fields questions via messaging, plus two agents per epic -- one for core feature definition writing `spec.md`, one for edge cases writing `edge-cases.md` -- both to `epics/YYYY-MM-DD-<epic-slug>/` under the project folder. Each agent performs the brainstorm questioning process autonomously, answering from context and routing unresolvable questions to the liaison. Every spec includes a `## Dependencies` section listing prerequisite epics by title.
+
+Once all agents complete, run epic validation: verify each spec follows the format, addresses only its epic's scope, contains no fabricated sources, and that cross-epic interfaces are consistent. Write findings to `review.md` in the project root.
+
+Generate `MANIFEST.md` by reading `epics.md`, `build-plan.md`, and `review.md`. Pre-populate all epics at "Spec Ready", the build order, and open issues. End with: "Manifest created. Run `/sdlc-status` to see what's actionable."
 
 ## Spec Format
 
-File: `plans/YYYY-MM-DD-<slug>/spec.md`
+File: `spec.md`
 
 ```
 # <Title>
 
 Date: <YYYY-MM-DD>
-Prompt: "<original prompt from $ARGUMENTS>"
+Prompt: "<original prompt>"
+
+## Dependencies
+<Epic prerequisites by title, or "None.">
 
 ## Problem Statement
 <2-4 sentences. No prior context assumed.>
 
 ## Scope
-### In Scope
-<bullets>
-### Out of Scope
-<bullets>
+### In Scope / ### Out of Scope
 
 ## Decisions
 <Numbered. **<Topic>**: <Decision>. <Rationale>.>
 
 ## Requirements
-### Functional Requirements
-<Numbered>
-### Non-Functional Requirements
-<Numbered — omit if none>
+### Functional Requirements / ### Non-Functional Requirements
 
 ## Architectural Context
-<Layers affected, packages involved, connections.>
-
 ## Terminology
-<Table: Term | Definition | Aliases to avoid. Domain terms only — skip generic programming concepts. Flag any terms used ambiguously during questioning.>
-
+<Table: Term | Definition | Aliases to avoid.>
 ## Reference Files
-<bullets: path -- why relevant>
-
 ## Open Questions
-<Unresolved questions, or "None.">
 ```
+
+## Manifest Format
+
+File: `MANIFEST.md`
+
+```
+# Project Manifest: <Project Name>
+
+Created: YYYY-MM-DD  |  Last updated: YYYY-MM-DD
+
+## Status Dashboard
+| # | Epic | Phase | Status | Spec | Edge Cases | Plan | Blockers |
+
+### Status Values
+Spec Ready -> Planned -> Validated -> In Progress (N/M) -> Complete
+
+## Build Order
+## Open Issues
+| # | Severity | Issue | Status | Resolution |
+## Actionable Now
+```
+
+## Research Output
+
+Root: `research/` inside the project folder. `index.md` contains the topic, summary, TOC, and "Out of Scope" dismissed branches. `questions.md` is the Q&A log with status and links. Each `findings/<slug>.md` covers one area with inline citations and backlinks. `ai-summary.md` synthesizes everything for AI consumption.
+
+## Updating Existing Skills
+
+When the task is to update an existing skill rather than create a new one, read the current file first and diff the proposed changes against it. Explicitly list any existing functionality that would be removed and ask the user to confirm each removal before writing. Never drop behavioral details silently — if a step, rule, or constraint is present in the current skill, it must either be preserved in the updated version or explicitly approved for removal by the user.
 
 ## Rules
 
-Always ask only one question at a time and propose codebase-derived answers for user confirmation whenever possible. Focus the specification on defining exactly what needs to be built rather than how to implement it. Ensure the `plans/` directory is added to the `.gitignore` and that all outputs are in ASCII without any AI attribution. Once the specification is complete, suggest moving to the planning phase.
+Ask only one question at a time, proposing codebase-derived answers when possible. Focus specs on what to build, not how. Ensure `plans/` is git-ignored. Never fabricate sources. Multi-epic phases are strictly sequential: research before decomposition, decomposition before parallel brainstorming, brainstorming before review. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

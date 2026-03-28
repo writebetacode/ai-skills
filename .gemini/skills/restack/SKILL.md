@@ -16,4 +16,4 @@ Rebase each open branch in order: record the old base tip with `git rev-parse or
 
 ## Rules
 
-Always use the `--force-with-lease` flag when pushing and never rebase branches that have already been merged into main. Perform all rebases in the correct stack order and stop immediately upon encountering a conflict without skipping ahead. Never push any changes without per-branch confirmation and only use the safe `git branch -d` command for deleting branches. Ensure all outputs are in ASCII and do not include any AI attribution.
+Always use the `--force-with-lease` flag when pushing and never rebase branches that have already been merged into main. Perform all rebases in the correct stack order and stop immediately upon encountering a conflict without skipping ahead. Never push any changes without per-branch confirmation and only use the safe `git branch -d` command for deleting branches. Use only ASCII characters and never include AI attribution or "Co-Authored-By" lines in any output.

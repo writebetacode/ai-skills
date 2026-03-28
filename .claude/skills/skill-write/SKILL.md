@@ -1,6 +1,6 @@
 ---
 name: skill-write
-description: Scaffold a new reusable workflow skill by asking scoping questions and generating both Claude command and Gemini skill files. Use when the user wants to codify a repetitive task into a skill or command.
+description: Scaffold a new reusable workflow skill by asking scoping questions and generating both Claude and Gemini skill files. Use when the user wants to codify a repetitive task into a skill.
 ---
 
 # Skill Write: Scaffold a New Skill
@@ -45,7 +45,7 @@ When the task is to update an existing skill rather than create a new one, read 
 
 ## Rules
 
-Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. Ensure that both Claude and Gemini versions are generated and that each skill is correctly placed in its own subdirectory under the repo root. After writing skill files, update README.md to include the new skill in the appropriate table. Keep all skills under 100 lines and use only ASCII characters, excluding any AI attribution.
+Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. Ensure that both Claude and Gemini versions are generated and that each skill is correctly placed in its own subdirectory under the repo root. After writing skill files, update README.md to include the new skill in the appropriate table. Keep all skills under 100 lines and use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 
