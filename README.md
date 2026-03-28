@@ -45,10 +45,11 @@ Skills are available for both Claude Code (`.claude/skills/`) and Gemini CLI (`.
 
 ### Software Development Workflow
 
-A six-phase process to take a feature idea all the way through to merged code. The research phase is optional.
+A six-phase process to take a feature idea all the way through to merged code. The research phase is optional. Use `/sdlc-kickoff` to run the research, decomposition, and brainstorm phases automatically via an agent team.
 
 | Command | Phase | Description |
 |---|---|---|
+| `/sdlc-kickoff` | 0 — Kickoff (optional) | Spin up an agent team to research a topic, decompose findings into independent epics, and brainstorm each epic in parallel |
 | `/research` | 0 — Research (optional) | Deep-dive research with sourced findings before brainstorming |
 | `/sdlc-brainstorm` | 1 — Brainstorm | Turn an idea into a detailed spec through guided questioning |
 | `/sdlc-plan` | 2 — Plan | Break a spec into stacked, reviewable PR-sized tasks |
