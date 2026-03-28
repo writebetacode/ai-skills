@@ -45,40 +45,41 @@ Skills are available for both Claude Code (`.claude/skills/`) and Gemini CLI (`.
 
 ### Software Development Workflow
 
-A six-phase process to take a feature idea all the way through to merged code. The research phase is optional. Use `/sdlc-kickoff` to run the research, decomposition, and brainstorm phases automatically via an agent team.
+A manifest-driven process to take a feature idea all the way through to merged code. `/sdlc-brainstorm` is the single entry point -- it handles research, single-epic specs, and multi-epic project decomposition with automatic agent teams. When scope grows beyond a single epic, brainstorm creates a `MANIFEST.md` that every downstream skill reads and updates.
 
 | Command | Phase | Description |
 |---|---|---|
-| `/sdlc-kickoff` | 0 — Kickoff (optional) | Spin up an agent team to research a topic, decompose findings into dependency-mapped epics, and brainstorm each epic in parallel |
-| `/research` | 0 — Research (optional) | Deep-dive research with sourced findings before brainstorming |
-| `/sdlc-brainstorm` | 1 — Brainstorm | Turn an idea into a detailed spec through guided questioning |
-| `/sdlc-plan` | 2 — Plan | Break a spec into stacked, reviewable PR-sized tasks |
-| `/sdlc-validate` | 3 — Validate | Verify the plan has full requirement coverage and no drift |
-| `/sdlc-implement` | 4 — Implement | Execute tasks one acceptance criterion at a time with TDD |
-| `/sdlc-complete` | 5 — Complete | Archive the finished plan and spec once all tasks are Done |
+| `/sdlc-brainstorm` | 1 -- Brainstorm | Turn an idea into specs through guided questioning, with built-in research and automatic multi-epic decomposition |
+| `/sdlc-plan` | 2 -- Plan | Break a spec into stacked, reviewable PR-sized tasks with edge-case and manifest awareness |
+| `/sdlc-validate` | 3 -- Validate | Epic-level coherence checks or plan-level requirement coverage, depending on input |
+| `/sdlc-implement` | 4 -- Implement | Execute tasks one acceptance criterion at a time with TDD and manifest updates |
+| `/sdlc-revise` | -- Revise | Propagate mid-implementation requirement changes back through specs, plans, and manifest |
+| `/sdlc-status` | -- Status | Project dashboard showing what is done, what is actionable, and what to do next |
+| `/sdlc-complete` | 5 -- Complete | Archive a finished epic or entire project to plans/complete/ |
 
 The commands share a common file layout under `plans/` (add it to `.gitignore`):
 
 ```
 plans/
-  research/
-    YYYY-MM-DD-<slug>/            # output of /research
-      index.md                    # topic summary, TOC, out-of-scope branches
-      questions.md                # Q&A log linking to findings
-      findings/
-        <slug>.md                 # one file per research area, inline sources
-      ai-summary.md               # synthesized digest for AI consumption
-  YYYY-MM-DD-<slug>/
-    spec.md                       # output of /sdlc-brainstorm
-    index.md                      # output of /sdlc-plan
-    01-<task-name>.md
-    02-<task-name>.md
-    ...
+  YYYY-MM-DD-<slug>/                # project folder (from /sdlc-brainstorm)
+    MANIFEST.md                     # central control document (always present)
+    epics.md                        # epic list + dependency graph (multi-epic)
+    build-plan.md                   # phased build order (multi-epic)
+    review.md                       # epic validation findings (multi-epic)
+    research/                       # research output (if conducted)
+      index.md, questions.md, findings/, ai-summary.md
+    epics/
+      YYYY-MM-DD-<epic-slug>/
+        spec.md                     # specification
+        edge-cases.md               # edge cases + integration concerns
+        index.md                    # implementation plan (from /sdlc-plan)
+        01-<task-name>.md
+        02-<task-name>.md
   complete/
-    YYYY-MM-DD-<slug>/            # archived by /sdlc-complete
+    YYYY-MM-DD-<slug>/              # archived by /sdlc-complete
 ```
 
-Each task drives one branch and one PR, stacked on the previous task's branch. Implementation follows a strict RED → GREEN → REFACTOR loop, committing after each passing criterion.
+Each task drives one branch and one PR, stacked on the previous task's branch. Implementation follows a strict RED -> GREEN -> REFACTOR loop, committing after each passing criterion.
 
 ## Agents
 
@@ -89,4 +90,4 @@ Each task drives one branch and one PR, stacked on the previous task's branch. I
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT -- see [LICENSE](LICENSE).
