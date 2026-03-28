@@ -30,8 +30,16 @@ description: <description>
 ```
 
 **Mapping Logic**:
-- **Claude**: Maps `pro` -> `sonnet` (or `opus`) and `flash` -> `sonnet`. Appends `## User Input\n\n$ARGUMENTS`.
-- **Gemini**: Omits the `model` field.
+- **Claude**: Appends `## User Input\n\n$ARGUMENTS`.
+- **Gemini**: No `## User Input` section.
+
+## Writing Style
+
+Write all skill content — workflow steps, rules, and explanations — as flowing prose paragraphs, not numbered lists or bullet points. Prose keeps intent and reasoning connected across the full workflow, producing better model execution. Numbered steps cause mechanical step-checking without judgment; bullets fragment context and strip the causal connectives ("then", "after", "once") that tell the model why to do something. The only exception is structured reference formats like templates or examples that are genuinely tabular or code-like.
+
+## Updating Existing Skills
+
+When the task is to update an existing skill rather than create a new one, read the current file first and diff the proposed changes against it. Explicitly list any existing functionality that would be removed and ask the user to confirm each removal before writing. Never drop behavioral details silently — if a step, rule, or constraint is present in the current skill, it must either be preserved in the updated version or explicitly approved for removal by the user.
 
 ## Rules
 
