@@ -1,7 +1,6 @@
 ---
 name: sdlc-complete
 description: Archive a finished implementation plan. Use after all tasks are Done to move the plan and spec to plans/complete/.
-model: sonnet
 ---
 
 # Complete: Archive a Finished Implementation Plan

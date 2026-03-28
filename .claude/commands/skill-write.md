@@ -1,7 +1,6 @@
 ---
 name: skill-write
 description: Scaffold a new reusable workflow skill by asking scoping questions and generating both Claude command and Gemini skill files. Use when the user wants to codify a repetitive task into a skill or command.
-model: sonnet
 ---
 
 # Skill Write: Scaffold a New Skill
@@ -19,7 +18,6 @@ Begin the discovery phase by asking scoping questions one at a time to determine
 ---
 name: <name>
 description: <description>
-model: <opus|sonnet|flash>
 ---
 ```
 

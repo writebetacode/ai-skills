@@ -1,7 +1,6 @@
 ---
 name: restack
 description: Rebase open branches onto the latest main — whether their intermediate base was squash-merged or main itself has new commits they are missing. Use when branches are out of sync with main for any reason.
-model: sonnet
 ---
 
 # Restack: Sync Open Branches After Squash Merge

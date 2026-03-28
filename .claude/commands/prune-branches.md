@@ -1,7 +1,6 @@
 ---
 name: prune-branches
 description: Delete local branches whose commits are fully merged into main. Use when you want to clean up stale local branches.
-model: sonnet
 ---
 
 # Prune Branches: Clean Up Merged Local Branches

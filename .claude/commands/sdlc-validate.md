@@ -1,7 +1,6 @@
 ---
 name: sdlc-validate
 description: Verify an implementation plan has full requirement coverage, correct structure, and no spec drift. Use after /sdlc:plan and before /sdlc:implement to catch issues early.
-model: opus
 ---
 
 # Validate: Check Implementation Plan Against Specification
@@ -15,7 +14,7 @@ If `$ARGUMENTS` is empty, list `plans/` directories and direct to `/sdlc:plan` i
 
 ## Workflow
 
-Resolve the target plan directory, then load the source specification, index.md, and all task files (sorted by number) in a single turn. Run the following checks and record each as PASS or FAIL with details:
+Resolve the target plan directory, then load the source specification, index.md, and all task files (`[0-9][0-9]-*.md` sorted by number) in a single turn. If the spec is missing, record it as a critical failure but continue checking the remaining files. Run the following checks and record each as PASS or FAIL with details:
 
 - **Requirement Coverage**: every FR-N/NFR-N is referenced by at least one task (flag orphans); every task reference points to a real spec requirement (flag phantoms).
 - **Task Ordering**: sequential numbering with no gaps or duplicates; each Base points to main or a valid prior task branch; branch names follow `<type>/<spec-slug>/NN-<task-name>`; filenames match branch names.
@@ -27,7 +26,7 @@ Present the full PASS/FAIL report grouped by category — always show it, even i
 
 ## Rules
 
-Always perform fixes in-place and never regenerate plan files from scratch. Maintain the integrity of the original specification by never modifying its content. Ensure the full validation report is shown to the user even if all checks pass. Adhere to ASCII-only formatting and exclude any AI attribution from all outputs. Once the plan is validated, suggest clearing the context before beginning the implementation phase.
+Always perform fixes in-place and never regenerate plan files from scratch. Maintain the integrity of the original specification by never modifying its content. Ensure the full validation report is shown to the user even if all checks pass. Adhere to ASCII-only formatting and exclude any AI attribution from all outputs. Once the plan is validated, tell the user: "Run `/clear` to start a fresh context, then run `/sdlc:implement` to begin."
 
 ## User Input
 

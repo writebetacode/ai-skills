@@ -1,7 +1,6 @@
 ---
 name: gh-issue
 description: Create a consistently-formatted GitHub issue in the current repo. Use when filing a bug, feature request, chore, or question.
-model: sonnet
 ---
 
 # GH Issue: Create Formatted GitHub Issue
