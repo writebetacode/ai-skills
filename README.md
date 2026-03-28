@@ -49,7 +49,7 @@ A six-phase process to take a feature idea all the way through to merged code. T
 
 | Command | Phase | Description |
 |---|---|---|
-| `/sdlc-kickoff` | 0 — Kickoff (optional) | Spin up an agent team to research a topic, decompose findings into independent epics, and brainstorm each epic in parallel |
+| `/sdlc-kickoff` | 0 — Kickoff (optional) | Spin up an agent team to research a topic, decompose findings into dependency-mapped epics, and brainstorm each epic in parallel |
 | `/research` | 0 — Research (optional) | Deep-dive research with sourced findings before brainstorming |
 | `/sdlc-brainstorm` | 1 — Brainstorm | Turn an idea into a detailed spec through guided questioning |
 | `/sdlc-plan` | 2 — Plan | Break a spec into stacked, reviewable PR-sized tasks |
