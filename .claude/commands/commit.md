@@ -30,7 +30,7 @@ model: sonnet
 - Never commit without user confirmation
 - Never push
 - Always use HEREDOC for the commit message
-- No AI attribution, ASCII only
+- NEVER add Co-Authored-By or any AI attribution lines to commit messages — ASCII only
 
 ## User Input
 

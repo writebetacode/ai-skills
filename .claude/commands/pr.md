@@ -28,7 +28,7 @@ model: sonnet
 - Always `--assignee @me`
 - Never push or create/update without user confirmation
 - No broken ticket links — validate before use
-- No AI attribution, ASCII only
+- NEVER add Co-Authored-By or any AI attribution lines to commit messages — ASCII only
 - No "Test Plan" section in the PR body — use only the sections listed above
 
 ## User Input
