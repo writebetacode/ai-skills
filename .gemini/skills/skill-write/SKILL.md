@@ -30,8 +30,10 @@ description: <description>
 ```
 
 **Mapping Logic**:
-- **Claude**: Appends `## User Input\n\n$ARGUMENTS`.
-- **Gemini**: No `## User Input` section.
+- **Claude**: Place at `.claude/skills/<name>/SKILL.md` relative to the repo root. Appends `## User Input\n\n$ARGUMENTS`.
+- **Gemini**: Place at `.gemini/skills/<name>/SKILL.md` relative to the repo root. No `## User Input` section.
+
+Both paths are always relative to the current repository root, never the global `~/.claude` or `~/.gemini` directories. Skills are installed globally via `task install` after being committed to the repo.
 
 ## Writing Style
 
@@ -43,4 +45,4 @@ When the task is to update an existing skill rather than create a new one, read 
 
 ## Rules
 
-Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. Ensure that both Claude and Gemini versions are generated and that the Gemini skill is correctly placed in its own directory. Keep all skills under 100 lines and use only ASCII characters, excluding any AI attribution.
+Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. Ensure that both Claude and Gemini versions are generated and that each skill is correctly placed in its own subdirectory under the repo root. After writing skill files, update README.md to include the new skill in the appropriate table. Keep all skills under 100 lines and use only ASCII characters, excluding any AI attribution.

@@ -45,20 +45,28 @@ Skills are available for both Claude Code (`.claude/skills/`) and Gemini CLI (`.
 
 ### Software Development Workflow
 
-A five-phase process to take a feature idea all the way through to merged code.
+A six-phase process to take a feature idea all the way through to merged code. The research phase is optional.
 
 | Command | Phase | Description |
 |---|---|---|
+| `/research` | 0 — Research (optional) | Deep-dive research with sourced findings before brainstorming |
 | `/sdlc-brainstorm` | 1 — Brainstorm | Turn an idea into a detailed spec through guided questioning |
 | `/sdlc-plan` | 2 — Plan | Break a spec into stacked, reviewable PR-sized tasks |
 | `/sdlc-validate` | 3 — Validate | Verify the plan has full requirement coverage and no drift |
 | `/sdlc-implement` | 4 — Implement | Execute tasks one acceptance criterion at a time with TDD |
 | `/sdlc-complete` | 5 — Complete | Archive the finished plan and spec once all tasks are Done |
 
-The five commands share a common file layout under `plans/` (add it to `.gitignore`):
+The commands share a common file layout under `plans/` (add it to `.gitignore`):
 
 ```
 plans/
+  research/
+    YYYY-MM-DD-<slug>/            # output of /research
+      index.md                    # topic summary, TOC, out-of-scope branches
+      questions.md                # Q&A log linking to findings
+      findings/
+        <slug>.md                 # one file per research area, inline sources
+      ai-summary.md               # synthesized digest for AI consumption
   YYYY-MM-DD-<slug>/
     spec.md                       # output of /sdlc-brainstorm
     index.md                      # output of /sdlc-plan
