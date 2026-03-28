@@ -13,7 +13,13 @@ If the user's request is empty, ask what to build. Do not proceed without a subs
 
 1. **Read context**: Read CLAUDE.md/.cursorrules/AGENTS.md and docs/architecture.md if present.
 2. **Investigate**: Search for code relevant to the prompt. Do not read the entire repo. Record file paths and findings to pre-fill answers and include as references. If a bug, trace the code path, check recent changes, and identify root cause before questioning.
-3. **Question one at a time**: Challenge assumptions, reject vague answers, push for specifics. Propose codebase-derived answers for confirmation. If the user asks a question back, answer it fully before resuming. For significant architectural choices, present 2-3 meaningfully different options and discuss trade-offs before committing to one. Do not move on until the answer is concrete and actionable. Continue until nothing is ambiguous.
+3. **Question one at a time**:
+   - Challenge assumptions, reject vague answers, push for specifics.
+   - Propose codebase-derived answers for confirmation.
+   - If the user asks a question back, answer it fully before resuming.
+   - For significant architectural choices, present 2-3 options with trade-offs before committing.
+   - Do not move on until the answer is concrete and actionable.
+   - Continue until nothing is ambiguous.
 4. **Write spec**: Ensure `plans/YYYY-MM-DD-<slug>/` exists and `plans/` is in `.gitignore`. Write the spec file.
 
 ## Spec Format

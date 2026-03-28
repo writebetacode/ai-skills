@@ -18,8 +18,14 @@ If `$ARGUMENTS` is empty, list `plans/` directories. If none, direct to `/sdlc:b
 1. **Read context**: Read CLAUDE.md/.cursorrules/AGENTS.md and docs/architecture.md if present.
 2. **Analyze spec**: Read the spec in full. Extract requirements (FR-1, FR-2, NFR-1, etc.), decisions, scope, architectural context, and reference files.
 3. **Explore codebase**: Read reference files and search for additional relevant code. Focus on existing patterns, boundaries, and test conventions.
-4. **Decompose into tasks**: Each task = one reviewable PR via vertical slice (complete path through all affected layers — not "all models first, then all handlers"). Branch from main unless the code genuinely depends on a prior task. Every FR/NFR covered. Tests included per task. Mark parallel-safe tasks where adjacent work is independent.
-5. **Validate granularity**: Present task breakdown as numbered list (title + one-line summary). Ask: "Does the granularity feel right — too coarse, too fine, or should any tasks be merged or split?" Iterate until approved, then write.
+4. **Decompose into tasks**: Each task = one reviewable PR via vertical slice (complete path through all affected layers — not "all models first, then all handlers"):
+   - Branch from main unless the code genuinely depends on a prior task.
+   - Every FR/NFR must be covered.
+   - Tests included per task.
+   - Mark parallel-safe tasks where adjacent work is independent.
+5. **Validate granularity**: Present task breakdown as a numbered list (title + one-line summary).
+   Ask: "Does the granularity feel right — too coarse, too fine, or should any tasks be merged or split?"
+   Iterate until approved, then write.
 6. **Write files**: Ensure `plans/YYYY-MM-DD-<slug>/` exists and `plans/` is in `.gitignore`. Write index.md and all task files alongside spec.md.
 
 ## Index Format

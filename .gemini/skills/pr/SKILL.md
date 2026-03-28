@@ -8,7 +8,13 @@ description: Create or update a pull request with a human-readable title and str
 ## Workflow
 
 1. **Prerequisites**: Run `gh auth status` — stop if not installed or not logged in.
-2. **Context**: Run in parallel: `git branch --show-current`, `git remote get-url origin`, `gh api user --jq '.login'`, `git status --short`, `gh pr list --head $(git branch --show-current) --json number,title,baseRefName`. Warn if uncommitted changes. Update mode if PR exists, create mode if not.
+2. **Context**: Run in parallel:
+   - `git branch --show-current`
+   - `git remote get-url origin`
+   - `gh api user --jq '.login'`
+   - `git status --short`
+   - `gh pr list --head $(git branch --show-current) --json number,title,baseRefName`
+   Warn if uncommitted changes. Update mode if PR exists, create mode if not.
 3. **Base branch**: Use branch from the user's request if provided, else auto-detect closest ancestor branch (fewest commits from HEAD), fall back to main. Confirm.
 4. **Ticket**: Parse branch name, validate with `gh issue view <ticket> --json title`. Use N/A if invalid.
 5. **Title**: Human-readable, under 70 chars, no commit prefixes, summarizes combined effect.
