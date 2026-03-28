@@ -11,16 +11,7 @@ If the user's request is empty, ask what to build. Do not proceed without a subs
 
 ## Workflow
 
-1. **Read context**: Read CLAUDE.md/.cursorrules/AGENTS.md and docs/architecture.md if present.
-2. **Investigate**: Search for code relevant to the prompt. Do not read the entire repo. Record file paths and findings to pre-fill answers and include as references. If a bug, trace the code path, check recent changes, and identify root cause before questioning.
-3. **Question one at a time**:
-   - Challenge assumptions, reject vague answers, push for specifics.
-   - Propose codebase-derived answers for confirmation.
-   - If the user asks a question back, answer it fully before resuming.
-   - For significant architectural choices, present 2-3 options with trade-offs before committing.
-   - Do not move on until the answer is concrete and actionable.
-   - Continue until nothing is ambiguous.
-4. **Write spec**: Ensure `plans/YYYY-MM-DD-<slug>/` exists and `plans/` is in `.gitignore`. Write the spec file.
+Begin by reading relevant context from the codebase, focusing on architectural documentation and existing patterns. Search for code related to the user's prompt to record key findings and identify any root causes if the task involves a bug. Engage in an iterative questioning process, asking only one question at a time to challenge assumptions and push for specific, actionable answers. Respond fully to any questions the user asks back and present multiple architectural options with trade-offs when significant choices must be made. Continue this process until all aspects of the feature or fix are concrete and no ambiguity remains. Finally, ensure the plan directory exists and is properly ignored by git before writing the complete specification file.
 
 ## Spec Format
 
@@ -30,7 +21,7 @@ File: `plans/YYYY-MM-DD-<slug>/spec.md`
 # <Title>
 
 Date: <YYYY-MM-DD>
-Prompt: "<original prompt from user>"
+Prompt: "<original prompt from $ARGUMENTS>"
 
 ## Problem Statement
 <2-4 sentences. No prior context assumed.>
@@ -65,10 +56,4 @@ Prompt: "<original prompt from user>"
 
 ## Rules
 
-- One question at a time — never batch
-- Propose codebase-derived answers for confirmation
-- Spec defines WHAT, not HOW — no implementation plans
-- `plans/` in .gitignore
-- ASCII only, no AI attribution
-
-Suggest `sdlc-plan` when done.
+Always ask only one question at a time and propose codebase-derived answers for user confirmation whenever possible. Focus the specification on defining exactly what needs to be built rather than how to implement it. Ensure the `plans/` directory is added to the `.gitignore` and that all outputs are in ASCII without any AI attribution. Once the specification is complete, suggest moving to the planning phase.

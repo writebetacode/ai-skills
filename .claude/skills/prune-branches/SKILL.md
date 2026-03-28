@@ -12,3 +12,7 @@ Start by running `git fetch --prune` to synchronize with the remote. For each lo
 ## Rules
 
 Never delete the `main` or `master` branches, nor the currently checked-out branch. Only use the force-delete flag after confirming that the diff against main is empty to avoid losing unmerged changes. Never perform any deletions without explicit user confirmation and always fetch from the remote before checking the merged status of branches.
+
+## User Input
+
+$ARGUMENTS

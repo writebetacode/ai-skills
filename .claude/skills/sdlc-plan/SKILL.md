@@ -1,6 +1,6 @@
 ---
 name: sdlc-plan
-description: Break a spec into a stacked PR implementation plan with branch-per-task and full requirement traceability. Use after sdlc-brainstorm to produce a plan before implementation.
+description: Break a spec into a stacked PR implementation plan with branch-per-task and full requirement traceability. Use after /sdlc:brainstorm to produce a plan before implementation.
 ---
 
 # Plan: Generate Implementation Plan from Specification
@@ -10,7 +10,7 @@ Flow: brainstorm → **[plan]** → validate → implement → complete
 Input: `plans/YYYY-MM-DD-<slug>/spec.md`
 Output: `plans/YYYY-MM-DD-<slug>/index.md` + task files
 
-If the user's request is empty, list `plans/` directories and direct to `sdlc-brainstorm` if none exist.
+If `$ARGUMENTS` is empty, list `plans/` directories and direct to `/sdlc:brainstorm` if none exist.
 
 ## Workflow
 
@@ -67,3 +67,7 @@ Base: main OR prior task branch
 ## Rules
 
 Focus exclusively on generating the plan and do not include any implementation code. Ensure every requirement from the specification is covered by at least one task. Use the standardized branch naming convention and verify that the `plans/` directory is in the `.gitignore`. Maintain ASCII-only formatting and exclude any AI attribution from the final outputs. Once finished, suggest proceeding to the validation phase.
+
+## User Input
+
+$ARGUMENTS

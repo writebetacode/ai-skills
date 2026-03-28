@@ -18,20 +18,21 @@ tasks:
             case "$target" in "$repo"/*) rm -f "$f"; echo "REMOVED $f" ;; esac
           fi
         }
-        for f in "$HOME/.claude/commands/"*.md; do remove_stale "$f"; done
+        for dir in "$HOME/.claude/skills/"/*/; do remove_stale "${dir}SKILL.md"; done
         remove_stale "$HOME/.claude/settings.json"
         for f in "$HOME/.claude/agents/gemini-operative/"*.md; do remove_stale "$f"; done
         for dir in "$HOME/.gemini/skills/"/*/; do remove_stale "${dir}SKILL.md"; done
         for f in "$HOME/.gemini/agents/"*.md; do remove_stale "$f"; done
 
   install:claude:
-    desc: Symlink Claude commands and agents into ~/.claude
+    desc: Symlink Claude skills and agents into ~/.claude
     deps: [clean:stale]
     cmds:
-      - mkdir -p $HOME/.claude/commands
       - |
-        for f in .claude/commands/*.md; do
-          ln -sf "$(pwd)/$f" "$HOME/.claude/commands/$(basename $f)"
+        for dir in .claude/skills/*/; do
+          name=$(basename "$dir")
+          mkdir -p "$HOME/.claude/skills/$name"
+          ln -sf "$(pwd)/${dir}SKILL.md" "$HOME/.claude/skills/$name/SKILL.md"
         done
       - |
         if [ -f ".claude/settings.json" ]; then
@@ -81,8 +82,8 @@ tasks:
             failed=1
           fi
         }
-        for f in .claude/commands/*.md; do
-          check "$HOME/.claude/commands/$(basename $f)"
+        for dir in .claude/skills/*/; do
+          check "$HOME/.claude/skills/$(basename $dir)/SKILL.md"
         done
         if [ -f ".claude/settings.json" ]; then
           check "$HOME/.claude/settings.json"

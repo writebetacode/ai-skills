@@ -11,31 +11,12 @@ Resolve the task from: direct path, task number, plan directory, or prompt user.
 
 ## Workflow
 
-1. **Read context**: Load the task file, index.md, and spec.md from `plans/YYYY-MM-DD-<slug>/`, plus CLAUDE.md/.cursorrules/AGENTS.md, docs/architecture.md, and predecessor task files.
-2. **Branch setup**: Extract Branch/Base from the task file. If the branch exists locally, check it out and `git pull`. If not, use Base if it exists, otherwise fall back to `main` (squash-merged stack). Create the branch. Confirm active branch.
-3. **Progress check**: Read `[x]` markers. Report: fresh start, resuming, or complete.
-4. **TDD loop** — repeat per criterion:
-   - RED: one failing test via public interface only.
-   - GREEN: minimum code to pass.
-   - REFACTOR: clean up once green, never while red.
-   - Skip test for non-behavioral changes (config, wiring, docs).
-   - Lint, stage specific files, commit via HEREDOC (`<type>: <desc>`, under 72 chars, no Co-Authored-By). Ask `Commit? (yes/no/edit)`.
-   - After commit: mark `[x]` in the task file and update index.md Status (Todo → In Progress → Done).
-5. **PR**:
-   - Check `gh auth status` — stop if not ready.
-   - Check for existing PR: `gh pr list --head <branch> --json number,title,baseRefName`. Push `git push -u origin <branch>`.
-   - Build title (under 70 chars, no commit prefixes). Body: **Tickets** (parse branch name, validate with `gh issue view`, N/A if invalid) | **Summary** | **Why** | **Changes** | **Breaking Changes** (if any) | **Dependencies** (if any).
-   - Ask "Draft PR?" and "Add a reviewer? (username or skip)". Confirm before creating/updating.
-   - `gh pr create --base <base> --assignee @me` (with `--draft`/`--reviewer` as needed) or `gh pr edit`.
-   - Immediately after: write `## PR\n\n[#<number>](<url>)` to the task file (do not commit). Show PR URL.
-   - Suggest next task or `sdlc-complete <plan-dir>` if last.
+Start by loading the task file, index, and specification from the plan directory, along with project context files (CLAUDE.md, .cursorrules, AGENTS.md, docs/architecture.md if present) and predecessor task files. Set up the development branch by either checking out an existing local branch (and `git pull`) or creating a new one from the Base field, falling back to `main` for squash-merged stacks. Assess progress by reading `[x]` markers and report: fresh start, resuming, or complete.
+
+Enter a TDD loop for each acceptance criterion: write one failing test (RED), add minimum code to pass (GREEN), then clean up once green (REFACTOR) — skip tests for non-behavioral changes like config or docs. Lint and stage specific files, then run the `commit` skill to create the commit. After each commit, mark `[x]` in the task file and update index.md Status (Todo → In Progress → Done).
+
+Once all criteria are complete, run the `pr` skill to create or update the pull request, using the task's Base field as the target branch. Immediately after the PR is created, write `## PR\n\n[#<number>](<url>)` to the task file (do not commit). Show the PR URL and suggest the next task or `sdlc-complete <plan-dir>` if this is the last one.
 
 ## Rules
 
-- One test at a time — red, green, refactor, never skip ahead
-- Never refactor while red; tests through public interfaces only
-- Stage specific files only — never `git add .` or `git add -A`
-- Never commit, push, or create/update a PR without user confirmation
-- No broken ticket links — validate with `gh issue view` before use
-- No "Test Plan" section — body uses only: Tickets, Summary, Why, Changes, Breaking Changes, Dependencies
-- Always `--assignee @me`; NEVER add Co-Authored-By or AI attribution to commits
+Always follow the TDD loop by writing failing tests before code and only refactor once the tests pass. Ensure all tests interact through public interfaces and never stage files using broad commands like `git add .` or `git add -A`. Never commit, push, or create a pull request without receiving explicit user confirmation first — the `commit` and `pr` skills handle confirmation, so do not duplicate those prompts. Always assign pull requests to the current user.

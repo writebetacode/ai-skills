@@ -24,7 +24,7 @@ task verify           # check all symlinks are in place
 
 ## What's included
 
-Skills are available for both Claude Code (`.claude/`) and Gemini CLI (`.gemini/`).
+Skills are available for both Claude Code (`.claude/skills/`) and Gemini CLI (`.gemini/skills/`).
 
 ### Git & GitHub
 

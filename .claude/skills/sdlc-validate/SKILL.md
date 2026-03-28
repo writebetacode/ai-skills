@@ -1,6 +1,6 @@
 ---
 name: sdlc-validate
-description: Verify an implementation plan has full requirement coverage, correct structure, and no spec drift. Use after sdlc-plan and before sdlc-implement to catch issues early.
+description: Verify an implementation plan has full requirement coverage, correct structure, and no spec drift. Use after /sdlc:plan and before /sdlc:implement to catch issues early.
 ---
 
 # Validate: Check Implementation Plan Against Specification
@@ -10,7 +10,7 @@ Flow: brainstorm → plan → **[validate]** → implement → complete
 Input: `plans/YYYY-MM-DD-<slug>/`
 Validates against: `plans/YYYY-MM-DD-<slug>/spec.md`
 
-If the user's request is empty, list `plans/` directories and direct to `sdlc-plan` if none exist.
+If `$ARGUMENTS` is empty, list `plans/` directories and direct to `/sdlc:plan` if none exist.
 
 ## Workflow
 
@@ -26,4 +26,8 @@ Present the full PASS/FAIL report grouped by category — always show it, even i
 
 ## Rules
 
-Always perform fixes in-place and never regenerate plan files from scratch. Maintain the integrity of the original specification by never modifying its content. Ensure the full validation report is shown to the user even if all checks pass. Adhere to ASCII-only formatting and exclude any AI attribution from all outputs. Once the plan is validated, tell the user to clear the context before beginning the implementation phase.
+Always perform fixes in-place and never regenerate plan files from scratch. Maintain the integrity of the original specification by never modifying its content. Ensure the full validation report is shown to the user even if all checks pass. Adhere to ASCII-only formatting and exclude any AI attribution from all outputs. Once the plan is validated, tell the user: "Run `/clear` to start a fresh context, then run `/sdlc:implement` to begin."
+
+## User Input
+
+$ARGUMENTS
