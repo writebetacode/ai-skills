@@ -29,9 +29,13 @@ Omit `model` unless the user specifically wants to pin a model tier. Omit `tools
 
 Write all agent content — workflow steps and rules — as flowing prose paragraphs, not numbered lists or bullet points. Prose keeps intent and reasoning connected across the full workflow, producing better model execution. The only exception is structured reference data like mode tables or command pattern examples that are genuinely tabular or code-like.
 
+## Updating Existing Agents
+
+When the task is to update an existing agent rather than create a new one, read the current file first and diff the proposed changes against it. Explicitly list any existing functionality that would be removed and ask the user to confirm each removal before writing. Never drop behavioral details silently — if a step, rule, or constraint is present in the current agent, it must either be preserved in the updated version or explicitly approved for removal by the user.
+
 ## Rules
 
-Always ask scoping questions one at a time and never write any files without explicit confirmation. Keep all agents under 100 lines and use only ASCII characters. Do not generate a Gemini counterpart — agents are Claude Code-specific and have no Gemini equivalent.
+Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. After writing an agent file, update README.md to include the new agent in the appropriate table. Keep all agents under 100 lines and use only ASCII characters. Do not generate a Gemini counterpart — agents are Claude Code-specific and have no Gemini equivalent.
 
 ## User Input
 
