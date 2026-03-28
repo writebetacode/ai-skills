@@ -33,6 +33,7 @@ Skills are available for both Claude Code (`.claude/`) and Gemini CLI (`.gemini/
 | `/commit` | Stage-aware conventional commits with user confirmation |
 | `/pr` | Create or update pull requests with structured descriptions |
 | `/restack` | Rebase stacked branches after upstream squash merges |
+| `/prune-branches` | Delete local branches whose commits are fully merged into main |
 | `/gh-issue` | Create consistently-formatted GitHub issues with type, priority, and optional context sections |
 
 ### Meta
