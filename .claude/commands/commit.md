@@ -21,7 +21,7 @@ EOF
 
 ## Rules
 
-Always work with currently staged files and never stage files automatically. Never commit or push without receiving explicit user confirmation first. Use HEREDOC for all commit messages to maintain formatting integrity. Do not include any AI attribution, Co-Authored-By lines, or non-ASCII characters in the commit messages.
+Always work with currently staged files and never stage files automatically. Never commit or push without receiving explicit user confirmation first. Use HEREDOC for all commit messages to maintain formatting integrity. Trailer lines (e.g. `Refs: #123`, `Closes: #456`) may be added after a blank line when they provide useful context, but never include AI attribution, Co-Authored-By lines, or non-ASCII characters.
 
 ## User Input
 
