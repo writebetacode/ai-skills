@@ -15,8 +15,8 @@ Check the Open Issues section. Count unresolved issues by severity. If any HIGH 
 
 Determine what is actionable now by walking the dependency graph: an epic is actionable when all its dependencies are at "Validated" or later and its own status is the earliest incomplete phase. Sort actionable epics by phase priority (Phase A before B before C) and within a phase by critical path position.
 
-Print a concise dashboard showing every epic's status in a table, followed by open issue counts, then a "What's Next" section with the specific command to run. If multiple epics are actionable in parallel, list them all.
+Print a concise dashboard showing every epic's status in a table, followed by open issue counts, then a "What's Next" section with the specific skill to run. If multiple epics are actionable in parallel, list them all.
 
 ## Rules
 
-Always reconcile manifest with disk state before reporting. Never modify spec or plan files -- only update the manifest's status fields. ASCII only, no AI attribution.
+Always reconcile manifest with disk state before reporting. Never modify spec or plan files -- only update the manifest's status fields. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.

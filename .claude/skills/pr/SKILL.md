@@ -43,7 +43,7 @@ Use this exact markdown structure for the PR body. Omit Breaking Changes and Dep
 
 ## Rules
 
-Always assign the PR to the current user and never push or create/update a PR without explicit user confirmation. Validate all ticket links before use and never add AI attribution or "Co-Authored-By" lines to any messages. Do not include a "Test Plan" section in the PR body; use only the authorized sections for tickets, summary, why, changes, breaking changes, and dependencies.
+Always assign the PR to the current user and never push or create/update a PR without explicit user confirmation. Validate all ticket links before use. Do not include a "Test Plan" section in the PR body; use only the authorized sections for tickets, summary, why, changes, breaking changes, and dependencies. Use only ASCII characters and never include AI attribution or "Co-Authored-By" lines in any output.
 
 ## User Input
 

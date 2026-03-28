@@ -23,4 +23,4 @@ Show the PR URL and suggest the next task or `sdlc-complete <plan-dir>` if this 
 
 ## Rules
 
-Always follow the TDD loop -- failing tests before code, refactor only once green. Test through public interfaces. Never stage with `git add .` or `git add -A`. Never commit, push, or create a PR without user confirmation -- the `commit` and `pr` skills handle their own confirmation. Always assign PRs to the current user.
+Always follow the TDD loop -- failing tests before code, refactor only once green. Test through public interfaces. Never stage with `git add .` or `git add -A`. Never commit, push, or create a PR without user confirmation -- the `commit` and `pr` skills handle their own confirmation. Always assign PRs to the current user. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.

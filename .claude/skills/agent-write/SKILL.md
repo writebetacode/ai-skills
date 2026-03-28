@@ -35,7 +35,7 @@ When the task is to update an existing agent rather than create a new one, read 
 
 ## Rules
 
-Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. After writing an agent file, update README.md to include the new agent in the appropriate table. Keep all agents under 100 lines and use only ASCII characters. Do not generate a Gemini counterpart — agents are Claude Code-specific and have no Gemini equivalent.
+Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. After writing an agent file, update README.md to include the new agent in the appropriate table. Keep all agents under 100 lines and use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines. Do not generate a Gemini counterpart — agents are Claude Code-specific and have no Gemini equivalent.
 
 ## User Input
 

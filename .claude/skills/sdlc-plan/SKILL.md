@@ -69,9 +69,13 @@ Base: main OR prior task branch
 <Prior tasks, or "None (branches from main).">
 ```
 
+## Updating Existing Skills
+
+When the task is to update an existing skill rather than create a new one, read the current file first and diff the proposed changes against it. Explicitly list any existing functionality that would be removed and ask the user to confirm each removal before writing. Never drop behavioral details silently — if a step, rule, or constraint is present in the current skill, it must either be preserved in the updated version or explicitly approved for removal by the user.
+
 ## Rules
 
-Focus exclusively on generating the plan with no implementation code. Ensure every requirement from both the spec and edge cases is covered by at least one task. Use standardized branch naming and verify `plans/` is git-ignored. ASCII only, no AI attribution. Once finished, suggest proceeding to validation.
+Focus exclusively on generating the plan with no implementation code. Ensure every requirement from both the spec and edge cases is covered by at least one task. Use standardized branch naming and verify `plans/` is git-ignored. Once finished, suggest proceeding to validation. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

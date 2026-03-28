@@ -21,7 +21,7 @@ Provide a report of the archival and the new file locations. For project archiva
 
 ## Rules
 
-Never archive without explicit user confirmation. Warn for incomplete tasks rather than skipping silently. ASCII only, no AI attribution.
+Never archive without explicit user confirmation. Warn for incomplete tasks rather than skipping silently. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

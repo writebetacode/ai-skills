@@ -44,7 +44,7 @@ Omit `Open Questions` if none provided.
 
 ## Rules
 
-Strictly adhere to the standard body template without changing section headers or their order. Always format the title as `<type>: <title>` and never create an issue without explicit user confirmation. Ensure all created issues are assigned to the current user with `--assignee @me`. Stop the process if the `gh` tool is not installed or if the user is not authenticated.
+Strictly adhere to the standard body template without changing section headers or their order. Always format the title as `<type>: <title>` and never create an issue without explicit user confirmation. Ensure all created issues are assigned to the current user with `--assignee @me`. Stop the process if the `gh` tool is not installed or if the user is not authenticated. Use only ASCII characters and never include AI attribution or "Co-Authored-By" lines in any output.
 
 ## User Input
 

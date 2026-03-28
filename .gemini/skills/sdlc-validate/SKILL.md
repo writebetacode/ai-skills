@@ -25,6 +25,10 @@ Requirement Coverage: every FR-N/NFR-N from both `spec.md` and `edge-cases.md` i
 
 Present the full PASS/FAIL report. If issues are found, offer to fix in-place without modifying the spec. Update the manifest status to "Validated" on success.
 
+## Updating Existing Skills
+
+When the task is to update an existing skill rather than create a new one, read the current file first and diff the proposed changes against it. Explicitly list any existing functionality that would be removed and ask the user to confirm each removal before writing. Never drop behavioral details silently — if a step, rule, or constraint is present in the current skill, it must either be preserved in the updated version or explicitly approved for removal by the user.
+
 ## Rules
 
-Always fix in-place, never regenerate from scratch. Never modify the spec. Show the full report even if all checks pass. ASCII only, no AI attribution. After validation, suggest clearing context and beginning the implementation phase.
+Always fix in-place, never regenerate from scratch. Never modify the spec. Show the full report even if all checks pass. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines. After validation, suggest clearing context and beginning the implementation phase.

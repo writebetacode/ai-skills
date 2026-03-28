@@ -19,6 +19,10 @@ Check the manifest for downstream impact. If the change alters an interface that
 
 Run validation on the affected epic to ensure the revised plan still covers all requirements. Present a summary: what changed, which files were updated, and any downstream issues that need attention.
 
+## Updating Existing Skills
+
+When the task is to update an existing skill rather than create a new one, read the current file first and diff the proposed changes against it. Explicitly list any existing functionality that would be removed and ask the user to confirm each removal before writing. Never drop behavioral details silently — if a step, rule, or constraint is present in the current skill, it must either be preserved in the updated version or explicitly approved for removal by the user.
+
 ## Rules
 
-Never modify files without showing the proposed changes and receiving user confirmation. Preserve existing work -- revise in-place rather than regenerating. When downstream epics are affected, flag but do not auto-fix without confirmation. ASCII only, no AI attribution.
+Never modify files without showing the proposed changes and receiving user confirmation. Preserve existing work -- revise in-place rather than regenerating. When downstream epics are affected, flag but do not auto-fix without confirmation. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.

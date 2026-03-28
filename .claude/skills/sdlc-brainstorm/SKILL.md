@@ -90,9 +90,13 @@ Spec Ready -> Planned -> Validated -> In Progress (N/M) -> Complete
 
 Root: `research/` inside the project folder. `index.md` contains the topic, summary, TOC, and "Out of Scope" dismissed branches. `questions.md` is the Q&A log with status and links. Each `findings/<slug>.md` covers one area with inline citations and backlinks. `ai-summary.md` synthesizes everything for AI consumption.
 
+## Updating Existing Skills
+
+When the task is to update an existing skill rather than create a new one, read the current file first and diff the proposed changes against it. Explicitly list any existing functionality that would be removed and ask the user to confirm each removal before writing. Never drop behavioral details silently — if a step, rule, or constraint is present in the current skill, it must either be preserved in the updated version or explicitly approved for removal by the user.
+
 ## Rules
 
-Ask only one question at a time, proposing codebase-derived answers when possible. Focus specs on what to build, not how. Ensure `plans/` is git-ignored. ASCII only, no AI attribution. Never fabricate sources. Multi-epic phases are strictly sequential: research before decomposition, decomposition before parallel brainstorming, brainstorming before review.
+Ask only one question at a time, proposing codebase-derived answers when possible. Focus specs on what to build, not how. Ensure `plans/` is git-ignored. Never fabricate sources. Multi-epic phases are strictly sequential: research before decomposition, decomposition before parallel brainstorming, brainstorming before review. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 
