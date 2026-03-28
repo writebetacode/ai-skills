@@ -8,20 +8,7 @@ model: sonnet
 
 ## Workflow
 
-1. **Prerequisites**: Run `gh auth status` and `gh repo view --json nameWithOwner --jq '.nameWithOwner'` — stop if either fails.
-2. **Gather**: Parse `$ARGUMENTS` for a title if provided. Prompt for any missing fields one at a time:
-   - **Type**: `bug` | `feat` | `chore` | `docs` | `question`
-   - **Title**: short imperative summary
-   - **Description**: what, why, and any relevant context
-   - **Priority**: `low` | `medium` | `high`
-   - **Steps to Reproduce**: (bugs only — enter to skip)
-   - **Expected / Actual Behavior**: (bugs only — enter to skip)
-   - **Acceptance Criteria**: (feat only — enter to skip)
-   - **Suggestions**: optional steps, ideas, or workarounds (enter to skip)
-   - **Open Questions**: unresolved questions or unknowns (enter to skip)
-3. **Draft**: Build the issue body using the standard template, omitting any optional sections that were skipped. Show the formatted title and body.
-4. **Confirm**: Ask `Create issue? (yes/no/edit)`. On edit, accept changes and re-confirm.
-5. **Execute**: `gh issue create --title "<type>: <title>" --body "<body>" --assignee @me`. Show issue URL.
+Start by verifying prerequisites with `gh auth status` and checking the repository name; stop immediately if either step fails. Parse any provided arguments for a title and then prompt the user for any missing fields, including the issue type, title, description, priority, and optional sections like reproduction steps or acceptance criteria. Construct the issue body using the standard template, carefully omitting any optional sections that were skipped during the gathering phase. Show the final formatted title and body to the user and ask for confirmation or edits. Once confirmed, create the issue using the GitHub CLI, ensuring the issue is assigned to the current user and the final URL is displayed.
 
 ## Issue Body Template
 
@@ -58,11 +45,7 @@ Omit `Open Questions` if none provided.
 
 ## Rules
 
-- Always use the standard body template — never change section headers or order
-- Title is always formatted as `<type>: <title>`
-- Never create without user confirmation
-- Always `--assignee @me`
-- Stop if `gh` is not installed or user is not authenticated
+Strictly adhere to the standard body template without changing section headers or their order. Always format the title as `<type>: <title>` and never create an issue without explicit user confirmation. Ensure all created issues are assigned to the current user with `--assignee @me`. Stop the process if the `gh` tool is not installed or if the user is not authenticated.
 
 ## User Input
 

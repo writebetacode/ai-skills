@@ -11,48 +11,23 @@ Flow: brainstorm → plan → **[validate]** → implement → complete
 Input: `plans/YYYY-MM-DD-<slug>/`
 Validates against: `plans/YYYY-MM-DD-<slug>/spec.md`
 
-If `$ARGUMENTS` is empty, list `plans/` directories. If none, direct to `/sdlc:plan`. Otherwise resolve as plan directory (look for `spec.md` and `index.md` inside).
+If `$ARGUMENTS` is empty, list `plans/` directories and direct to `/sdlc:plan` if none exist.
 
 ## Workflow
 
-1. **Intake**: Resolve the target plan directory from `$ARGUMENTS` or list options.
-2. **Batch read**: Load the source spec, index.md, and all task files (`[0-9][0-9]-*.md` sorted by number) in a single turn. If spec missing, record as critical but continue.
-3. **Run checks**: Record each as PASS or FAIL with details.
+Resolve the target plan directory, then load the source specification, index.md, and all task files (sorted by number) in a single turn. Run the following checks and record each as PASS or FAIL with details:
 
-   **Requirement Coverage**
-   - Every FR-N/NFR-N referenced by at least one task (flag orphans)
-   - Every task reference points to a real spec requirement (flag phantoms)
+- **Requirement Coverage**: every FR-N/NFR-N is referenced by at least one task (flag orphans); every task reference points to a real spec requirement (flag phantoms).
+- **Task Ordering**: sequential numbering with no gaps or duplicates; each Base points to main or a valid prior task branch; branch names follow `<type>/<spec-slug>/NN-<task-name>`; filenames match branch names.
+- **Structural Completeness**: each task file contains Spec Requirements, Description, Key Files, Acceptance Criteria, and Dependencies — all present and non-empty.
+- **Index Consistency**: tasks table matches files on disk; branch names agree between index and task files; dependency graph reflects actual base relationships; `spec.md` exists alongside `index.md`.
+- **Spec Drift**: quoted requirement text matches the spec exactly (not paraphrased); collective scope covers all in-scope items with no out-of-scope additions; no contradictions with spec decisions.
 
-   **Task Ordering**
-   - Sequential numbering, no gaps/duplicates
-   - Each Base points to main or a valid prior task branch
-   - Branch naming: `<type>/<spec-slug>/NN-<task-name>`
-   - Filenames match branch names
-
-   **Structural Completeness (per task)**
-   - Spec Requirements, Description, Key Files, Acceptance Criteria, Dependencies — all present and non-empty
-
-   **Index Consistency**
-   - Tasks table matches files on disk; branch names agree between index and task files
-   - Dependency graph reflects actual base relationships
-   - `spec.md` exists in same directory as `index.md`
-
-   **Spec Drift**
-   - Quoted requirement text matches spec exactly (not paraphrased or outdated)
-   - Collective scope covers all in-scope items and introduces no out-of-scope work
-   - No contradictions with spec decisions
-
-4. **Report**: Output PASS/FAIL report grouped by category — always show, even if all pass.
-5. **Fix if requested**: If issues found, offer to fix in-place (never regenerate from scratch). Confirm before writing. Never modify the spec.
+Present the full PASS/FAIL report grouped by category — always show it, even if all checks pass. If issues are found, offer to fix them in-place without modifying the spec.
 
 ## Rules
 
-- Fix in-place only — never regenerate from scratch
-- Never modify the spec — only plan files
-- Always show the full report, even if all checks pass
-- ASCII only, no AI attribution
-
-When valid, tell the user: "Run `/clear` to start a fresh context, then run `/sdlc:implement` to begin."
+Always perform fixes in-place and never regenerate plan files from scratch. Maintain the integrity of the original specification by never modifying its content. Ensure the full validation report is shown to the user even if all checks pass. Adhere to ASCII-only formatting and exclude any AI attribution from all outputs. Once the plan is validated, suggest clearing the context before beginning the implementation phase.
 
 ## User Input
 

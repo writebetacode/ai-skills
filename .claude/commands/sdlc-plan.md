@@ -11,22 +11,11 @@ Flow: brainstorm → **[plan]** → validate → implement → complete
 Input: `plans/YYYY-MM-DD-<slug>/spec.md`
 Output: `plans/YYYY-MM-DD-<slug>/index.md` + task files
 
-If `$ARGUMENTS` is empty, list `plans/` directories. If none, direct to `/sdlc:brainstorm`. Otherwise resolve as plan directory (look for `spec.md` inside).
+If `$ARGUMENTS` is empty, list `plans/` directories and direct to `/sdlc:brainstorm` if none exist.
 
 ## Workflow
 
-1. **Read context**: Read CLAUDE.md/.cursorrules/AGENTS.md and docs/architecture.md if present.
-2. **Analyze spec**: Read the spec in full. Extract requirements (FR-1, FR-2, NFR-1, etc.), decisions, scope, architectural context, and reference files.
-3. **Explore codebase**: Read reference files and search for additional relevant code. Focus on existing patterns, boundaries, and test conventions.
-4. **Decompose into tasks**: Each task = one reviewable PR via vertical slice (complete path through all affected layers — not "all models first, then all handlers"):
-   - Branch from main unless the code genuinely depends on a prior task.
-   - Every FR/NFR must be covered.
-   - Tests included per task.
-   - Mark parallel-safe tasks where adjacent work is independent.
-5. **Validate granularity**: Present task breakdown as a numbered list (title + one-line summary).
-   Ask: "Does the granularity feel right — too coarse, too fine, or should any tasks be merged or split?"
-   Iterate until approved, then write.
-6. **Write files**: Ensure `plans/YYYY-MM-DD-<slug>/` exists and `plans/` is in `.gitignore`. Write index.md and all task files alongside spec.md.
+Begin by reading the project context, including architectural documentation and agent instructions. Perform a thorough analysis of the specification to extract all requirements, decisions, and scope. Explore the codebase to identify existing patterns and relevant reference files. Decompose the implementation into discrete, reviewable tasks as vertical slices that cover every requirement and include corresponding tests. Present the task breakdown to the user to validate the granularity and iterate until the plan is approved. Once finalized, ensure the directory exists and write the index and individual task files while confirming that the `plans/` directory is properly ignored by git.
 
 ## Index Format
 
@@ -78,13 +67,7 @@ Base: main OR prior task branch
 
 ## Rules
 
-- Plans only — no implementation code
-- Every spec requirement must be covered
-- Branch names use `<type>/<slug>/NN-<name>`
-- `plans/` in .gitignore
-- ASCII only, no AI attribution
-
-Suggest `/sdlc:validate` when done.
+Focus exclusively on generating the plan and do not include any implementation code. Ensure every requirement from the specification is covered by at least one task. Use the standardized branch naming convention and verify that the `plans/` directory is in the `.gitignore`. Maintain ASCII-only formatting and exclude any AI attribution from the final outputs. Once finished, suggest proceeding to the validation phase.
 
 ## User Input
 

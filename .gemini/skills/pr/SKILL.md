@@ -7,31 +7,17 @@ description: Create or update a pull request with a human-readable title and str
 
 ## Workflow
 
-1. **Prerequisites**: Run `gh auth status` — stop if not installed or not logged in.
-2. **Context**: Run in parallel:
-   - `git branch --show-current`
-   - `git remote get-url origin`
-   - `gh api user --jq '.login'`
-   - `git status --short`
-   - `gh pr list --head $(git branch --show-current) --json number,title,baseRefName`
-   Warn if uncommitted changes. Update mode if PR exists, create mode if not.
-3. **Base branch**: Use branch from the user's request if provided, else auto-detect closest ancestor branch (fewest commits from HEAD), fall back to main. Confirm.
-4. **Ticket**: Parse branch name, validate with `gh issue view <ticket> --json title`. Use N/A if invalid.
-5. **Title**: Human-readable, under 70 chars, no commit prefixes, summarizes combined effect.
-6. **Body**:
-   - **Tickets**: link to issue or N/A
-   - **Summary**: 2-4 sentences, what and why
-   - **Why**: value and intent, not implementation details
-   - **Changes**: grouped by category (Domain, Tests, Config, etc.)
-   - **Breaking Changes**: only if applicable
-   - **Dependencies**: only if applicable
-7. **Confirm**: Show title, base, and body. Ask before pushing (if needed) and before creating/updating.
-8. **Execute**: `gh pr create --assignee @me` or `gh pr edit`. Add `--draft` if "draft" in the user's request. Show PR URL.
+Verify that the user is authenticated with `gh auth status` and stop if they are not. Gather context in parallel by checking the current branch, remote URL, user login, and PR status; warn the user if there are uncommitted changes. Use the base branch provided in the arguments or auto-detect the closest ancestor branch, falling back to main if necessary, and confirm this choice with the user. Validate any ticket numbers in the branch name using `gh issue view` and prepare a human-readable title under 70 characters that summarizes the combined changes. Compose the PR body using the sections below. Show the title, base, and body to the user, asking for confirmation before pushing code or creating/updating the PR. Finally, execute the command using `gh pr create --assignee @me` or `gh pr edit`, adding `--draft` if "draft" is in `$ARGUMENTS`, and display the resulting PR URL.
+
+## PR Body Sections
+
+- **Tickets**: link to issue or N/A
+- **Summary**: 2-4 sentences, what and why
+- **Why**: value and intent, not implementation details
+- **Changes**: grouped by category (Domain, Tests, Config, etc.)
+- **Breaking Changes**: only if applicable
+- **Dependencies**: only if applicable
 
 ## Rules
 
-- Always `--assignee @me`
-- Never push or create/update without user confirmation
-- No broken ticket links — validate before use
-- NEVER add Co-Authored-By or any AI attribution lines to commit messages — ASCII only
-- No "Test Plan" section in the PR body — use only the sections listed above
+Always assign the PR to the current user and never push or create/update a PR without explicit user confirmation. Validate all ticket links before use and never add AI attribution or "Co-Authored-By" lines to any messages. Do not include a "Test Plan" section in the PR body; use only the authorized sections for tickets, summary, why, changes, breaking changes, and dependencies.

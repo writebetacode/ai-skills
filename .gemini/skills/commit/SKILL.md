@@ -11,22 +11,14 @@ description: Create a conventional commit from staged changes. Use when the user
 
 ## Workflow
 
-1. **Context Discovery**: Run `git status --short`, `git diff --cached`, `git branch --show-current`, and `git log --oneline -5` in parallel.
-   - If no files are staged, list unstaged files, tell the user to stage changes first, and stop.
-2. **Analyze & Draft**: Infer commit type from branch prefix (`feat/`, `fix/`, `chore/`, etc.) or diff. Use the user's input as extra context. Write message in imperative mood, under 72 chars, purpose not mechanics.
-3. **Confirm**: Show the message and ask `Commit? (yes/no/edit)`.
-   - On **edit**: accept the corrected text from the user and re-confirm.
-4. **Execute**: Only after confirmation, commit via HEREDOC:
-   ```bash
-   git commit -F - <<'EOF'
-   <type>: <message>
-   EOF
-   ```
+Gather context by running `git status --short`, `git diff --cached`, `git branch --show-current`, and `git log --oneline -5` in parallel. If no files are staged, list the unstaged files, instruct the user to stage their changes first, and then stop. Analyze the branch prefix or the diff to infer the commit type, using the user's input as additional context to draft a message in the imperative mood that is under 72 characters and focuses on purpose rather than mechanics. Present the drafted message to the user for confirmation, allowing them to edit the text if necessary. Only after receiving explicit confirmation, execute the commit using a HEREDOC:
+
+```bash
+git commit -F - <<'EOF'
+<type>: <message>
+EOF
+```
 
 ## Rules
 
-- Never stage files — only work with what is already staged
-- Never commit without user confirmation
-- Never push
-- Always use HEREDOC for the commit message
-- NEVER add Co-Authored-By or any AI attribution lines to commit messages — ASCII only
+Always work with currently staged files and never stage files automatically. Never commit or push without receiving explicit user confirmation first. Use HEREDOC for all commit messages to maintain formatting integrity. Do not include any AI attribution, Co-Authored-By lines, or non-ASCII characters in the commit messages.

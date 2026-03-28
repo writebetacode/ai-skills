@@ -5,22 +5,11 @@ description: Scaffold a new reusable workflow skill by asking scoping questions 
 
 # Skill Write: Scaffold a New Skill
 
-If the user provides a name or description (via `$ARGUMENTS` or conversational context), use it as the starting point. Otherwise, ask what the skill should accomplish.
+Use any provided name or description as a starting point, otherwise begin by asking the user what the skill should accomplish.
 
 ## Workflow
 
-1.  **Discovery**: Ask scoping questions one at a time:
-    - **Name**: kebab-case (e.g., `deploy-service`).
-    - **Description**: High-signal, single-line "when to use" statement.
-    - **Workflow**: 3-5 clear, numbered steps.
-    - **Rules**: Critical guardrails (max 5).
-    - **Model Tier**: `pro` (complex logic) or `flash` (speed/simple tasks).
-2.  **Draft**: Present the full content for both `.claude/commands/<name>.md` and `.gemini/skills/<name>/SKILL.md`.
-3.  **Confirm**: Ask `Write files? (yes/no/edit)`. If the user provides edits, update the drafts and re-confirm.
-4.  **Execute**: 
-    - Create the `.claude/commands/` file.
-    - Create the `.gemini/skills/<name>/` directory and write the `SKILL.md` inside it.
-    - Confirm the final paths to the user.
+Begin the discovery phase by asking scoping questions one at a time to determine the skill's name, description, workflow steps, critical rules, and the appropriate model tier. Once the details are gathered, present a full draft of the content for both the Claude command and the Gemini skill files. Ask the user for confirmation and incorporate any requested edits before proceeding to the execution phase. Finally, create the necessary directories and files, ensuring that the Gemini skill is placed in its own subdirectory, and confirm the final file paths to the user.
 
 ## File Format
 
@@ -47,9 +36,4 @@ description: <description>
 
 ## Rules
 
-- One question at a time to avoid overwhelming the user.
-- Never write files without explicit confirmation.
-- Always generate both the Claude and Gemini versions.
-- Ensure the Gemini skill is in its own directory (`.gemini/skills/<name>/SKILL.md`).
-- Skills must be under 100 lines.
-- No AI attribution, ASCII only.
+Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. Ensure that both Claude and Gemini versions are generated and that the Gemini skill is correctly placed in its own directory. Keep all skills under 100 lines and use only ASCII characters, excluding any AI attribution.
