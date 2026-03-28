@@ -41,6 +41,7 @@ Skills are available for both Claude Code (`.claude/skills/`) and Gemini CLI (`.
 | Command | Description |
 |---|---|
 | `/skill-write` | Scaffold a new skill by asking scoping questions and writing both Claude and Gemini files |
+| `/agent-write` | Scaffold a new Claude Code subagent by asking scoping questions and generating an AGENT.md file |
 
 ### Software Development Workflow
 
@@ -74,7 +75,7 @@ Each task drives one branch and one PR, stacked on the previous task's branch. I
 
 | Agent | Platform | Model | Description |
 |---|---|---|---|
-| `gemini-operative` | Claude | sonnet | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI |
+| `gemini-operative` | Claude | inherited | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI |
 | `claude-operative` | Gemini | opus/sonnet | On-demand Claude-powered research, audits, and execution via the `claude` CLI |
 
 ## License
