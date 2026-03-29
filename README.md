@@ -12,7 +12,7 @@ cd ai-skills
 task install
 ```
 
-This symlinks all skills and agents into `~/.claude` and `~/.gemini` so updates pulled from the repo apply immediately without reinstalling. Stale symlinks pointing back to this repo are cleaned up automatically before each install. Agents that require a specific CLI (e.g. `gemini-operative` requires `gemini`, `claude-operative` requires `claude`) are skipped silently if that CLI is not found.
+This symlinks all skills and agents into `~/.claude` and `~/.gemini` so updates pulled from the repo apply immediately without reinstalling. A single set of skill files serves both platforms. Stale symlinks pointing back to this repo are cleaned up automatically before each install. Agents that require a specific CLI (e.g. `gemini-operative` requires `gemini`, `claude-operative` requires `claude`) are skipped silently if that CLI is not found.
 
 You can also install per platform or verify the current state:
 
@@ -24,7 +24,7 @@ task verify           # check all symlinks are in place
 
 ## What's included
 
-Skills are available for both Claude Code (`.claude/skills/`) and Gemini CLI (`.gemini/skills/`).
+Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 
 ### Git & GitHub
 
@@ -40,7 +40,7 @@ Skills are available for both Claude Code (`.claude/skills/`) and Gemini CLI (`.
 
 | Command | Description |
 |---|---|
-| `/skill-write` | Scaffold a new skill by asking scoping questions and writing both Claude and Gemini files |
+| `/skill-write` | Scaffold a new skill by asking scoping questions and writing the skill file |
 | `/agent-write` | Scaffold a new Claude Code subagent by asking scoping questions and generating an AGENT.md file |
 
 ### Software Development Workflow
@@ -80,10 +80,22 @@ Each task drives one branch and one PR, stacked on the previous task's branch. I
 
 ## Agents
 
-| Agent | Platform | Model | Description |
-|---|---|---|---|
-| `gemini-operative` | Claude | inherited | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI |
-| `claude-operative` | Gemini | opus/sonnet | On-demand Claude-powered research, audits, and execution via the `claude` CLI |
+| Agent | Platform | Description |
+|---|---|---|
+| `gemini-operative` | Claude | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI |
+| `claude-operative` | Gemini | On-demand Claude-powered research, audits, and execution via the `claude` CLI |
+
+## File Layout
+
+```
+skills/                             # shared by Claude Code and Gemini CLI
+  <name>/SKILL.md
+agents/                             # cross-platform operative agents
+  gemini-operative/AGENT.md
+  claude-operative/AGENT.md
+claude/                             # Claude Code project settings
+  settings.json
+```
 
 ## License
 
