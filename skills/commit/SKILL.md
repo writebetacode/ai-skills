@@ -23,7 +23,7 @@ description: Create a conventional commit from staged changes. Use when the user
 
 ## Workflow
 
-Gather context by running `git status --short`, `git diff --cached`, `git branch --show-current`, and `git log --oneline -5` in parallel. If no files are staged, list the unstaged files, instruct the user to stage their changes first, and then stop. Analyze the branch prefix or the diff to infer the commit type, using any provided user input as additional context to draft a message in the imperative mood that is under 72 characters and focuses on purpose rather than mechanics. Present the drafted message to the user and ask `Commit? (yes/no/edit)`. On edit, accept the corrected text and re-confirm. Only after receiving explicit confirmation, execute the commit using a HEREDOC:
+Gather context by running `git status --short`, `git diff --cached`, `git branch --show-current`, and `git log --oneline -5` in parallel. If no files are staged, list the unstaged files, instruct the user to stage their changes first, and then stop. Analyze the branch prefix or the diff to infer the commit type, using any provided user input as additional context to draft a message in the imperative mood that is under 72 characters and focuses on purpose rather than mechanics. Execute the commit immediately using a HEREDOC:
 
 ```bash
 git commit -F - <<'EOF'
