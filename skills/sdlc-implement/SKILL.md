@@ -23,7 +23,7 @@ If the user's feedback during review amounts to a requirement change -- not just
 
 ## Completion
 
-Once all criteria are complete, run `/pr` to create or update the pull request, using the task's Base field as the target branch. Immediately after the PR is created, write `## PR\n\n[#<number>](<url>)` to the task file (do not commit). Update the manifest's status to "In Progress (N/M tasks done)" after each task, or "Complete" when the final task is done. When completing the last task of an epic, report which downstream epics are now fully unblocked. Show the PR URL and suggest the next task or `/sdlc-complete <plan-dir>` if this is the last one.
+Once all criteria are complete, run `/pr` to create or update the pull request, using the task's Base field as the target branch. Immediately after the PR is created, write `## PR\n\n[#<number>](<url>)` to the task file (do not commit). Update the manifest's status to "In Progress (N/M tasks done)" after each task, or "Complete" when the final task is done. When completing the last task of an epic, report which downstream epics are now fully unblocked. Show the PR URL and suggest the next actionable task from any epic. Only suggest `/sdlc-complete <project-dir>` when every epic in the manifest is marked Complete -- never offer to complete an individual epic.
 
 ## Rules
 
