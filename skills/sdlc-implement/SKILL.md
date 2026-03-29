@@ -7,7 +7,7 @@ description: Execute a task from an implementation plan with integrated commits 
 
 Flow: design -> **[implement]** -> complete
 
-Resolve the task from: direct path, task number, plan directory, or prompt user.
+Resolve the task from: direct path, task number, or plan directory. When called with no arguments or only a project path, read the project's `MANIFEST.md` and walk the Build Order to find the first epic whose status is not "Complete". Then read that epic's `plan.md`, find the first task whose acceptance criteria are not all marked `[x]`, and use it. If no incomplete task remains in that epic, advance to the next epic in build order.
 
 ## Workflow
 

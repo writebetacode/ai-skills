@@ -50,8 +50,7 @@ A manifest-driven process to take a feature idea all the way through to merged c
 | Command | Phase | Description |
 |---|---|---|
 | `/sdlc-design` | 1 -- Design | Turn an idea into specs and implementation plans through guided questioning, research, and architect-led agent teams with built-in validation |
-| `/sdlc-implement` | 2 -- Implement | Execute tasks with a tester-coder agent team, user review per AC, and built-in revision handling |
-| `/sdlc-status` | -- Status | Project dashboard showing what is done, what is actionable, and what to do next |
+| `/sdlc-implement` | 2 -- Implement | Execute tasks with a tester-coder agent team, user review per AC, and built-in revision handling; auto-picks the next task from the manifest when called without arguments |
 | `/sdlc-complete` | 3 -- Complete | Archive a finished project to plans/complete/ |
 
 The commands share a common file layout under `plans/` (add it to `.gitignore`):
