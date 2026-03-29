@@ -51,8 +51,7 @@ A manifest-driven process to take a feature idea all the way through to merged c
 |---|---|---|
 | `/sdlc-brainstorm` | 1 -- Brainstorm | Turn an idea into specs through guided questioning, with built-in research, multi-epic decomposition, and cross-epic coherence validation |
 | `/sdlc-plan` | 2 -- Plan | Break a spec into stacked, reviewable PR-sized tasks with an architect-led agent team and built-in validation |
-| `/sdlc-implement` | 3 -- Implement | Execute tasks one acceptance criterion at a time with TDD and manifest updates |
-| `/sdlc-revise` | -- Revise | Propagate mid-implementation requirement changes back through specs, plans, and manifest |
+| `/sdlc-implement` | 3 -- Implement | Execute tasks with a tester-coder agent team, user review per AC, and built-in revision handling |
 | `/sdlc-status` | -- Status | Project dashboard showing what is done, what is actionable, and what to do next |
 | `/sdlc-complete` | 4 -- Complete | Archive a finished epic or entire project to plans/complete/ |
 
