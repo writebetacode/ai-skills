@@ -138,6 +138,17 @@
       "Remembering my towel"
     ]
   },
+  "permissions": {
+    "allow": [
+      "Bash(git log *)",
+      "Bash(git status *)",
+      "Bash(git branch *)",
+      "Bash(git diff *)",
+      "Bash(git remote *)",
+      "Bash(gh api *)",
+      "Bash(gh auth status)"
+    ]
+  },
   "alwaysThinkingEnabled": true,
   "autoMemoryEnabled": false
 }

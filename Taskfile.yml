@@ -44,7 +44,7 @@ tasks:
             rm -f "$target"
             cp "claude/settings.json" "$target"
           else
-            jq -s '.[0] * { env: ((.[0].env // {}) * .[1].env), spinnerVerbs: .[1].spinnerVerbs }' \
+            jq -s '.[0] * { env: ((.[0].env // {}) * .[1].env), spinnerVerbs: .[1].spinnerVerbs, permissions: { allow: (([.[0].permissions.allow // [], .[1].permissions.allow // []] | add) | unique) } }' \
               "$target" "claude/settings.json" > "$target.tmp" && mv "$target.tmp" "$target"
           fi
           echo "MERGED settings.json"
