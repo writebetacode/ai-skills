@@ -33,7 +33,7 @@ EOF
 
 ## Rules
 
-Always work with currently staged files and never stage files automatically. Never commit or push without receiving explicit user confirmation first. Use HEREDOC for all commit messages to maintain formatting integrity. Trailer lines (e.g. `Refs: #123`, `Closes: #456`) may be added after a blank line when they provide useful context. Use only ASCII characters and never include AI attribution or "Co-Authored-By" lines in any output.
+Always work with currently staged files and never stage files automatically. Use HEREDOC for all commit messages to maintain formatting integrity. Trailer lines (e.g. `Refs: #123`, `Closes: #456`) may be added after a blank line when they provide useful context. Use only ASCII characters and never include AI attribution or "Co-Authored-By" lines in any output.
 
 ## User Input
 

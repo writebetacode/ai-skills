@@ -146,7 +146,12 @@
       "Bash(git diff *)",
       "Bash(git remote *)",
       "Bash(gh api *)",
-      "Bash(gh auth status)"
+      "Bash(gh auth status)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr edit *)"
+    ],
+    "ask": [
+      "Bash(git commit *)"
     ]
   },
   "alwaysThinkingEnabled": true,
