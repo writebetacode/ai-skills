@@ -9,7 +9,7 @@ Use any provided name or description as a starting point, otherwise begin by ask
 
 ## Workflow
 
-Begin the discovery phase by asking scoping questions one at a time to determine the agent's name, description, invocation behavior (on-demand vs proactive), tools, memory setting, workflow steps, and rules. The description field is especially important — it is read by Claude to decide when to invoke the agent, so it must clearly state the trigger conditions and any "do not invoke" constraints. To make Claude invoke the agent proactively without an explicit call, include the word "PROACTIVELY" in the description; otherwise the agent stays on-demand. Once the details are gathered, present a full draft of the AGENT.md content. Ask the user for confirmation and incorporate any requested edits before writing. Finally, write the file to `.claude/agents/<name>/AGENT.md` in the repository and confirm the path.
+Begin the discovery phase by asking scoping questions one at a time to determine the agent's name, description, invocation behavior (on-demand vs proactive), tools, memory setting, workflow steps, and rules. The description field is especially important — it is read by Claude to decide when to invoke the agent, so it must clearly state the trigger conditions and any "do not invoke" constraints. To make Claude invoke the agent proactively without an explicit call, include the word "PROACTIVELY" in the description; otherwise the agent stays on-demand. Once the details are gathered, present a full draft of the AGENT.md content. Ask the user for confirmation and incorporate any requested edits before writing. Finally, write the file to `agents/<name>/AGENT.md` in the repository and confirm the path.
 
 ## File Format
 

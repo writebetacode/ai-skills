@@ -9,7 +9,7 @@ If `$ARGUMENTS` contains a path, use it. Otherwise, search `plans/` for the most
 
 ## Workflow
 
-Read the `MANIFEST.md` and then verify each epic's actual state on disk. For each epic, check whether `spec.md`, `edge-cases.md`, `index.md`, and task files exist, and count how many task files have all acceptance criteria marked `[x]`. Reconcile the manifest with reality -- if disk state is ahead of what the manifest records (e.g., a plan exists but status says "Spec Ready"), update the manifest to match.
+Read the `MANIFEST.md` and then verify each epic's actual state on disk. For each epic, check whether `spec.md`, `index.md`, and task files exist, and count how many task files have all acceptance criteria marked `[x]`. Reconcile the manifest with reality -- if disk state is ahead of what the manifest records (e.g., a plan exists but status says "Spec Ready"), update the manifest to match.
 
 Check the Open Issues section. Count unresolved issues by severity. If any HIGH issues are open, flag them prominently.
 

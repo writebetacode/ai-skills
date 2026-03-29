@@ -12,7 +12,7 @@ cd ai-skills
 task install
 ```
 
-This symlinks all skills and agents into `~/.claude` and `~/.gemini` so updates pulled from the repo apply immediately without reinstalling. Stale symlinks pointing back to this repo are cleaned up automatically before each install. Agents that require a specific CLI (e.g. `gemini-operative` requires `gemini`, `claude-operative` requires `claude`) are skipped silently if that CLI is not found.
+This symlinks all skills and agents into `~/.claude` and `~/.gemini` so updates pulled from the repo apply immediately without reinstalling. A single set of skill files serves both platforms. Stale symlinks pointing back to this repo are cleaned up automatically before each install. Agents that require a specific CLI (e.g. `gemini-operative` requires `gemini`, `claude-operative` requires `claude`) are skipped silently if that CLI is not found.
 
 You can also install per platform or verify the current state:
 
@@ -24,7 +24,7 @@ task verify           # check all symlinks are in place
 
 ## What's included
 
-Skills are available for both Claude Code (`.claude/skills/`) and Gemini CLI (`.gemini/skills/`).
+Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 
 ### Git & GitHub
 
@@ -40,7 +40,7 @@ Skills are available for both Claude Code (`.claude/skills/`) and Gemini CLI (`.
 
 | Command | Description |
 |---|---|
-| `/skill-write` | Scaffold a new skill by asking scoping questions and writing both Claude and Gemini files |
+| `/skill-write` | Scaffold a new skill by asking scoping questions and writing the skill file |
 | `/agent-write` | Scaffold a new Claude Code subagent by asking scoping questions and generating an AGENT.md file |
 
 ### Software Development Workflow
@@ -50,7 +50,7 @@ A manifest-driven process to take a feature idea all the way through to merged c
 | Command | Phase | Description |
 |---|---|---|
 | `/sdlc-brainstorm` | 1 -- Brainstorm | Turn an idea into specs through guided questioning, with built-in research and automatic multi-epic decomposition |
-| `/sdlc-plan` | 2 -- Plan | Break a spec into stacked, reviewable PR-sized tasks with edge-case and manifest awareness |
+| `/sdlc-plan` | 2 -- Plan | Break a spec into stacked, reviewable PR-sized tasks with manifest awareness |
 | `/sdlc-validate` | 3 -- Validate | Epic-level coherence checks or plan-level requirement coverage, depending on input |
 | `/sdlc-implement` | 4 -- Implement | Execute tasks one acceptance criterion at a time with TDD and manifest updates |
 | `/sdlc-revise` | -- Revise | Propagate mid-implementation requirement changes back through specs, plans, and manifest |
@@ -63,15 +63,12 @@ The commands share a common file layout under `plans/` (add it to `.gitignore`):
 plans/
   YYYY-MM-DD-<slug>/                # project folder (from /sdlc-brainstorm)
     MANIFEST.md                     # central control document (always present)
-    epics.md                        # epic list + dependency graph (multi-epic)
-    build-plan.md                   # phased build order (multi-epic)
-    review.md                       # epic validation findings (multi-epic)
+    epics.md                        # epic list, dependency graph, and build order (multi-epic)
     research/                       # research output (if conducted)
       index.md, questions.md, findings/, ai-summary.md
     epics/
       YYYY-MM-DD-<epic-slug>/
-        spec.md                     # specification
-        edge-cases.md               # edge cases + integration concerns
+        spec.md                     # specification (includes edge cases)
         index.md                    # implementation plan (from /sdlc-plan)
         01-<task-name>.md
         02-<task-name>.md
@@ -83,10 +80,22 @@ Each task drives one branch and one PR, stacked on the previous task's branch. I
 
 ## Agents
 
-| Agent | Platform | Model | Description |
-|---|---|---|---|
-| `gemini-operative` | Claude | inherited | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI |
-| `claude-operative` | Gemini | opus/sonnet | On-demand Claude-powered research, audits, and execution via the `claude` CLI |
+| Agent | Platform | Description |
+|---|---|---|
+| `gemini-operative` | Claude | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI |
+| `claude-operative` | Gemini | On-demand Claude-powered research, audits, and execution via the `claude` CLI |
+
+## File Layout
+
+```
+skills/                             # shared by Claude Code and Gemini CLI
+  <name>/SKILL.md
+agents/                             # cross-platform operative agents
+  gemini-operative/AGENT.md
+  claude-operative/AGENT.md
+claude/                             # Claude Code project settings
+  settings.json
+```
 
 ## License
 

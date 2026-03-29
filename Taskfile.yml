@@ -2,7 +2,7 @@ version: '3'
 
 tasks:
   install:
-    desc: Symlink all skills and agents into ~/.claude and ~/.gemini
+    desc: Symlink all skills, agents, and settings into ~/.claude and ~/.gemini
     deps: [install:claude, install:gemini]
 
   clean:stale:
@@ -20,53 +20,55 @@ tasks:
         }
         for dir in "$HOME/.claude/skills/"/*/; do remove_stale "${dir}SKILL.md"; done
         remove_stale "$HOME/.claude/settings.json"
-        for f in "$HOME/.claude/agents/gemini-operative/"*.md; do remove_stale "$f"; done
+        for dir in "$HOME/.claude/agents/"/*/; do
+          for f in "$dir"*.md; do remove_stale "$f"; done
+        done
         for dir in "$HOME/.gemini/skills/"/*/; do remove_stale "${dir}SKILL.md"; done
-        for f in "$HOME/.gemini/agents/"*.md; do remove_stale "$f"; done
+        for dir in "$HOME/.gemini/agents/"/*/; do
+          for f in "$dir"*.md; do remove_stale "$f"; done
+        done
 
   install:claude:
-    desc: Symlink Claude skills and agents into ~/.claude
+    desc: Symlink skills, agents, and settings into ~/.claude
     deps: [clean:stale]
     cmds:
       - |
-        for dir in .claude/skills/*/; do
+        for dir in skills/*/; do
           name=$(basename "$dir")
           mkdir -p "$HOME/.claude/skills/$name"
           ln -sf "$(pwd)/${dir}SKILL.md" "$HOME/.claude/skills/$name/SKILL.md"
         done
       - |
-        if [ -f ".claude/settings.json" ]; then
-          ln -sf "$(pwd)/.claude/settings.json" "$HOME/.claude/settings.json"
+        if [ -f "claude/settings.json" ]; then
+          ln -sf "$(pwd)/claude/settings.json" "$HOME/.claude/settings.json"
           echo "LINKED settings.json"
         fi
       - |
         if command -v gemini >/dev/null 2>&1; then
           mkdir -p "$HOME/.claude/agents/gemini-operative"
-          ln -sf "$(pwd)/.claude/agents/gemini-operative/AGENT.md" "$HOME/.claude/agents/gemini-operative/AGENT.md"
+          ln -sf "$(pwd)/agents/gemini-operative/AGENT.md" "$HOME/.claude/agents/gemini-operative/AGENT.md"
           echo "LINKED gemini-operative agent"
         else
           echo "SKIP gemini-operative (gemini not found)"
         fi
 
   install:gemini:
-    desc: Symlink Gemini skills and agents into ~/.gemini
+    desc: Symlink skills and agents into ~/.gemini
     deps: [clean:stale]
     cmds:
       - |
-        for dir in .gemini/skills/*/; do
+        for dir in skills/*/; do
           name=$(basename "$dir")
           mkdir -p "$HOME/.gemini/skills/$name"
           ln -sf "$(pwd)/${dir}SKILL.md" "$HOME/.gemini/skills/$name/SKILL.md"
         done
       - |
         if command -v claude >/dev/null 2>&1; then
-          mkdir -p "$HOME/.gemini/agents"
-          for f in .gemini/agents/*.md; do
-            ln -sf "$(pwd)/$f" "$HOME/.gemini/agents/$(basename $f)"
-          done
-          echo "LINKED claude agents"
+          mkdir -p "$HOME/.gemini/agents/claude-operative"
+          ln -sf "$(pwd)/agents/claude-operative/AGENT.md" "$HOME/.gemini/agents/claude-operative/AGENT.md"
+          echo "LINKED claude-operative agent"
         else
-          echo "SKIP claude agents (claude not found)"
+          echo "SKIP claude-operative (claude not found)"
         fi
 
   verify:
@@ -82,21 +84,18 @@ tasks:
             failed=1
           fi
         }
-        for dir in .claude/skills/*/; do
-          check "$HOME/.claude/skills/$(basename $dir)/SKILL.md"
+        for dir in skills/*/; do
+          name=$(basename "$dir")
+          check "$HOME/.claude/skills/$name/SKILL.md"
+          check "$HOME/.gemini/skills/$name/SKILL.md"
         done
-        if [ -f ".claude/settings.json" ]; then
+        if [ -f "claude/settings.json" ]; then
           check "$HOME/.claude/settings.json"
         fi
         if command -v gemini >/dev/null 2>&1; then
           check "$HOME/.claude/agents/gemini-operative/AGENT.md"
         fi
-        for dir in .gemini/skills/*/; do
-          check "$HOME/.gemini/skills/$(basename $dir)/SKILL.md"
-        done
         if command -v claude >/dev/null 2>&1; then
-          for f in .gemini/agents/*.md; do
-            check "$HOME/.gemini/agents/$(basename $f)"
-          done
+          check "$HOME/.gemini/agents/claude-operative/AGENT.md"
         fi
         exit $failed
