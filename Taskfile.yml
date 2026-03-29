@@ -2,7 +2,7 @@ version: '3'
 
 tasks:
   install:
-    desc: Symlink all skills, agents, and settings into ~/.claude and ~/.gemini
+    desc: Install all skills, agents, and settings into ~/.claude and ~/.gemini
     deps: [install:claude, install:gemini]
 
   clean:stale:
@@ -19,7 +19,6 @@ tasks:
           fi
         }
         for dir in "$HOME/.claude/skills/"/*/; do remove_stale "${dir}SKILL.md"; done
-        remove_stale "$HOME/.claude/settings.json"
         for dir in "$HOME/.claude/agents/"/*/; do
           for f in "$dir"*.md; do remove_stale "$f"; done
         done
@@ -29,7 +28,7 @@ tasks:
         done
 
   install:claude:
-    desc: Symlink skills, agents, and settings into ~/.claude
+    desc: Symlink skills and agents, merge settings into ~/.claude
     deps: [clean:stale]
     cmds:
       - |
@@ -40,8 +39,15 @@ tasks:
         done
       - |
         if [ -f "claude/settings.json" ]; then
-          ln -sf "$(pwd)/claude/settings.json" "$HOME/.claude/settings.json"
-          echo "LINKED settings.json"
+          target="$HOME/.claude/settings.json"
+          if [ ! -f "$target" ] || [ -L "$target" ]; then
+            rm -f "$target"
+            cp "claude/settings.json" "$target"
+          else
+            jq -s '.[0] * { env: ((.[0].env // {}) * .[1].env), spinnerVerbs: .[1].spinnerVerbs }' \
+              "$target" "claude/settings.json" > "$target.tmp" && mv "$target.tmp" "$target"
+          fi
+          echo "MERGED settings.json"
         fi
       - |
         if command -v gemini >/dev/null 2>&1; then
@@ -90,7 +96,12 @@ tasks:
           check "$HOME/.gemini/skills/$name/SKILL.md"
         done
         if [ -f "claude/settings.json" ]; then
-          check "$HOME/.claude/settings.json"
+          if jq -e '.spinnerVerbs' "$HOME/.claude/settings.json" >/dev/null 2>&1; then
+            echo "OK  $HOME/.claude/settings.json (merged)"
+          else
+            echo "ERR $HOME/.claude/settings.json (missing spinnerVerbs)"
+            failed=1
+          fi
         fi
         if command -v gemini >/dev/null 2>&1; then
           check "$HOME/.claude/agents/gemini-operative/AGENT.md"
