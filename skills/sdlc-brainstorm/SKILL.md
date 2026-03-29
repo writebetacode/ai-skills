@@ -5,7 +5,7 @@ description: Turn an idea into one or more specs through guided questioning, wit
 
 # Brainstorm: From Idea to Spec
 
-Flow: **[brainstorm]** -> plan -> validate -> implement -> complete
+Flow: **[brainstorm]** -> plan -> implement -> complete
 
 If `$ARGUMENTS` is empty, ask what to build. Do not proceed without a substantive prompt.
 
@@ -27,7 +27,7 @@ Once questioning is complete, write `epics.md` containing a numbered epic list -
 
 Then spin up an agent team with model `inherit` to produce specs. The team structure is the same for single-epic and multi-epic -- only the number of spec-creators varies.
 
-The **researcher** loads all prior research output and codebase context, fields factual questions from other agents, and gathers additional findings via web search when needed. Every URL the researcher provides must be verified as reachable -- never pass along a URL without confirming it resolves. The **architect** reads the research output and epic decomposition, then writes an architecture brief covering shared interfaces, data contracts, naming conventions, and cross-cutting technology choices. Spec-creators do not begin until the brief is ready. The architect stays live to answer structural questions and updates the brief when new decisions emerge. The **validator** runs concurrently from the start, checking each completed spec against the architecture brief, the spec format, and other specs for scope overlap, interface mismatches, fabricated sources, and missing sections. It messages the relevant spec-creator and architect to resolve issues immediately -- only genuinely unresolvable items requiring human decision are recorded as open issues in the manifest. Each **spec-creator** (one per epic) writes a complete `spec.md` to `epics/YYYY-MM-DD-<epic-slug>/`, answering from context and routing factual questions to the researcher and structural questions to the architect. Every spec includes a `## Dependencies` section listing prerequisite epics by title.
+The **researcher** loads all prior research output and codebase context, fields factual questions from other agents, and gathers additional findings via web search when needed. Every URL the researcher provides must be verified as reachable -- never pass along a URL without confirming it resolves. The **architect** reads the research output and epic decomposition, then writes an architecture brief covering shared interfaces, data contracts, naming conventions, and cross-cutting technology choices. Spec-creators do not begin until the brief is ready. The architect stays live to answer structural questions and updates the brief when new decisions emerge. The **validator** runs concurrently from the start, performing both per-spec and cross-epic coherence checks. Per-spec: format compliance, completeness of all required sections, and no fabricated sources or ambiguous requirements. Cross-epic: no two epics overlap in scope or contradict each other's decisions; cross-epic interfaces are consistent (e.g., if Epic 5 consumes `useBudget()` from Epic 4, the field shapes match); the dependency graph in `epics.md` matches the `## Dependencies` sections in individual specs; and edge cases within each spec do not introduce scope that belongs to a different epic. It messages the relevant spec-creator and architect to resolve issues immediately -- only genuinely unresolvable items requiring human decision are recorded as open issues in the manifest. Each **spec-creator** (one per epic) writes a complete `spec.md` to `epics/YYYY-MM-DD-<epic-slug>/`, answering from context and routing factual questions to the researcher and structural questions to the architect. Every spec includes a `## Dependencies` section listing prerequisite epics by title.
 
 Generate `MANIFEST.md` by reading `epics.md` and the completed specs. Pre-populate all epics at "Spec Ready", the build order, and any open issues the validator could not resolve. End with: "Manifest created. Run `/sdlc-status` to see what's actionable."
 
@@ -77,7 +77,7 @@ Created: YYYY-MM-DD  |  Last updated: YYYY-MM-DD
 | # | Epic | Phase | Status | Spec | Plan | Blockers |
 
 ### Status Values
-Spec Ready -> Planned -> Validated -> In Progress (N/M) -> Complete
+Spec Ready -> Planned -> In Progress (N/M) -> Complete
 
 ## Build Order
 ## Open Issues

@@ -9,7 +9,7 @@ If `$ARGUMENTS` is empty, ask what changed and which epic is affected.
 
 ## Workflow
 
-Start by identifying the scope of the change. Read the user's description and determine which epic is affected. Load that epic's `spec.md`, `index.md`, and all task files. If a `MANIFEST.md` exists, load it along with any downstream epic specs that list this epic as a dependency.
+Start by identifying the scope of the change. Read the user's description and determine which epic is affected. Load that epic's `spec.md`, `plan.md`, and all task files. If a `MANIFEST.md` exists, load it along with any downstream epic specs that list this epic as a dependency.
 
 Present the proposed changes before making them. Show exactly which files will be modified, what text will change, and which downstream epics may be affected. Ask the user to confirm before writing anything.
 

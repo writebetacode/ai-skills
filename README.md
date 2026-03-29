@@ -45,17 +45,16 @@ Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 
 ### Software Development Workflow
 
-A manifest-driven process to take a feature idea all the way through to merged code. `/sdlc-brainstorm` is the single entry point -- it handles research, single-epic specs, and multi-epic project decomposition with automatic agent teams. When scope grows beyond a single epic, brainstorm creates a `MANIFEST.md` that every downstream skill reads and updates.
+A manifest-driven process to take a feature idea all the way through to merged code. `/sdlc-brainstorm` is the single entry point -- it handles research, single-epic specs, and multi-epic project decomposition with automatic agent teams. Each phase self-validates via built-in agent teams, so there is no separate validation step. When scope grows beyond a single epic, brainstorm creates a `MANIFEST.md` that every downstream skill reads and updates.
 
 | Command | Phase | Description |
 |---|---|---|
-| `/sdlc-brainstorm` | 1 -- Brainstorm | Turn an idea into specs through guided questioning, with built-in research and automatic multi-epic decomposition |
-| `/sdlc-plan` | 2 -- Plan | Break a spec into stacked, reviewable PR-sized tasks with manifest awareness |
-| `/sdlc-validate` | 3 -- Validate | Epic-level coherence checks or plan-level requirement coverage, depending on input |
-| `/sdlc-implement` | 4 -- Implement | Execute tasks one acceptance criterion at a time with TDD and manifest updates |
+| `/sdlc-brainstorm` | 1 -- Brainstorm | Turn an idea into specs through guided questioning, with built-in research, multi-epic decomposition, and cross-epic coherence validation |
+| `/sdlc-plan` | 2 -- Plan | Break a spec into stacked, reviewable PR-sized tasks with an architect-led agent team and built-in validation |
+| `/sdlc-implement` | 3 -- Implement | Execute tasks one acceptance criterion at a time with TDD and manifest updates |
 | `/sdlc-revise` | -- Revise | Propagate mid-implementation requirement changes back through specs, plans, and manifest |
 | `/sdlc-status` | -- Status | Project dashboard showing what is done, what is actionable, and what to do next |
-| `/sdlc-complete` | 5 -- Complete | Archive a finished epic or entire project to plans/complete/ |
+| `/sdlc-complete` | 4 -- Complete | Archive a finished epic or entire project to plans/complete/ |
 
 The commands share a common file layout under `plans/` (add it to `.gitignore`):
 
@@ -69,7 +68,7 @@ plans/
     epics/
       YYYY-MM-DD-<epic-slug>/
         spec.md                     # specification (includes edge cases)
-        index.md                    # implementation plan (from /sdlc-plan)
+        plan.md                     # implementation plan (from /sdlc-plan)
         01-<task-name>.md
         02-<task-name>.md
   complete/
