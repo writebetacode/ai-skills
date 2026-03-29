@@ -23,7 +23,7 @@ Every brainstorm produces a project folder at `plans/YYYY-MM-DD-<slug>/` with a 
 
 ## Agent Team
 
-Once questioning is complete, spin up an agent team to produce specs. Attempt to create a team first; if teams are unavailable, fall back to the Agent tool for subagents. Use model `opus` for all spawned agents. The team structure is the same for single-epic and multi-epic -- only the number of spec-creators varies.
+Once questioning is complete, spin up an agent team to produce specs. Attempt to create a team first; if teams are unavailable, fall back to the Agent tool for subagents. Use model `inherit` for all spawned agents so they match the caller's current model. The team structure is the same for single-epic and multi-epic -- only the number of spec-creators varies.
 
 The **researcher** loads all prior research output and codebase context, fields factual questions from other agents, and gathers additional findings via web search when needed. The **architect** reads the research output and epic decomposition (or questioning decisions for single-epic), then writes an architecture brief covering shared interfaces, data contracts, naming conventions, and cross-cutting technology choices. Spec-creators do not begin until the brief is ready. The architect stays live to answer structural questions and updates the brief when new cross-cutting decisions emerge. The **validator** runs concurrently from the start. As each spec lands, it validates against the architecture brief, the spec format, and other completed specs -- checking for scope overlap, interface mismatches, fabricated sources, and missing sections. When issues are found, it messages the relevant spec-creator and architect to resolve them immediately. Only genuinely unresolvable items requiring human decision are recorded as open issues in the manifest. Each **spec-creator** (one per epic) writes a complete `spec.md` to `epics/YYYY-MM-DD-<epic-slug>/` under the project folder, answering from context and routing factual questions to the researcher and structural questions to the architect. Every spec includes a `## Dependencies` section listing prerequisite epics by title.
 
@@ -90,10 +90,6 @@ Spec Ready -> Planned -> Validated -> In Progress (N/M) -> Complete
 ## Research Output
 
 Root: `research/` inside the project folder. `index.md` contains the topic, summary, TOC, and "Out of Scope" dismissed branches. `questions.md` is the Q&A log with status and links. Each `findings/<slug>.md` covers one area with inline citations and backlinks. `ai-summary.md` synthesizes everything for AI consumption.
-
-## Updating Existing Skills
-
-When the task is to update an existing skill rather than create a new one, read the current file first and diff the proposed changes against it. Explicitly list any existing functionality that would be removed and ask the user to confirm each removal before writing. Never drop behavioral details silently — if a step, rule, or constraint is present in the current skill, it must either be preserved in the updated version or explicitly approved for removal by the user.
 
 ## Rules
 
