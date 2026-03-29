@@ -5,7 +5,7 @@ description: Read the project manifest and show what is done, what is actionable
 
 # Status: Project Dashboard
 
-If `$ARGUMENTS` contains a path, use it. Otherwise, search `plans/` for the most recently modified `MANIFEST.md`. If none exists, report that no multi-epic project is active and suggest `/sdlc-brainstorm`.
+If `$ARGUMENTS` contains a path, use it. Otherwise, search `plans/` for the most recently modified `MANIFEST.md`. If none exists, report that no multi-epic project is active and suggest `/sdlc-design`.
 
 ## Workflow
 
@@ -15,7 +15,7 @@ Check the Open Issues section. Count unresolved issues by severity. If any HIGH 
 
 Determine what is actionable now by walking the dependency graph: an epic is actionable when all its dependencies are at "Planned" or later and its own status is the earliest incomplete phase. Sort actionable epics by phase priority (Phase A before B before C) and within a phase by critical path position.
 
-Print a concise dashboard showing every epic's status in a table, followed by open issue counts, then a "What's Next" section with the specific skill to run. For example: "Run `/sdlc-plan plans/2026-03-28-budgeting-core-mvp/epics/2026-03-28-mock-data-layer` -- no blockers, highest priority in Phase A." If multiple epics are actionable in parallel, list them all.
+Print a concise dashboard showing every epic's status in a table, followed by open issue counts, then a "What's Next" section with the specific skill to run. For example: "Run `/sdlc-implement plans/2026-03-28-budgeting-core-mvp/epics/2026-03-28-mock-data-layer/01-task-name` -- no blockers, highest priority in Phase A." If multiple epics are actionable in parallel, list them all.
 
 ## Rules
 

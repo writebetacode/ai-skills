@@ -1,11 +1,11 @@
 ---
-name: sdlc-brainstorm
-description: Turn an idea into one or more specs through guided questioning, with built-in research and automatic multi-epic decomposition when scope demands it.
+name: sdlc-design
+description: Turn an idea into specs and implementation plans through guided questioning, research, and architect-led agent teams with built-in validation.
 ---
 
-# Brainstorm: From Idea to Spec
+# Design: From Idea to Implementation Plan
 
-Flow: **[brainstorm]** -> plan -> implement -> complete
+Flow: **[design]** -> implement -> complete
 
 If `$ARGUMENTS` is empty, ask what to build. Do not proceed without a substantive prompt.
 
@@ -19,17 +19,27 @@ As questioning progresses, monitor whether the scope naturally decomposes into m
 
 ## Project Structure
 
-Every brainstorm produces a project folder at `plans/YYYY-MM-DD-<slug>/` with a `MANIFEST.md` at its root. The slug describes the initiative scope. Ensure `plans/` is git-ignored before writing any output.
+Every design produces a project folder at `plans/YYYY-MM-DD-<slug>/` with a `MANIFEST.md` at its root. The slug describes the initiative scope. Ensure `plans/` is git-ignored before writing any output.
 
 ## Spec Creation
 
-Once questioning is complete, write `epics.md` containing a numbered epic list -- each with title, 2-3 sentence scope, and supporting research findings -- followed by a `## Dependency Graph` mapping each epic to its prerequisites and a `## Build Order` with phased build order and critical path. A single-feature brainstorm produces an `epics.md` with one entry and no dependencies.
+Once questioning is complete, write `epics.md` containing a numbered epic list -- each with title, 2-3 sentence scope, and supporting research findings -- followed by a `## Dependency Graph` mapping each epic to its prerequisites and a `## Build Order` with phased build order and critical path. A single-feature design produces an `epics.md` with one entry and no dependencies.
 
 Then spin up an agent team with model `inherit` to produce specs. The team structure is the same for single-epic and multi-epic -- only the number of spec-creators varies.
 
 The **researcher** loads all prior research output and codebase context, fields factual questions from other agents, and gathers additional findings via web search when needed. Every URL the researcher provides must be verified as reachable -- never pass along a URL without confirming it resolves. The **architect** reads the research output and epic decomposition, then writes an architecture brief covering shared interfaces, data contracts, naming conventions, and cross-cutting technology choices. Spec-creators do not begin until the brief is ready. The architect stays live to answer structural questions and updates the brief when new decisions emerge. The **validator** runs concurrently from the start, performing both per-spec and cross-epic coherence checks. Per-spec: format compliance, completeness of all required sections, and no fabricated sources or ambiguous requirements. Cross-epic: no two epics overlap in scope or contradict each other's decisions; cross-epic interfaces are consistent (e.g., if Epic 5 consumes `useBudget()` from Epic 4, the field shapes match); the dependency graph in `epics.md` matches the `## Dependencies` sections in individual specs; and edge cases within each spec do not introduce scope that belongs to a different epic. It messages the relevant spec-creator and architect to resolve issues immediately -- only genuinely unresolvable items requiring human decision are recorded as open issues in the manifest. Each **spec-creator** (one per epic) writes a complete `spec.md` to `epics/YYYY-MM-DD-<epic-slug>/`, answering from context and routing factual questions to the researcher and structural questions to the architect. Every spec includes a `## Dependencies` section listing prerequisite epics by title.
 
-Generate `MANIFEST.md` by reading `epics.md` and the completed specs. Pre-populate all epics at "Spec Ready", the build order, and any open issues the validator could not resolve. End with: "Manifest created. Run `/sdlc-status` to see what's actionable."
+## Plan Creation
+
+Once all specs pass validation, the same agent team continues into planning without losing context. The researcher and architect already hold the full picture -- research findings, architecture brief, cross-epic decisions -- so there is no redundant context-loading phase.
+
+Each spec-creator transitions into a **planner** role for its epic. It performs thorough analysis of the specification to extract all requirements, decisions, scope, and edge cases, then decomposes the implementation into discrete, reviewable tasks as vertical slices -- each covering a complete path through all affected layers rather than grouping by layer. Every FR and NFR from the spec must be covered, tests included per task, and parallel-safe tasks marked where adjacent work is independent. The planner presents its task breakdown and iterates with the user until approved, then writes `plan.md` and individual task files to the epic directory.
+
+The architect reviews each planner's task breakdown for cross-epic cohesion, dependency alignment, interface consistency, and branch strategy. Each task should target roughly 500 lines of code changed per PR to keep reviews manageable -- if a task looks significantly larger, the architect flags it for the planner to decompose further. The validator extends its checks to cover each completed plan against the source spec, the architecture brief, and other plans for requirement coverage gaps, phantom references, interface mismatches, scope drift, and branch naming consistency. It messages the relevant planner and architect to resolve issues immediately.
+
+## Completion
+
+Generate `MANIFEST.md` by reading `epics.md`, the completed specs, and the completed plans. Pre-populate all epics at "Planned", the build order, and any open issues the validator could not resolve. End with: "Design complete. Run `/sdlc-implement` to begin."
 
 ## Spec Format
 
@@ -64,6 +74,56 @@ Prompt: "<original prompt>"
 ## Open Questions
 ```
 
+## Plan Format
+
+File: `plan.md`
+
+```
+# Implementation Plan: <Spec Title>
+
+Source spec: spec.md
+Date: <YYYY-MM-DD>
+
+## Approach
+<2-4 sentences on overall strategy.>
+
+## Dependency Graph
+main -> feat/<slug>/01-name -> feat/<slug>/02-name
+                               [parallel-safe: 02, 03]
+
+## Tasks
+| Task | Branch | Base | Spec Requirements | Summary | Status |
+|------|--------|------|-------------------|---------|--------|
+| 01-<name> | <type>/<slug>/01-<name> | main | FR-1, FR-2 | <one-line> | Todo |
+```
+
+## Task File Format
+
+File: `NN-<name>.md`
+
+```
+# Task NN: <Title>
+
+Branch: <type>/<spec-slug>/NN-<task-name>
+Base: main OR prior task branch
+
+## Spec Requirements
+- FR-<N>: <quoted requirement text>
+- NFR-<N>: <quoted requirement text>
+
+## Description
+<2-4 paragraphs on WHAT and WHY, not HOW.>
+
+## Key Files
+- path/to/file -- <expected change>
+
+## Acceptance Criteria
+1. <Testable outcome>
+
+## Dependencies
+<Prior tasks, or "None (branches from main).">
+```
+
 ## Manifest Format
 
 File: `MANIFEST.md`
@@ -87,7 +147,7 @@ Spec Ready -> Planned -> In Progress (N/M) -> Complete
 
 ## Rules
 
-Ask only one question at a time, proposing codebase-derived answers when possible. Focus specs on what to build, not how. Ensure `plans/` is git-ignored. Never fabricate sources or URLs. Phases are strictly sequential: research before decomposition, decomposition before architecture brief, brief before parallel spec creation. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.
+Ask only one question at a time, proposing codebase-derived answers when possible. Focus specs on what to build, not how. Ensure `plans/` is git-ignored. Never fabricate sources or URLs. Phases are strictly sequential: research before decomposition, decomposition before architecture brief, brief before parallel spec creation, spec validation before planning. The agent team persists across both phases so context is never reloaded. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

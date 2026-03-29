@@ -1,11 +1,11 @@
 ---
 name: sdlc-implement
-description: Execute a task from an implementation plan with integrated commits and PRs. Use after /sdlc-plan to implement tasks one at a time with a tester-coder agent team and built-in revision handling.
+description: Execute a task from an implementation plan with integrated commits and PRs. Use after /sdlc-design to implement tasks one at a time with a tester-coder agent team and built-in revision handling.
 ---
 
 # Implement: Execute Plan with Integrated Commits and PRs
 
-Flow: brainstorm -> plan -> **[implement]** -> complete
+Flow: design -> **[implement]** -> complete
 
 Resolve the task from: direct path, task number, plan directory, or prompt user.
 
@@ -19,7 +19,7 @@ Spin up an agent team with model `inherit` to implement acceptance criteria. The
 
 ## Revision Handling
 
-If the user's feedback during review amounts to a requirement change -- not just a code tweak but a shift in what should be built -- pause the tester and coder and invoke `/sdlc-brainstorm` scoped to the change so the full agent team (researcher, architect, spec-creator, validator) can evaluate the impact, update specs, and verify cross-epic consistency. If the revision alters task structure or acceptance criteria, follow with `/sdlc-plan` to regenerate the affected plan. Resume the tester and coder with the revised ACs once the user confirms the updated plan.
+If the user's feedback during review amounts to a requirement change -- not just a code tweak but a shift in what should be built -- pause the tester and coder and invoke `/sdlc-design` scoped to the change so the full agent team (researcher, architect, spec-creator, validator) can evaluate the impact, update specs, plans, and verify cross-epic consistency. Resume the tester and coder with the revised ACs once the user confirms the updated plan.
 
 ## Completion
 

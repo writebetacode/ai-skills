@@ -5,7 +5,7 @@ description: Archive a finished epic or entire project. Use after all tasks are 
 
 # Complete: Archive Finished Work
 
-Flow: brainstorm -> plan -> implement -> **[complete]**
+Flow: design -> implement -> **[complete]**
 
 Resolve target from `$ARGUMENTS`, a task file path, or prompt user.
 
