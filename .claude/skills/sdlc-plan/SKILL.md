@@ -14,9 +14,9 @@ If `$ARGUMENTS` is empty, list `plans/` directories and direct to `/sdlc-brainst
 
 ## Workflow
 
-Begin by reading the project context, including architectural documentation and agent instructions. Read the `MANIFEST.md` from the project root and the upstream epic specs listed as dependencies to understand interfaces this epic will consume. When an `edge-cases.md` file exists alongside `spec.md`, read both -- the edge cases file provides additional requirements and decisions that the plan must cover, and where it contradicts the main spec, edge cases take precedence.
+Begin by reading the project context, including architectural documentation and agent instructions. Read the `MANIFEST.md` from the project root and the upstream epic specs listed as dependencies to understand interfaces this epic will consume.
 
-Perform thorough analysis of the specification to extract all requirements, decisions, and scope. Explore the codebase to identify existing patterns and relevant reference files. Decompose the implementation into discrete, reviewable tasks as vertical slices -- each covering a complete path through all affected layers rather than grouping by layer. Every FR and NFR from both the spec and edge cases must be covered, tests included per task, and parallel-safe tasks marked where adjacent work is independent. Present the task breakdown as a numbered list and ask: "Does the granularity feel right -- too coarse, too fine, or should any tasks be merged or split?" Iterate until the user approves. Once finalized, write the index and individual task files.
+Perform thorough analysis of the specification to extract all requirements, decisions, scope, and edge cases. Explore the codebase to identify existing patterns and relevant reference files. Decompose the implementation into discrete, reviewable tasks as vertical slices -- each covering a complete path through all affected layers rather than grouping by layer. Every FR and NFR from the spec must be covered, tests included per task, and parallel-safe tasks marked where adjacent work is independent. Present the task breakdown as a numbered list and ask: "Does the granularity feel right -- too coarse, too fine, or should any tasks be merged or split?" Iterate until the user approves. Once finalized, write the index and individual task files.
 
 After writing the plan, update the manifest: set the epic's status to "Planned", record the plan path, and note which downstream epics are now unblocked because all their dependencies have reached at least "Planned."
 
@@ -26,7 +26,6 @@ After writing the plan, update the manifest: set the epic's status to "Planned",
 # Implementation Plan: <Spec Title>
 
 Source spec: spec.md
-Edge cases: edge-cases.md (if present)
 Date: <YYYY-MM-DD>
 
 ## Approach
@@ -75,7 +74,7 @@ When the task is to update an existing skill rather than create a new one, read 
 
 ## Rules
 
-Focus exclusively on generating the plan with no implementation code. Ensure every requirement from both the spec and edge cases is covered by at least one task. Use standardized branch naming and verify `plans/` is git-ignored. Once finished, suggest proceeding to validation. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.
+Focus exclusively on generating the plan with no implementation code. Ensure every requirement from the spec is covered by at least one task. Use standardized branch naming and verify `plans/` is git-ignored. Once finished, suggest proceeding to validation. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

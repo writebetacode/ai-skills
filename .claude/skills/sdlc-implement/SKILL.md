@@ -11,7 +11,7 @@ Resolve the task from: direct path, task number, plan directory, or prompt user.
 
 ## Workflow
 
-Start by loading the task file, index, and specification from the plan directory, along with project context files (CLAUDE.md, .cursorrules, AGENTS.md, docs/architecture.md if present) and predecessor task files. Read the `MANIFEST.md` from the project root and upstream epic specs listed as dependencies to understand interfaces this epic consumes. When an `edge-cases.md` exists alongside the spec, load it as additional context -- edge case requirements inform test cases and defensive coding.
+Start by loading the task file, index, and specification from the plan directory, along with project context files (CLAUDE.md, .cursorrules, AGENTS.md, docs/architecture.md if present) and predecessor task files. Read the `MANIFEST.md` from the project root and upstream epic specs listed as dependencies to understand interfaces this epic consumes.
 
 Set up the development branch by either checking out an existing local branch (and `git pull`) or creating a new one from the Base field, falling back to `main` for squash-merged stacks. Assess progress by reading `[x]` markers and report: fresh start, resuming, or complete.
 

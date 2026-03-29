@@ -50,7 +50,7 @@ A manifest-driven process to take a feature idea all the way through to merged c
 | Command | Phase | Description |
 |---|---|---|
 | `/sdlc-brainstorm` | 1 -- Brainstorm | Turn an idea into specs through guided questioning, with built-in research and automatic multi-epic decomposition |
-| `/sdlc-plan` | 2 -- Plan | Break a spec into stacked, reviewable PR-sized tasks with edge-case and manifest awareness |
+| `/sdlc-plan` | 2 -- Plan | Break a spec into stacked, reviewable PR-sized tasks with manifest awareness |
 | `/sdlc-validate` | 3 -- Validate | Epic-level coherence checks or plan-level requirement coverage, depending on input |
 | `/sdlc-implement` | 4 -- Implement | Execute tasks one acceptance criterion at a time with TDD and manifest updates |
 | `/sdlc-revise` | -- Revise | Propagate mid-implementation requirement changes back through specs, plans, and manifest |
@@ -63,15 +63,12 @@ The commands share a common file layout under `plans/` (add it to `.gitignore`):
 plans/
   YYYY-MM-DD-<slug>/                # project folder (from /sdlc-brainstorm)
     MANIFEST.md                     # central control document (always present)
-    epics.md                        # epic list + dependency graph (multi-epic)
-    build-plan.md                   # phased build order (multi-epic)
-    review.md                       # epic validation findings (multi-epic)
+    epics.md                        # epic list, dependency graph, and build order (multi-epic)
     research/                       # research output (if conducted)
       index.md, questions.md, findings/, ai-summary.md
     epics/
       YYYY-MM-DD-<epic-slug>/
-        spec.md                     # specification
-        edge-cases.md               # edge cases + integration concerns
+        spec.md                     # specification (includes edge cases)
         index.md                    # implementation plan (from /sdlc-plan)
         01-<task-name>.md
         02-<task-name>.md

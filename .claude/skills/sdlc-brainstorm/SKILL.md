@@ -15,23 +15,23 @@ Begin by reading relevant codebase context -- architecture docs, existing patter
 
 When the topic is unfamiliar, technically deep, or answers raise questions the codebase cannot resolve, conduct research inline. Use built-in web search and codebase tools to gather findings. Every finding must cite its actual source -- never fabricate URLs. Write research output to `research/` inside the project folder using the Research Output structure below.
 
-As questioning progresses, monitor whether the scope naturally decomposes into multiple independent work streams with their own dependencies. If it does, propose: "This looks like a multi-epic project -- I'd like to decompose it into N epics." On confirmation, transition to multi-epic mode. If scope stays contained, continue until all aspects are concrete and write a single-epic project.
+As questioning progresses, monitor whether the scope naturally decomposes into multiple independent work streams with their own dependencies. If it does, propose: "This looks like a multi-epic project -- I'd like to decompose it into N epics." Continue questioning until all aspects are concrete, then move to spec creation.
 
 ## Project Structure
 
 Every brainstorm produces a project folder at `plans/YYYY-MM-DD-<slug>/` with a `MANIFEST.md` at its root. The slug describes the initiative scope. Ensure `plans/` is git-ignored before writing any output.
 
-A single-epic project has one epic under `epics/`. Write the spec to `epics/YYYY-MM-DD-<epic-slug>/spec.md`, generate the manifest with one entry at "Spec Ready", and suggest moving to the planning phase.
+## Agent Team
 
-## Multi-Epic Mode
+Once questioning is complete, spin up an agent team to produce specs. Attempt to create a team first; if teams are unavailable, fall back to the Agent tool for subagents. Use model `opus` for all spawned agents. The team structure is the same for single-epic and multi-epic -- only the number of spec-creators varies.
 
-Write `epics.md` containing a numbered epic list -- each with title, 2-3 sentence scope, and supporting research findings -- followed by a `## Dependency Graph` mapping each epic to its prerequisites. Write `build-plan.md` with phased build order and critical path.
+The **researcher** loads all prior research output and codebase context, fields factual questions from other agents, and gathers additional findings via web search when needed. The **architect** reads the research output and epic decomposition (or questioning decisions for single-epic), then writes an architecture brief covering shared interfaces, data contracts, naming conventions, and cross-cutting technology choices. Spec-creators do not begin until the brief is ready. The architect stays live to answer structural questions and updates the brief when new cross-cutting decisions emerge. The **validator** runs concurrently from the start. As each spec lands, it validates against the architecture brief, the spec format, and other completed specs -- checking for scope overlap, interface mismatches, fabricated sources, and missing sections. When issues are found, it messages the relevant spec-creator and architect to resolve them immediately. Only genuinely unresolvable items requiring human decision are recorded as open issues in the manifest. Each **spec-creator** (one per epic) writes a complete `spec.md` to `epics/YYYY-MM-DD-<epic-slug>/` under the project folder, answering from context and routing factual questions to the researcher and structural questions to the architect. Every spec includes a `## Dependencies` section listing prerequisite epics by title.
 
-Attempt to create an agent team for parallel brainstorming. If teams are unavailable, fall back to the Agent tool for subagents. Use model `opus` for all spawned agents. Spawn one research liaison that loads all research output and fields questions via messaging, plus two agents per epic -- one for core feature definition writing `spec.md`, one for edge cases writing `edge-cases.md` -- both to `epics/YYYY-MM-DD-<epic-slug>/` under the project folder. Each agent performs the brainstorm questioning process autonomously, answering from context and routing unresolvable questions to the liaison. Every spec includes a `## Dependencies` section listing prerequisite epics by title.
+## Spec Creation
 
-Once all agents complete, run epic validation: verify each spec follows the format, addresses only its epic's scope, contains no fabricated sources, and that cross-epic interfaces are consistent. Write findings to `review.md` in the project root.
+Once questioning is complete, write `epics.md` containing a numbered epic list -- each with title, 2-3 sentence scope, and supporting research findings -- followed by a `## Dependency Graph` mapping each epic to its prerequisites and a `## Build Order` with phased build order and critical path. A single-feature brainstorm produces an `epics.md` with one entry and no dependencies. Then spin up the agent team with one spec-creator per epic.
 
-Generate `MANIFEST.md` by reading `epics.md`, `build-plan.md`, and `review.md`. Pre-populate all epics at "Spec Ready", the build order, and open issues. End with: "Manifest created. Run `/sdlc-status` to see what's actionable."
+Generate `MANIFEST.md` by reading `epics.md` and the completed specs. Pre-populate all epics at "Spec Ready", the build order, and any open issues the validator could not resolve. End with: "Manifest created. Run `/sdlc-status` to see what's actionable."
 
 ## Spec Format
 
@@ -58,6 +58,7 @@ Prompt: "<original prompt>"
 ## Requirements
 ### Functional Requirements / ### Non-Functional Requirements
 
+## Edge Cases
 ## Architectural Context
 ## Terminology
 <Table: Term | Definition | Aliases to avoid.>
@@ -75,7 +76,7 @@ File: `MANIFEST.md`
 Created: YYYY-MM-DD  |  Last updated: YYYY-MM-DD
 
 ## Status Dashboard
-| # | Epic | Phase | Status | Spec | Edge Cases | Plan | Blockers |
+| # | Epic | Phase | Status | Spec | Plan | Blockers |
 
 ### Status Values
 Spec Ready -> Planned -> Validated -> In Progress (N/M) -> Complete
@@ -96,7 +97,7 @@ When the task is to update an existing skill rather than create a new one, read 
 
 ## Rules
 
-Ask only one question at a time, proposing codebase-derived answers when possible. Focus specs on what to build, not how. Ensure `plans/` is git-ignored. Never fabricate sources. Multi-epic phases are strictly sequential: research before decomposition, decomposition before parallel brainstorming, brainstorming before review. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.
+Ask only one question at a time, proposing codebase-derived answers when possible. Focus specs on what to build, not how. Ensure `plans/` is git-ignored. Never fabricate sources. Phases are strictly sequential: research before decomposition, decomposition before architecture brief, brief before parallel spec creation. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 
