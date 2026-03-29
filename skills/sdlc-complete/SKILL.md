@@ -5,13 +5,13 @@ description: Archive a finished epic or entire project. Use after all tasks are 
 
 # Complete: Archive Finished Work
 
-Flow: brainstorm -> plan -> validate -> implement -> **[complete]**
+Flow: design -> implement -> **[complete]**
 
 Resolve target from `$ARGUMENTS`, a task file path, or prompt user.
 
 ## Workflow
 
-Begin by resolving the target. If it points to a single epic's plan directory, verify completion by reading the index file and confirming all tasks are done, warning if any remain incomplete. Update the `MANIFEST.md` to mark the epic as "Complete" and report which downstream epics are now fully unblocked.
+Begin by resolving the target. If it points to a single epic's plan directory, verify completion by reading `plan.md` and confirming all tasks are done, warning if any remain incomplete. Update the `MANIFEST.md` to mark the epic as "Complete" and report which downstream epics are now fully unblocked.
 
 If the target points to a project folder containing a `MANIFEST.md`, check whether all epics are marked "Complete." If they are, offer to archive the entire project as a unit. If some remain incomplete, list them and ask whether to proceed anyway.
 

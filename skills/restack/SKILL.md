@@ -5,7 +5,7 @@ description: Rebase open branches onto the latest main — whether their interme
 
 # Restack: Sync Open Branches After Squash Merge
 
-**Plan mode** (`$ARGUMENTS` is a directory): read `index.md`, extract Branch/Base fields — this defines the stack order.
+**Plan mode** (`$ARGUMENTS` is a directory): read `plan.md`, extract Branch/Base fields — this defines the stack order.
 **Auto mode** (`$ARGUMENTS` is empty): run `git branch -r --merged origin/main` to identify merged branches, then find open downstream branches that built on them.
 
 ## Workflow
