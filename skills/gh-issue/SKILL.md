@@ -21,26 +21,22 @@ Start by verifying prerequisites with `gh auth status` and checking the reposito
 ## Priority
 <low | medium | high>
 
-## Steps to Reproduce
+## Steps to Reproduce              <!-- bug only -->
 <steps>
 
-## Expected / Actual
+## Expected / Actual                <!-- bug only -->
 Expected: <expected behavior>
 Actual: <actual behavior>
 
-## Acceptance Criteria
+## Acceptance Criteria              <!-- feat only -->
 - [ ] <criterion>
 
 ## Suggestions
 <suggestions or N/A>
 
-## Open Questions
+## Open Questions                   <!-- omit if none -->
 <questions>
 ```
-
-Omit `Steps to Reproduce` and `Expected / Actual` unless type is `bug`.
-Omit `Acceptance Criteria` unless type is `feat`.
-Omit `Open Questions` if none provided.
 
 ## Rules
 

@@ -23,7 +23,7 @@ description: Create a conventional commit from staged changes. Use when the user
 
 ## Workflow
 
-Gather context by running `git diff --cached`, `git branch --show-current`, and `git log --oneline -5` in parallel. If `git diff --cached` returns empty output, no files are staged -- run `git status --short` to list the working tree, instruct the user to stage their changes first, and stop. Analyze the branch prefix or the diff to infer the commit type, using any provided user input as additional context to draft a message in the imperative mood that is under 72 characters and focuses on purpose rather than mechanics. Execute the commit immediately using a HEREDOC:
+Gather context by running `git diff --cached`, `git branch --show-current`, and `git log --oneline -5` in parallel. If `git diff --cached` returns empty output, no files are staged -- run `git status --short` to list the working tree, instruct the user to stage their changes first, and stop. Analyze the branch prefix or the diff to infer the commit type, defaulting to `chore` when neither the branch prefix nor diff content maps to a specific type, and use any provided user input as additional context to draft a message in the imperative mood that is under 72 characters and focuses on purpose rather than mechanics. Execute the commit immediately using a HEREDOC:
 
 ```bash
 git commit -F - <<'EOF'
