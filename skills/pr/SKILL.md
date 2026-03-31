@@ -45,6 +45,10 @@ Use this exact markdown structure for the PR body. Omit Breaking Changes and Dep
 
 Always assign the PR to @me. Validate all ticket links before use. Do not include a "Test Plan" section in the PR body; use only the authorized sections for tickets, summary, why, changes, breaking changes, and dependencies. Use only ASCII characters and never include AI attribution or "Co-Authored-By" lines in any output.
 
+It is a violation to use a PR title that is not a plain-English, human-readable sentence. Raw branch names, ticket slugs, kebab-case strings, or any machine-style identifier used as the title must be rejected and rewritten into a natural-language summary before the PR is created or updated. For example, `fix/auth-token-refresh` or `PROJ-123` are violations; "Fix authentication token refresh on expired sessions" is acceptable.
+
+It is a violation to produce a PR body that does not follow the exact template defined in this skill. The body must contain the Tickets, Summary, Why, and Changes sections in that order, using the prescribed markdown structure. Freeform prose, generic layouts, or invented sections such as "Test Plan" are violations and must be corrected before the PR is created or updated.
+
 ## User Input
 
 $ARGUMENTS
