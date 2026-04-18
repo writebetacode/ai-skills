@@ -9,7 +9,7 @@ Use any provided name or description as a starting point, otherwise begin by ask
 
 ## Workflow
 
-Begin the discovery phase by asking scoping questions one at a time to determine the skill's name, description, workflow steps, critical rules, and the appropriate model tier. Once the details are gathered, present a full draft of the skill content. Ask the user for confirmation and incorporate any requested edits before proceeding to the execution phase. Finally, create the directory and file, and confirm the final path to the user.
+Begin the discovery phase by asking scoping questions one at a time to determine the skill's name, description, workflow steps, and rules. If the workflow will delegate work to sub-agents via the `Agent` or `TeamCreate` tools, also ask which model tier fits each delegated role — Haiku for read-only lookups and scans, Sonnet for routine coding and edits, Opus for design, architecture, spec authoring, and code review — defaulting to `inherit` when the caller's tier is appropriate. Skills themselves run inline in the caller's model context and have no model field of their own, so only raise the tier question when the skill actually spawns agents. Once the details are gathered, present a full draft of the skill content. Ask the user for confirmation and incorporate any requested edits before proceeding to the execution phase. Finally, create the directory and file, and confirm the final path to the user.
 
 ## File Format
 
@@ -20,7 +20,7 @@ description: <description>
 ---
 ```
 
-Place the skill at `skills/<name>/SKILL.md` relative to the repo root. Each skill ends with a `## User Input\n\n$ARGUMENTS` section. A single file serves both Claude Code and Gemini CLI -- `task install` symlinks it into `~/.claude/skills/` and `~/.gemini/skills/`.
+Place the skill at `skills/<name>/SKILL.md` relative to the repo root. Each skill ends with a `## User Input\n\n$ARGUMENTS` section. A single file serves both Claude Code and Gemini CLI -- `task install` symlinks it into `~/.claude/skills/` and `~/.gemini/skills/`. The `description` field is how the model decides when to invoke the skill, so it must state the concrete trigger ("Use when the user wants to …") and, where ambiguity is likely, the conditions under which it should be skipped.
 
 ## Writing Style
 
@@ -32,7 +32,7 @@ When the task is to update an existing skill rather than create a new one, read 
 
 ## Rules
 
-Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. Ensure the skill is correctly placed in its own subdirectory under `skills/` at the repo root. After writing the skill file, update README.md to include the new skill in the appropriate table. Keep all skills under 100 lines and use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.
+Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. Ensure the skill is correctly placed in its own subdirectory under `skills/` at the repo root. After writing the skill file, update README.md to include the new skill in the appropriate table. Keep all skills under 100 lines and use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines. Prefer dedicated tools over shell commands in generated workflow text (Read/Edit/Write/Glob/Grep over `cat`/`sed`/`find`/`rg`) so the skill reads the same way the host CLIs execute it.
 
 ## User Input
 
