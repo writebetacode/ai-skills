@@ -5,15 +5,14 @@ description: Scaffold a new Claude Code subagent by asking scoping questions and
 
 # Agent Write: Scaffold a New Agent
 
-Use any provided name or description as a starting point, otherwise begin by asking the user what the agent should accomplish.
+Use any provided name or description as a starting point; otherwise ask the user what the agent should accomplish.
 
 ## Workflow
 
-Begin the discovery phase by asking scoping questions one at a time to determine the agent's name, description, invocation behavior (on-demand vs proactive), tools, memory setting, workflow steps, and rules. The description field is especially important — it is read by Claude to decide when to invoke the agent, so it must clearly state the trigger conditions and any "do not invoke" constraints. To make Claude invoke the agent proactively without an explicit call, include the word "PROACTIVELY" in the description; otherwise the agent stays on-demand. Once the details are gathered, present a full draft of the AGENT.md content. Ask the user for confirmation and incorporate any requested edits before writing. Finally, write the file to `agents/<name>/AGENT.md` in the repository and confirm the path.
+Ask scoping questions one at a time to determine the agent's name, description, invocation mode (on-demand vs proactive), tools, memory setting, workflow steps, and rules. The description field determines when Claude invokes the agent, so state concrete trigger conditions and any "do not invoke" constraints; include the word "PROACTIVELY" to opt into proactive invocation, otherwise the agent stays on-demand. Once details are gathered, present a full draft of AGENT.md, get explicit confirmation, incorporate edits, then write the file to `agents/<name>/AGENT.md` and confirm the path.
 
 ## File Format
 
-### AGENT.md Frontmatter
 ```yaml
 ---
 name: <name>
@@ -23,19 +22,19 @@ memory: none
 ---
 ```
 
-Omit `model` unless the user specifically wants to pin a model tier. Omit `tools` only if the agent should inherit all session tools — otherwise scope it as narrowly as possible to what the agent actually needs. Set `memory: none` unless the agent requires persistent state across conversations, in which case omit the field entirely to enable the default memory directory.
+Omit `model` unless a specific tier is required. Omit `tools` only if the agent should inherit all session tools; otherwise scope as narrowly as possible. Set `memory: none` unless the agent requires persistent state across conversations, in which case omit the field to enable the default memory directory.
 
 ## Writing Style
 
-Write all agent content — workflow steps and rules — as flowing prose paragraphs, not numbered lists or bullet points. Prose keeps intent and reasoning connected across the full workflow, producing better model execution. The only exception is structured reference data like mode tables or command pattern examples that are genuinely tabular or code-like.
+Write workflow and rules as flowing prose paragraphs, not numbered lists or bullets. Prose keeps intent and reasoning connected; bullets fragment context and strip the causal connectives that tell the model why to act. Structured reference data like mode tables or command examples is the only exception.
 
 ## Updating Existing Agents
 
-When the task is to update an existing agent rather than create a new one, read the current file first and diff the proposed changes against it. Explicitly list any existing functionality that would be removed and ask the user to confirm each removal before writing. Never drop behavioral details silently — if a step, rule, or constraint is present in the current agent, it must either be preserved in the updated version or explicitly approved for removal by the user.
+Read the current file first and diff proposed changes against it. Explicitly list any functionality that would be removed and get per-item confirmation before writing. Never drop behavioral details silently.
 
 ## Rules
 
-Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. After writing an agent file, update README.md to include the new agent in the appropriate table. Keep all agents under 100 lines and use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines. Do not generate a Gemini counterpart — agents are Claude Code-specific and have no Gemini equivalent.
+Always ask scoping questions one at a time and never write files without explicit confirmation. After writing an agent file, update README.md to include the new agent in the appropriate table. Keep agents under 100 lines, use only ASCII, and never include AI attribution or "Co-Authored-By" lines. Prefer dedicated tools over shell commands in generated workflow text (Read/Edit/Write/Glob/Grep over `cat`/`sed`/`find`/`rg`). Do not generate a Gemini counterpart — agents are Claude Code-specific.
 
 ## User Input
 

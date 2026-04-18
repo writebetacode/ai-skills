@@ -7,7 +7,7 @@ description: Create a consistently-formatted GitHub issue in the current repo. U
 
 ## Workflow
 
-Start by verifying prerequisites with `gh auth status` and checking the repository name; stop immediately if either step fails. Parse any provided arguments for a title and then prompt the user for any missing fields, including the issue type, title, description, priority, and optional sections like reproduction steps or acceptance criteria. Construct the issue body using the standard template, carefully omitting any optional sections that were skipped during the gathering phase. Show the final formatted title and body to the user and ask for confirmation or edits. Once confirmed, create the issue using the GitHub CLI, ensuring the issue is assigned to the current user and the final URL is displayed.
+Verify prerequisites with `gh auth status` and check the repository name; stop immediately if either fails. Parse any provided arguments for a title, then prompt for missing fields: issue type, title, description, priority, and optional sections like reproduction steps or acceptance criteria. Build the body using the template below, omitting any optional sections that were skipped. Show the formatted title and body and get confirmation or edits. Once confirmed, create the issue via `gh issue create --assignee @me` and display the final URL.
 
 ## Issue Body Template
 
@@ -40,7 +40,7 @@ Actual: <actual behavior>
 
 ## Rules
 
-Strictly adhere to the standard body template without changing section headers or their order. Always format the title as `<type>: <title>` and never create an issue without explicit user confirmation. Ensure all created issues are assigned to the current user with `--assignee @me`. Stop the process if the `gh` tool is not installed or if the user is not authenticated. Use only ASCII characters and never include AI attribution or "Co-Authored-By" lines in any output.
+Strictly follow the body template without changing section headers or order. Always format the title as `<type>: <title>` and never create an issue without explicit user confirmation. Assign every created issue to the current user with `--assignee @me`. Stop if `gh` is not installed or the user is not authenticated. Use only ASCII and never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 
