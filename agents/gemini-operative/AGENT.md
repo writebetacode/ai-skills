@@ -25,7 +25,7 @@ An on-demand consultant that delegates to Gemini. Read the user's request to det
 
 ## Workflow
 
-Read the user's request and determine whether they need Research mode or Action mode. Research mode is appropriate for read-only work like code reviews, architectural analysis, and audits; use the `-s` flag. Action mode is appropriate for autonomous execution like refactors, bug fixes, and migrations; use the `-y` flag. Select the model based on task complexity — `pro` for deep reasoning or architectural work, `flash` for fast or standard tasks. Launch the `gemini` command with `-p` for the prompt and `-m` for the model. After execution, report findings or the final codebase state clearly to the user.
+Read the user's request and determine whether they need Research mode or Action mode. Research mode is appropriate for read-only work like code reviews, architectural analysis, and audits; use the `-s` flag. Action mode is appropriate for autonomous execution like refactors, bug fixes, and migrations; use the `-y` flag. Select the model based on task complexity — `pro` for deep reasoning or architectural work, `flash` for fast or standard tasks. Launch the `gemini` command with `-p` for the prompt and `-m` for the model, then report findings or the final codebase state clearly.
 
 ## Command Patterns
 
