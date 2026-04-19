@@ -64,7 +64,7 @@ plans/
     epics.md                        # epic list, dependency graph, and build order (multi-epic)
     research/<topic>.md             # researcher citations
     epics/
-      <epic-slug>/
+      NN-<epic-slug>/               # NN-prefix matches Build Order
         spec.md                     # technical specification
         plan.md                     # implementation plan
         tasks/

@@ -30,9 +30,9 @@ The document-writer produces one `spec.md` per epic, routing factual questions t
 
 Before plan signoff, the architect walks the task graph and rejects any task whose `Base` field names two different prior branches. Every task has exactly one parent -- `main` or one prior task branch. If a task needs state from two prior branches, flatten them (merge the priors into one task, or split the current task) and redo the plan. This is an absolute gate; no exceptions.
 
-## Task Ordering Gate
+## Ordering Gate
 
-The architect confirms every task's NN-prefix matches its position in the run order: 01 runs first, 02 second, no gaps, no reorderings. A task file named `04-...` that runs before `03-...` is rejected as a seam bug and renumbered before signoff.
+The architect confirms every task's NN-prefix matches its position in the run order: 01 runs first, 02 second, no gaps, no reorderings. A task file named `04-...` that runs before `03-...` is rejected as a seam bug and renumbered before signoff. The same rule applies to epic folders: every epic's NN-prefix must match its position in the Build Order, and single-epic projects use `01-`. Mismatches are renumbered before signoff.
 
 ## Mid-Flight Revision
 
@@ -47,7 +47,7 @@ plans/<project-slug>/
   adr.md                      # running log of project-level architecture decisions
   epics.md                    # epic list + dependency graph + build order (multi-epic only)
   research/<topic>.md         # researcher citations
-  epics/<epic-slug>/
+  epics/NN-<epic-slug>/        # NN-prefix MUST match Build Order
     spec.md                   # technical specification
     plan.md                   # implementation plan
     tasks/
@@ -73,7 +73,7 @@ End with: "Design complete. Run `/sdlc-implement` to begin."
 
 ## Spec Format
 
-File: `epics/<epic-slug>/spec.md`
+File: `epics/NN-<epic-slug>/spec.md`
 
 ```
 # <Title>
@@ -106,7 +106,7 @@ Prompt: "<original prompt>"
 
 ## Plan Format
 
-File: `epics/<epic-slug>/plan.md`
+File: `epics/NN-<epic-slug>/plan.md`
 
 ```
 # Implementation Plan: <Spec Title>
@@ -128,7 +128,7 @@ main -> feat/<slug>/01-name -> feat/<slug>/02-name
 
 ## Task File Format
 
-File: `epics/<epic-slug>/tasks/NN-<name>.md`
+File: `epics/NN-<epic-slug>/tasks/NN-<name>.md`
 
 ```
 # Task NN: <Title>
@@ -176,7 +176,7 @@ Spec Ready -> Planned -> In Progress (N/M) -> Complete
 
 ## Rules
 
-NEVER produce specs, plans, or task files directly in the main conversation, and NEVER drive intake questioning from the main conversation -- all artifacts and questions MUST come through the architect/researcher/document-writer team via TeamCreate. The architect leads intake and delegates codebase and ADR lookups to the researcher. The main thread is a pure router: it relays messages between user and architect without injecting its own questions or commentary. Ask only one question at a time with no compounds and no sub-questions as examples. Honor user-initiated drill-downs fully before resuming the architect's line. Every task has exactly one parent branch -- stack-linearity is absolute. NN-prefix must match run order. Always read `docs/adrs/**/*.md` at session start via the researcher. Never fabricate sources or URLs. Use only ASCII and never include AI attribution or "Co-Authored-By" lines.
+NEVER produce specs, plans, or task files directly in the main conversation, and NEVER drive intake questioning from the main conversation -- all artifacts and questions MUST come through the architect/researcher/document-writer team via TeamCreate. The architect leads intake and delegates codebase and ADR lookups to the researcher. The main thread is a pure router: it relays messages between user and architect without injecting its own questions or commentary. Ask only one question at a time with no compounds and no sub-questions as examples. Honor user-initiated drill-downs fully before resuming the architect's line. Every task has exactly one parent branch -- stack-linearity is absolute. NN-prefix must match run order for both epics and tasks. Always read `docs/adrs/**/*.md` at session start via the researcher. Never fabricate sources or URLs. Use only ASCII and never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 
