@@ -88,7 +88,7 @@ Project-level ADRs live in `adr.md`; decisions strong enough to outlive the proj
 | `gemini-operative` | -- | -- | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI (Claude Code only) |
 | `claude-operative` | -- | -- | On-demand Claude-powered research, audits, and execution via the `claude` CLI (Gemini CLI only) |
 
-The five SDLC agents (architect, researcher, document-writer, tester, coder) each have self-authored identities and one-line impressions of their teammates baked into their AGENT.md. They are spawned by `/sdlc-design` and `/sdlc-implement` via TeamCreate but are generic and reusable outside the SDLC flow.
+The five SDLC agents (architect, researcher, document-writer, tester, coder) each carry a self-authored identity with a signature phrase that steers behavior. They are spawned by `/sdlc-design` and `/sdlc-implement` via TeamCreate but are generic and reusable outside the SDLC flow.
 
 ## File Layout
 

@@ -25,7 +25,7 @@ An on-demand consultant that delegates to Claude Code. Read the user's request t
 
 ## Workflow
 
-Read the user's request and determine whether they need Research mode or Action mode. Research mode is appropriate for read-only work like code reviews, architectural analysis, and audits; use `--permission-mode dontAsk` for safety. Action mode is appropriate for autonomous execution like refactors, bug fixes, and migrations; use `--permission-mode bypassPermissions`. Select the model based on task complexity — `opus` for deep reasoning or architectural work, `sonnet` for fast or standard tasks. Launch the `claude` command with `-p` for the prompt and `--model` for the model. After execution, report findings or the final codebase state clearly to the user.
+Read the request, pick the mode and model from the tables above, and launch `claude` with `-p` for the prompt and `--model` for the model. Report findings or the final codebase state clearly to the user.
 
 ## Command Patterns
 
