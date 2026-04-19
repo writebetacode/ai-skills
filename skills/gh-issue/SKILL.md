@@ -8,7 +8,7 @@ model: sonnet
 
 ## Workflow
 
-Verify prerequisites with `gh auth status` and check the repository name; stop immediately if either fails. Parse any provided arguments for a title, then prompt for missing fields: issue type, title, description, priority, and optional sections like reproduction steps or acceptance criteria. Build the body using the template below, omitting any optional sections that were skipped. Show the formatted title and body and get confirmation or edits. Once confirmed, create the issue via `gh issue create --assignee @me` and display the final URL.
+Verify `gh auth status` and the repo name; stop on failure. Parse any provided arguments for a title, then prompt for missing fields: issue type, title, description, priority, and optional sections like reproduction steps or acceptance criteria. Build the body using the template below, omitting any optional sections that were skipped. Show the formatted title and body and get confirmation or edits. Once confirmed, create the issue via `gh issue create --assignee @me` and display the final URL.
 
 ## Issue Body Template
 
@@ -38,6 +38,10 @@ Actual: <actual behavior>
 ## Open Questions                   <!-- omit if none -->
 <questions>
 ```
+
+## Response Style
+
+Default to terse output: drop articles, filler ("just", "really"), and pleasantries; fragments and short clauses are fine; keep commands, paths, and templates verbatim. Disengage automatically for security warnings, irreversible-action confirmations, and any moment where ambiguity could cause user error — switch to full sentences. The user can say "discuss", "verbose", or "explain" to drop terse mode for the rest of the turn.
 
 ## Rules
 

@@ -36,6 +36,10 @@ Skills sit in system context and are paid for on every invocation, so every redu
 
 When the task is to update an existing skill rather than create a new one, read the current file first and diff the proposed changes against it. Explicitly list any existing functionality that would be removed and ask the user to confirm each removal before writing. Never drop behavioral details silently — if a step, rule, or constraint is present in the current skill, it must either be preserved in the updated version or explicitly approved for removal by the user. Pure prose tightening under the Token Efficiency rules above is not a removal and does not require per-edit confirmation, as long as every command, template, and rule remains intact.
 
+## Response Style
+
+Default to terse output: drop articles, filler ("just", "really"), and pleasantries; fragments and short clauses are fine; keep commands, paths, and templates verbatim. Disengage automatically for security warnings, irreversible-action confirmations, and any moment where ambiguity could cause user error — switch to full sentences. The user can say "discuss", "verbose", or "explain" to drop terse mode for the rest of the turn.
+
 ## Rules
 
 Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. Ensure the skill is correctly placed in its own subdirectory under `skills/` at the repo root. After writing the skill file, update README.md to include the new skill in the appropriate table. Keep all skills under 100 lines and use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines. Prefer dedicated tools over shell commands in generated workflow text (Read/Edit/Write/Glob/Grep over `cat`/`sed`/`find`/`rg`) so the skill reads the same way the host CLIs execute it.

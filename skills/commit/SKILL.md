@@ -20,13 +20,17 @@ model: sonnet
 
 ## Workflow
 
-Gather context in parallel by running `git diff --cached --name-only` to enumerate staged files, `git diff --cached` for the actual changes, `git branch --show-current`, and `git log --oneline -5`. Treat the `--name-only` list as the authoritative check: if it is empty, nothing is staged — run `git status --short`, tell the user to stage their changes first, and stop. If any files appear in the list, treat every one of them as in-scope for this commit regardless of how or why it was staged. Infer the commit type from the branch prefix or diff content, defaulting to `chore` when neither maps cleanly, and use any provided user input as additional context. Draft a message in the imperative mood under 72 characters that focuses on purpose rather than mechanics. Execute the commit immediately via HEREDOC:
+Gather context in parallel: `git diff --cached --name-only` (staged files), `git diff --cached` (full changes), `git branch --show-current`, `git log --oneline -5`. Treat the `--name-only` list as the authoritative check: if it is empty, nothing is staged — run `git status --short`, tell the user to stage their changes first, and stop. If any files appear in the list, treat every one of them as in-scope for this commit regardless of how or why it was staged. Infer the commit type from the branch prefix or diff content, defaulting to `chore` when neither maps cleanly, and use any provided user input as additional context. Draft a message in the imperative mood under 72 characters that focuses on purpose rather than mechanics. Execute the commit immediately via HEREDOC:
 
 ```bash
 git commit -F - <<'EOF'
 <type>: <message>
 EOF
 ```
+
+## Response Style
+
+Default to terse output: drop articles, filler ("just", "really"), and pleasantries; fragments and short clauses are fine; keep commands, paths, and templates verbatim. Disengage automatically for security warnings, irreversible-action confirmations, and any moment where ambiguity could cause user error — switch to full sentences. The user can say "discuss", "verbose", or "explain" to drop terse mode for the rest of the turn.
 
 ## Rules
 

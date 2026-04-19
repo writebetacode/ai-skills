@@ -11,21 +11,21 @@ If `$ARGUMENTS` is empty, ask what to build. Do not proceed without a substantiv
 
 ## Questioning Rules
 
-Ask exactly one question per turn. Never compound two questions into one ("A and also B?"), and never smuggle sub-questions in as examples ("What auth? JWT or sessions?"). When the codebase already supports a likely answer, propose it as a default the user can confirm with a single word ("Looks like you're using JWTs here — confirm?") instead of asking open-ended. After every user answer, pause and decide whether to accept, drill deeper, or move on. The user may interrupt the flow at any time to drill into any topic, and you must honor that fully before resuming your own line. Respond completely to any question the user asks back before continuing.
+Ask exactly one question per turn. Never compound two questions into one ("A and also B?"), and never smuggle sub-questions in as examples ("What auth? JWT or sessions?"). When the codebase suggests a likely answer, propose it as a default the user confirms in one word ("Looks like you're using JWTs — confirm?") instead of open-ended. After every user answer, pause and decide whether to accept, drill deeper, or move on. The user may interrupt at any time to drill into any topic; honor it fully before resuming your line. Respond completely to any question the user asks back before continuing.
 
 ## Agent Team
 
-Spec and plan authoring MUST happen through a team created via TeamCreate named `sdlc-design-<project-slug>`. Spawn three permanent agents via the `Agent` tool using `team_name` matching the TeamCreate name and `name` matching each identifier: `architect` (opus), `researcher` (sonnet), `document-writer` (sonnet). Each agent's AGENT.md carries its workflow and identity — do not re-specify here. The architect stays live throughout design and signs off every artifact. Never produce specs, plans, or task files directly in the main conversation.
+Spec and plan authoring MUST happen through a team created via TeamCreate named `sdlc-design-<project-slug>`. Spawn three permanent agents via `Agent` with `team_name` matching the TeamCreate name and `name` matching each identifier: `architect` (opus), `researcher` (sonnet), `document-writer` (sonnet). Each agent's AGENT.md carries its workflow and identity — do not re-specify here. The architect stays live throughout design and signs off every artifact. Never produce specs, plans, or task files directly in the main conversation.
 
 ## Workflow
 
-Read relevant codebase context: any `docs/adrs/**/*.md` in the host repo (so prior architectural decisions bind the new work), existing skills and patterns, and files the prompt touches. Run the questioning loop under the rules above until scope and decisions are concrete. Route factual lookups through the researcher as they arise — every package, library, framework, SDK, and CLI version must be resolved via `context7` and cited. As questioning progresses, monitor whether scope decomposes into multiple independent work streams; if it does, propose: "This looks like a multi-epic project — I'd like to decompose it into N epics." Continue until all aspects are concrete, then hand off to the team.
+Read relevant context: `docs/adrs/**/*.md` in the host repo (prior architectural decisions bind new work), existing skills and patterns, and files the prompt touches. Run the questioning loop under the rules above until scope and decisions are concrete. Route factual lookups through the researcher as they arise — every package, library, framework, SDK, and CLI version must be resolved via `context7` and cited. Monitor whether scope decomposes into independent work streams; if so, propose: "This looks like a multi-epic project — I'd like to decompose it into N epics." Continue until all aspects are concrete, then hand off to the team.
 
-The document-writer produces one `spec.md` per epic, routing factual questions to the researcher and structural questions to the architect. The architect signs off each spec before planning begins. The document-writer then transitions into planner — decomposes each spec into vertical-slice tasks (~500 LOC per PR target), writes `plan.md`, and emits `tasks/NN-<name>.md` files in run order. The architect reviews the full plan end-to-end, runs the stack-linearity gate and NN-ordering gate below, and signs off. Finally the document-writer generates `MANIFEST.md` from the template below.
+The document-writer produces one `spec.md` per epic, routing factual questions to the researcher and structural questions to the architect. The architect signs off each spec before planning begins. The document-writer then transitions into planner — decomposes each spec into vertical-slice tasks (~500 LOC per PR target), writes `plan.md`, and emits `tasks/NN-<name>.md` files in run order. The architect reviews the full plan end-to-end, runs the stack-linearity gate and NN-ordering gate below, and signs off. The document-writer generates `MANIFEST.md` from the template below.
 
 ## Stack-Linearity Gate
 
-Before plan signoff, the architect walks the task graph and rejects any task whose `Base` field names two different prior branches. Every task has exactly one parent — `main` or one prior task branch. If a task genuinely needs state from two prior branches, flatten them (merge the priors into one task, or split the current task) and redo the plan. This is an absolute gate; no exceptions.
+Before plan signoff, the architect walks the task graph and rejects any task whose `Base` field names two different prior branches. Every task has exactly one parent — `main` or one prior task branch. If a task needs state from two prior branches, flatten them (merge the priors into one task, or split the current task) and redo the plan. This is an absolute gate; no exceptions.
 
 ## Task Ordering Gate
 
@@ -33,7 +33,7 @@ The architect confirms every task's NN-prefix matches its position in the run or
 
 ## Mid-Flight Revision
 
-When `$ARGUMENTS` names an existing project and the user requests a revision (architecture shift, scope change, reshape), enter revision mode. Pause any in-flight implementation — do not touch partial work; direct the user to stash or leave the working tree alone. Re-spawn the design team (same TeamCreate name is fine). The architect reads the manifest, completed task files, and in-progress work, then decides per remaining task: **keep** (unchanged), **revise** (needs updated spec — mark `[revised: vN]` in the manifest and overwrite the task file), or **void** (no longer needed — mark `[voided: <reason>]` in the manifest, leave the file in place for history). Append any new tasks with fresh NN-prefixes continuing the existing sequence. Update `adr.md` with the decision that triggered the revision. Ask the user to confirm the updated plan before returning them to `/sdlc-implement`.
+When `$ARGUMENTS` names an existing project and the user requests a revision (architecture shift, scope change, reshape), enter revision mode. Pause in-flight implementation — do not touch partial work; tell the user to stash or leave the tree alone. Re-spawn the design team (same TeamCreate name is fine). The architect reads the manifest, completed task files, and in-progress work, then decides per remaining task: **keep** (unchanged), **revise** (needs updated spec — mark `[revised: vN]` in the manifest and overwrite the task file), or **void** (no longer needed — mark `[voided: <reason>]` in the manifest, leave the file in place for history). Append any new tasks with fresh NN-prefixes continuing the existing sequence. Update `adr.md` with the decision that triggered the revision. Ask the user to confirm the updated plan before returning them to `/sdlc-implement`.
 
 ## Project Structure
 
@@ -52,7 +52,7 @@ plans/<project-slug>/
       02-<task-name>.md
 ```
 
-The project slug carries no date prefix; date is appended only on archive. Epic slugs carry no date prefix either.
+Neither project nor epic slug carries a date prefix; the date is appended only on archive.
 
 ## PRD and ADR Handling
 
@@ -62,7 +62,7 @@ The project slug carries no date prefix; date is appended only on archive. Epic 
 
 Once the architect has signed off the final plan and `MANIFEST.md` is written, shut down the team. Send `SendMessage` to each agent with `{type: "shutdown_request", reason: "Design complete."}`, wait for every `shutdown_approved` response, then call `TeamDelete` to remove the team and task directories. Do not skip teardown — leaving agents running leaks context and keeps the team directory on disk.
 
-If the session is paused mid-design (e.g., the user stops for the day), leave the team running so context is preserved; teardown happens only when the plan is signed off, or when a mid-flight revision session finishes and returns control to `/sdlc-implement`.
+If the session pauses mid-design (e.g., user stops for the day), leave the team running to preserve context; teardown happens only when the plan is signed off or when a mid-flight revision session finishes and returns control to `/sdlc-implement`.
 
 ## Completion
 

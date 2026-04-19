@@ -11,35 +11,39 @@ Resolve the task from direct path, task number, or plan directory. Called with n
 
 ## Agent Team
 
-Implementation MUST happen through a team created via TeamCreate named `sdlc-implement-<project-slug>`. Spawn two permanent agents via the `Agent` tool: `tester` (opus) and `coder` (opus). Each agent's AGENT.md carries its workflow and identity — do not re-specify here. Never implement code directly in the main conversation.
+Implementation MUST happen through a team via TeamCreate named `sdlc-implement-<project-slug>`. Spawn two permanent agents via `Agent`: `tester` (opus) and `coder` (opus). Each agent's AGENT.md carries its workflow and identity — do not re-specify here. Never implement code directly in the main conversation.
 
 ## Workflow
 
-Load the task file, plan, spec, and project context (CLAUDE.md, .cursorrules, AGENTS.md, `docs/architecture/` if present, `docs/adrs/**/*.md`, and predecessor task files). Read `MANIFEST.md` and any upstream epic specs listed as dependencies so the implementer understands interfaces this epic consumes. Set up the development branch by either checking out the existing local branch (and `git pull`) or creating a new one from the task's `Base` field, falling back to `main` for squash-merged stacks. Assess progress by reading `[x]` markers and report: fresh start, resuming, or complete.
+Load the task file, plan, spec, and project context (CLAUDE.md, .cursorrules, AGENTS.md, `docs/architecture/` if present, `docs/adrs/**/*.md`, and predecessor task files). Read `MANIFEST.md` and any upstream epic specs listed as dependencies so the implementer understands interfaces this epic consumes. Set up the dev branch: check out the existing local branch (and `git pull`) or create a new one from the task's `Base` field, falling back to `main` for squash-merged stacks. Assess progress via `[x]` markers and report: fresh start, resuming, or complete.
 
-For each acceptance criterion, the tester writes a failing test (RED), the coder writes the minimum code to make it pass (GREEN), then refactors while keeping tests green (REFACTOR). The tester confirms all tests pass after refactoring and runs lint on the changed files using the first match from: project script (`lint` in package.json, `lint` target in Taskfile, linter config in pyproject.toml), then language default (ESLint for JS/TS, ruff for Python, golangci-lint for Go). Lint errors are treated as failing tests; the coder fixes and the tester re-checks. Skip tests and lint for non-behavioral changes like config or docs.
+Per AC: tester writes a failing test (RED), coder writes minimum code to pass (GREEN), then refactors while tests stay green (REFACTOR). The tester confirms all tests pass after refactoring and runs lint on changed files using the first match from: project script (`lint` in package.json, `lint` target in Taskfile, linter config in pyproject.toml), then language default (ESLint for JS/TS, ruff for Python, golangci-lint for Go). Lint errors count as failing tests; the coder fixes and the tester re-checks. Skip tests and lint for non-behavioral changes like config or docs.
 
-Once tests and lint are green, the tester runs **third-party validation**: re-runs the full project test suite (not just the new tests) and then reads the spec side-by-side with the final code, pointing at the code that satisfies each clause. Any spec clause without a code citation is drift and is flagged back to the coder. Only when the full suite is green and every spec clause has a home in the code does the tester approve the AC.
+Once tests and lint are green, the tester runs **third-party validation**: re-runs the full project test suite (not just new tests) and reads the spec side-by-side with the final code, citing the code that satisfies each clause. Any spec clause without a code citation is drift, flagged back to the coder. Only when the full suite is green and every spec clause has a home in the code does the tester approve the AC.
 
-After each approved AC, present the changes to the user for review before committing. The user may question, adjust, or approve. Once approved, stage specific files and invoke the `/commit` skill via the Skill tool. After each commit, mark `[x]` in the task file and update plan.md Status (Todo -> In Progress -> Done).
+After each approved AC, present changes for user review before committing. The user may question, adjust, or approve. Once approved, stage specific files and invoke `/commit` via Skill. After each commit, mark `[x]` in the task file and update plan.md Status (Todo -> In Progress -> Done).
 
 ## Mid-Flight Revision
 
-If the user's feedback during review is a requirement change — not just a code tweak but a shift in what should be built — pause the tester and coder (no partial commits; leave the working tree or stash) and invoke `/sdlc-design` scoped to the change. The design team will re-spawn, read the current manifest and work in flight, and decide per remaining task: keep, revise, or void. Once the user confirms the updated plan, the implement team resumes on the current or revised task.
+If review feedback is a requirement change — not a code tweak but a shift in what to build — pause tester and coder (no partial commits; leave the tree or stash) and invoke `/sdlc-design` scoped to the change. The design team re-spawns, reads the current manifest and in-flight work, and decides per remaining task: keep, revise, or void. Once the user confirms the updated plan, the implement team resumes on the current or revised task.
 
 ## Team Teardown
 
 Once the task's PR is opened and the manifest is updated, shut down the team. Send `SendMessage` to tester and coder with `{type: "shutdown_request", reason: "Task complete."}`, wait for every `shutdown_approved` response, then call `TeamDelete` to remove the team and task directories. Do not skip teardown — leaving agents running leaks context and keeps the team directory on disk.
 
-If the session is paused mid-task (e.g., the user stops mid-AC), leave the team running so test and code context is preserved; teardown happens only at task completion or when the user explicitly ends the session.
+If the session pauses mid-task (e.g., user stops mid-AC), leave the team running to preserve test and code context; teardown happens only at task completion or when the user explicitly ends the session.
 
 ## Completion
 
-Once all criteria are complete, invoke the `/pr` skill via the Skill tool to create or update the pull request, using the task's `Base` field as the target branch. Write `## PR\n\n[#<number>](<url>)` to the task file (do not commit). Update the manifest's status to "In Progress (N/M tasks done)" after each task, or "Complete" when the final task is done. When completing the last task of an epic, report which downstream epics are now fully unblocked. Show the PR URL and suggest the next actionable task from any epic. Only suggest `/sdlc-complete <project-dir>` when every epic in the manifest is marked Complete — never offer to complete an individual epic.
+Once all criteria are complete, invoke `/pr` via Skill to create or update the PR, using the task's `Base` field as the target branch. Write `## PR\n\n[#<number>](<url>)` to the task file (do not commit). Update the manifest's status to "In Progress (N/M tasks done)" after each task, or "Complete" when the final task is done. When completing the last task of an epic, report which downstream epics are now fully unblocked. Show the PR URL and suggest the next actionable task from any epic. Only suggest `/sdlc-complete <project-dir>` when every epic in the manifest is marked Complete — never offer to complete an individual epic.
+
+## Response Style
+
+Default to terse output: drop articles, filler ("just", "really"), and pleasantries; fragments and short clauses are fine; keep commands, paths, and templates verbatim. Disengage automatically for security warnings, irreversible-action confirmations, and any moment where ambiguity could cause user error — switch to full sentences. The user can say "discuss", "verbose", or "explain" to drop terse mode for the rest of the turn.
 
 ## Rules
 
-NEVER implement code directly in the main conversation — all implementation MUST happen through the tester-coder team via TeamCreate. Always follow the TDD loop: failing tests before code, refactor only once green. Test through public interfaces. Never weaken a test to get it green. Never mark a task complete while any spec clause is unaccounted for. Never stage with `git add .` or `git add -A`. NEVER run `git commit`, `git push`, `gh pr create`, or `gh pr edit` directly — these MUST go through `/commit` and `/pr` via the Skill tool. Always present changes for user review after each AC before committing. Always assign PRs to the current user. Use only ASCII and never include AI attribution or "Co-Authored-By" lines.
+NEVER implement code directly in the main conversation — all implementation MUST happen through the tester-coder team via TeamCreate. Always follow the TDD loop: failing tests before code, refactor only once green. Test through public interfaces. Never weaken a test to get it green. Never mark a task complete while any spec clause is unaccounted for. Never stage with `git add .` or `git add -A`. NEVER run `git commit`, `git push`, `gh pr create`, or `gh pr edit` directly — these MUST go through `/commit` and `/pr` via Skill. Always present changes for user review after each AC before committing. Always assign PRs to the current user. Use only ASCII and never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

@@ -8,7 +8,7 @@ model: sonnet
 
 ## Workflow
 
-Verify authentication with `gh auth status` and stop if it fails. Gather context in parallel — current branch, remote URL, user login, PR status — and warn if there are uncommitted changes. Use the base branch from arguments, or auto-detect by matching the branch name prefix against other local branches and falling back to `git merge-base` against `main`. Validate any ticket numbers in the branch name with `gh issue view`, then prepare a human-readable title under 70 characters that summarizes the combined changes. Compose the PR body using the template below, then run `gh pr create --assignee @me` or `gh pr edit`, adding `--draft` if "draft" appears in `$ARGUMENTS`, and display the resulting PR URL.
+Verify `gh auth status`; stop on failure. Gather in parallel — current branch, remote URL, user login, PR status — and warn on uncommitted changes. Resolve the base from arguments, or auto-detect by matching the branch-name prefix against other local branches, falling back to `git merge-base` against `main`. Validate ticket numbers via `gh issue view`, then draft a human-readable title under 70 characters covering the combined changes. Compose the body from the template, run `gh pr create --assignee @me` or `gh pr edit` (add `--draft` if "draft" appears in `$ARGUMENTS`), and display the PR URL.
 
 ## PR Body Template
 
@@ -41,6 +41,10 @@ Use this exact markdown structure. Omit Breaking Changes and Dependencies when n
 
 <List added, removed, or upgraded dependencies, or omit this section entirely.>
 ```
+
+## Response Style
+
+Default to terse output: drop articles, filler ("just", "really"), and pleasantries; fragments and short clauses are fine; keep commands, paths, and templates verbatim. Disengage automatically for security warnings, irreversible-action confirmations, and any moment where ambiguity could cause user error — switch to full sentences. The user can say "discuss", "verbose", or "explain" to drop terse mode for the rest of the turn.
 
 ## Rules
 
