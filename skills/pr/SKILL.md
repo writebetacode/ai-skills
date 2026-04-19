@@ -1,6 +1,7 @@
 ---
 name: pr
 description: Create or update a pull request with a human-readable title and structured description. Use when the user wants to open or update a PR for the current branch.
+model: sonnet
 ---
 
 # PR: Create or Update Pull Request

@@ -1,6 +1,7 @@
 ---
 name: skill-write
 description: Scaffold a new reusable workflow skill by asking scoping questions and generating a skill file. Use when the user wants to codify a repetitive task into a skill.
+model: opus
 ---
 
 # Skill Write: Scaffold a New Skill
@@ -9,7 +10,7 @@ Use any provided name or description as a starting point, otherwise begin by ask
 
 ## Workflow
 
-Ask scoping questions one at a time to determine the skill's name, description, workflow steps, and rules. If the workflow will delegate to sub-agents via the `Agent` or `TeamCreate` tools, also ask which model tier fits each delegated role — Haiku for read-only lookups and scans, Sonnet for routine coding and edits, Opus for design, architecture, spec authoring, and code review — defaulting to `inherit` when the caller's tier is appropriate. Skills themselves run inline in the caller's model context and have no model field of their own, so only raise the tier question when the skill actually spawns agents. Once details are gathered, present a full draft, get explicit confirmation, incorporate edits, then create the directory and file and confirm the final path.
+Ask scoping questions one at a time to determine the skill's name, description, model tier, workflow steps, and rules. Pick a model tier using the same guidance as delegated agents — Haiku for read-only lookups and scans, Sonnet for routine coding, commits, PRs, and mechanical edits, Opus for design, architecture, scaffolding new skills or agents, spec authoring, and code review — and omit the `model` field only when inheriting the caller's tier is genuinely appropriate. If the workflow will also delegate to sub-agents via the `Agent` or `TeamCreate` tools, ask the same tier question for each delegated role. Once details are gathered, present a full draft, get explicit confirmation, incorporate edits, then create the directory and file and confirm the final path.
 
 ## File Format
 
@@ -17,6 +18,7 @@ Ask scoping questions one at a time to determine the skill's name, description, 
 ---
 name: <name>
 description: <description>
+model: <sonnet | opus>
 ---
 ```
 

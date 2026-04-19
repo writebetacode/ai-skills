@@ -1,6 +1,7 @@
 ---
 name: agent-write
 description: Scaffold a new Claude Code subagent by asking scoping questions and generating an AGENT.md file. Use when the user wants to codify a specialized workflow into a reusable subagent.
+model: opus
 ---
 
 # Agent Write: Scaffold a New Agent

@@ -50,13 +50,27 @@ tasks:
           echo "MERGED settings.json"
         fi
       - |
-        if command -v gemini >/dev/null 2>&1; then
-          mkdir -p "$HOME/.claude/agents/gemini-operative"
-          ln -sf "$(pwd)/agents/gemini-operative/AGENT.md" "$HOME/.claude/agents/gemini-operative/AGENT.md"
-          echo "LINKED gemini-operative agent"
-        else
-          echo "SKIP gemini-operative (gemini not found)"
-        fi
+        for dir in agents/*/; do
+          name=$(basename "$dir")
+          case "$name" in
+            gemini-operative)
+              if command -v gemini >/dev/null 2>&1; then
+                mkdir -p "$HOME/.claude/agents/$name"
+                ln -sf "$(pwd)/${dir}AGENT.md" "$HOME/.claude/agents/$name/AGENT.md"
+                echo "LINKED $name agent"
+              else
+                echo "SKIP $name (gemini not found)"
+              fi
+              ;;
+            claude-operative)
+              ;;
+            *)
+              mkdir -p "$HOME/.claude/agents/$name"
+              ln -sf "$(pwd)/${dir}AGENT.md" "$HOME/.claude/agents/$name/AGENT.md"
+              echo "LINKED $name agent"
+              ;;
+          esac
+        done
 
   install:gemini:
     desc: Symlink skills and agents into ~/.gemini
@@ -103,10 +117,22 @@ tasks:
             failed=1
           fi
         fi
-        if command -v gemini >/dev/null 2>&1; then
-          check "$HOME/.claude/agents/gemini-operative/AGENT.md"
-        fi
-        if command -v claude >/dev/null 2>&1; then
-          check "$HOME/.gemini/agents/claude-operative/AGENT.md"
-        fi
+        for dir in agents/*/; do
+          name=$(basename "$dir")
+          case "$name" in
+            gemini-operative)
+              if command -v gemini >/dev/null 2>&1; then
+                check "$HOME/.claude/agents/$name/AGENT.md"
+              fi
+              ;;
+            claude-operative)
+              if command -v claude >/dev/null 2>&1; then
+                check "$HOME/.gemini/agents/$name/AGENT.md"
+              fi
+              ;;
+            *)
+              check "$HOME/.claude/agents/$name/AGENT.md"
+              ;;
+          esac
+        done
         exit $failed

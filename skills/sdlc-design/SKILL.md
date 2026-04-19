@@ -1,6 +1,6 @@
 ---
 name: sdlc-design
-description: Turn an idea into specs and implementation plans through guided questioning, research, and architect-led agent teams with built-in validation.
+description: Turn an idea into specs, plans, tasks, and ADRs through strict one-at-a-time questioning and an architect-led agent team. Use when starting a new feature that needs a written plan before implementation, or when a mid-flight revision forces the plan back onto the table.
 ---
 
 # Design: From Idea to Implementation Plan
@@ -9,41 +9,68 @@ Flow: **[design]** -> implement -> complete
 
 If `$ARGUMENTS` is empty, ask what to build. Do not proceed without a substantive prompt.
 
+## Questioning Rules
+
+Ask exactly one question per turn. Never compound two questions into one ("A and also B?"), and never smuggle sub-questions in as examples ("What auth? JWT or sessions?"). When the codebase already supports a likely answer, propose it as a default the user can confirm with a single word ("Looks like you're using JWTs here — confirm?") instead of asking open-ended. After every user answer, pause and decide whether to accept, drill deeper, or move on. The user may interrupt the flow at any time to drill into any topic, and you must honor that fully before resuming your own line. Respond completely to any question the user asks back before continuing.
+
+## Agent Team
+
+Spec and plan authoring MUST happen through a team created via TeamCreate named `sdlc-design-<project-slug>`. Spawn three permanent agents via the `Agent` tool using `team_name` matching the TeamCreate name and `name` matching each identifier: `architect` (opus), `researcher` (sonnet), `document-writer` (sonnet). Each agent's AGENT.md carries its workflow and identity — do not re-specify here. The architect stays live throughout design and signs off every artifact. Never produce specs, plans, or task files directly in the main conversation.
+
 ## Workflow
 
-Begin by reading relevant codebase context -- architecture docs, existing patterns, and files related to the prompt. Engage in iterative questioning, asking only one question at a time to challenge assumptions and push for specific, actionable answers. Respond fully to questions the user asks back and present multiple architectural options with trade-offs when significant choices arise.
+Read relevant codebase context: any `docs/adrs/**/*.md` in the host repo (so prior architectural decisions bind the new work), existing skills and patterns, and files the prompt touches. Run the questioning loop under the rules above until scope and decisions are concrete. Route factual lookups through the researcher as they arise — every package, library, framework, SDK, and CLI version must be resolved via `context7` and cited. As questioning progresses, monitor whether scope decomposes into multiple independent work streams; if it does, propose: "This looks like a multi-epic project — I'd like to decompose it into N epics." Continue until all aspects are concrete, then hand off to the team.
 
-When the topic is unfamiliar, technically deep, or answers raise questions the codebase cannot resolve, conduct research inline. Use built-in web search and codebase tools to gather findings. Every finding must cite its actual source URL -- never fabricate or guess URLs. Before including any URL, verify it resolves successfully. Write research output to `research/` inside the project folder: an index with topic and TOC, a Q&A log, individual findings files with inline citations, and an AI summary.
+The document-writer produces one `spec.md` per epic, routing factual questions to the researcher and structural questions to the architect. The architect signs off each spec before planning begins. The document-writer then transitions into planner — decomposes each spec into vertical-slice tasks (~500 LOC per PR target), writes `plan.md`, and emits `tasks/NN-<name>.md` files in run order. The architect reviews the full plan end-to-end, runs the stack-linearity gate and NN-ordering gate below, and signs off. Finally the document-writer generates `MANIFEST.md` from the template below.
 
-As questioning progresses, monitor whether the scope naturally decomposes into multiple independent work streams with their own dependencies. If it does, propose: "This looks like a multi-epic project -- I'd like to decompose it into N epics." Continue questioning until all aspects are concrete, then move to spec creation.
+## Stack-Linearity Gate
+
+Before plan signoff, the architect walks the task graph and rejects any task whose `Base` field names two different prior branches. Every task has exactly one parent — `main` or one prior task branch. If a task genuinely needs state from two prior branches, flatten them (merge the priors into one task, or split the current task) and redo the plan. This is an absolute gate; no exceptions.
+
+## Task Ordering Gate
+
+The architect confirms every task's NN-prefix matches its position in the run order: 01 runs first, 02 second, no gaps, no reorderings. A task file named `04-...` that runs before `03-...` is rejected as a seam bug and renumbered before signoff.
+
+## Mid-Flight Revision
+
+When `$ARGUMENTS` names an existing project and the user requests a revision (architecture shift, scope change, reshape), enter revision mode. Pause any in-flight implementation — do not touch partial work; direct the user to stash or leave the working tree alone. Re-spawn the design team (same TeamCreate name is fine). The architect reads the manifest, completed task files, and in-progress work, then decides per remaining task: **keep** (unchanged), **revise** (needs updated spec — mark `[revised: vN]` in the manifest and overwrite the task file), or **void** (no longer needed — mark `[voided: <reason>]` in the manifest, leave the file in place for history). Append any new tasks with fresh NN-prefixes continuing the existing sequence. Update `adr.md` with the decision that triggered the revision. Ask the user to confirm the updated plan before returning them to `/sdlc-implement`.
 
 ## Project Structure
 
-Every design produces a project folder at `plans/YYYY-MM-DD-<slug>/` with a `MANIFEST.md` at its root. The slug describes the initiative scope. Ensure `plans/` is git-ignored before writing any output.
+```
+plans/<project-slug>/
+  MANIFEST.md                 # central control
+  prd.md                      # optional — WHAT users need, not HOW
+  adr.md                      # running log of project-level architecture decisions
+  epics.md                    # epic list + dependency graph + build order (multi-epic only)
+  research/<topic>.md         # researcher citations
+  epics/<epic-slug>/
+    spec.md                   # technical specification
+    plan.md                   # implementation plan
+    tasks/
+      01-<task-name>.md       # NN-prefix MUST match run order
+      02-<task-name>.md
+```
 
-## Spec Creation
+The project slug carries no date prefix; date is appended only on archive. Epic slugs carry no date prefix either.
 
-Once questioning is complete, write `epics.md` containing a numbered epic list -- each with title, 2-3 sentence scope, and supporting research findings -- followed by a `## Dependency Graph` mapping each epic to its prerequisites and a `## Build Order` with phased build order and critical path. A single-feature design produces an `epics.md` with one entry and no dependencies.
+## PRD and ADR Handling
 
-Then MUST spin up an agent team using the TeamCreate tool with model `inherit` to produce specs — never produce specs or plans directly in the main conversation. All spec and plan creation happens through the team's agents. The team structure is the same for single-epic and multi-epic -- only the number of spec-creators varies. The researcher runs with `--permission-mode dontAsk` so web search and fetch do not block on prompts; all other agents inherit the caller's permission mode.
+`prd.md` is optional — write it only when the project has user-facing product requirements worth separating from the technical spec (the WHAT, distinct from the HOW). `adr.md` is required as a running log of every project-level architecture decision, one heading per decision with context, decision, and consequences. When a decision is strong enough to outlive the project (naming conventions, cross-cutting framework choice, data contract family), promote it to the host repo as `docs/adrs/<YYYYMMDD>-<slug>.md` and note the promotion in `adr.md`. Every design session begins by reading all existing `docs/adrs/**/*.md` so prior decisions bind the new work.
 
-The **researcher** loads all prior research output and codebase context, fields factual questions from other agents, and gathers additional findings via web search when needed. Every URL the researcher provides must be verified as reachable -- never pass along a URL without confirming it resolves. The **architect** reads the research output and epic decomposition, then writes an architecture brief covering shared interfaces, data contracts, naming conventions, and cross-cutting technology choices. Spec-creators do not begin until the brief is ready. The architect stays live to answer structural questions and updates the brief when new decisions emerge. The **validator** runs concurrently from the start, performing both per-spec and cross-epic coherence checks. Per-spec: format compliance, completeness of all required sections, and no fabricated sources or ambiguous requirements. Cross-epic: no two epics overlap in scope or contradict each other's decisions; cross-epic interfaces are consistent (e.g., if Epic 5 consumes `useBudget()` from Epic 4, the field shapes match); the dependency graph in `epics.md` matches the `## Dependencies` sections in individual specs; and edge cases within each spec do not introduce scope that belongs to a different epic. It messages the relevant spec-creator and architect to resolve issues immediately -- only genuinely unresolvable items requiring human decision are recorded as open issues in the manifest. Each **spec-creator** (one per epic) writes a complete `spec.md` to `epics/YYYY-MM-DD-<epic-slug>/`, answering from context and routing factual questions to the researcher and structural questions to the architect. Every spec includes a `## Dependencies` section listing prerequisite epics by title.
+## Team Teardown
 
-## Plan Creation
+Once the architect has signed off the final plan and `MANIFEST.md` is written, shut down the team. Send `SendMessage` to each agent with `{type: "shutdown_request", reason: "Design complete."}`, wait for every `shutdown_approved` response, then call `TeamDelete` to remove the team and task directories. Do not skip teardown — leaving agents running leaks context and keeps the team directory on disk.
 
-Once all specs pass validation, the same agent team continues into planning without losing context. The researcher and architect already hold the full picture -- research findings, architecture brief, cross-epic decisions -- so there is no redundant context-loading phase.
-
-Each spec-creator transitions into a **planner** role for its epic. It performs thorough analysis of the specification to extract all requirements, decisions, scope, and edge cases, then decomposes the implementation into discrete, reviewable tasks as vertical slices -- each covering a complete path through all affected layers rather than grouping by layer. Every FR and NFR from the spec must be covered, tests included per task, and parallel-safe tasks marked where adjacent work is independent. The planner presents its task breakdown and iterates with the user until approved, then writes `plan.md` and individual task files to the epic directory.
-
-The architect reviews each planner's task breakdown for cross-epic cohesion, dependency alignment, interface consistency, and branch strategy. Each task should target roughly 500 lines of code changed per PR to keep reviews manageable -- if a task looks significantly larger, the architect flags it for the planner to decompose further. The validator extends its checks to cover each completed plan against the source spec, the architecture brief, and other plans for requirement coverage gaps, phantom references, interface mismatches, scope drift, and branch naming consistency. It messages the relevant planner and architect to resolve issues immediately.
+If the session is paused mid-design (e.g., the user stops for the day), leave the team running so context is preserved; teardown happens only when the plan is signed off, or when a mid-flight revision session finishes and returns control to `/sdlc-implement`.
 
 ## Completion
 
-Generate `MANIFEST.md` by reading `epics.md`, the completed specs, and the completed plans. Pre-populate all epics at "Planned", the build order, and any open issues the validator could not resolve. End with: "Design complete. Run `/sdlc-implement` to begin."
+End with: "Design complete. Run `/sdlc-implement` to begin."
 
 ## Spec Format
 
-File: `spec.md`
+File: `epics/<epic-slug>/spec.md`
 
 ```
 # <Title>
@@ -76,7 +103,7 @@ Prompt: "<original prompt>"
 
 ## Plan Format
 
-File: `plan.md`
+File: `epics/<epic-slug>/plan.md`
 
 ```
 # Implementation Plan: <Spec Title>
@@ -89,7 +116,6 @@ Date: <YYYY-MM-DD>
 
 ## Dependency Graph
 main -> feat/<slug>/01-name -> feat/<slug>/02-name
-                               [parallel-safe: 02, 03]
 
 ## Tasks
 | Task | Branch | Base | Spec Requirements | Summary | Status |
@@ -99,13 +125,13 @@ main -> feat/<slug>/01-name -> feat/<slug>/02-name
 
 ## Task File Format
 
-File: `NN-<name>.md`
+File: `epics/<epic-slug>/tasks/NN-<name>.md`
 
 ```
 # Task NN: <Title>
 
 Branch: <type>/<spec-slug>/NN-<task-name>
-Base: main OR prior task branch
+Base: main OR exactly one prior task branch
 
 ## Spec Requirements
 - FR-<N>: <quoted requirement text>
@@ -121,7 +147,7 @@ Base: main OR prior task branch
 1. <Testable outcome>
 
 ## Dependencies
-<Prior tasks, or "None (branches from main).">
+<Prior task, or "None (branches from main).">
 ```
 
 ## Manifest Format
@@ -147,7 +173,7 @@ Spec Ready -> Planned -> In Progress (N/M) -> Complete
 
 ## Rules
 
-NEVER produce specs or plans directly in the main conversation — all spec and plan creation MUST happen through a researcher-architect-validator-spec-creator agent team created via TeamCreate. Writing specs or plans without the team is a violation. Ask only one question at a time, proposing codebase-derived answers when possible. Focus specs on what to build, not how. Ensure `plans/` is git-ignored. Never fabricate sources or URLs. Phases are strictly sequential: research before decomposition, decomposition before architecture brief, brief before parallel spec creation, spec validation before planning. The agent team persists across both phases so context is never reloaded. Use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines.
+NEVER produce specs, plans, or task files directly in the main conversation — all artifacts MUST come through the architect/researcher/document-writer team via TeamCreate. Ask only one question at a time with no compounds and no sub-questions as examples. Honor user-initiated drill-downs fully before resuming your own line. Every task has exactly one parent branch — stack-linearity is absolute. NN-prefix must match run order. Always read `docs/adrs/**/*.md` at session start. Never fabricate sources or URLs. Use only ASCII and never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

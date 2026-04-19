@@ -28,65 +28,79 @@ Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 
 ### Git & GitHub
 
-| Command | Description |
-|---|---|
-| `/commit` | Stage-aware conventional commits with user confirmation |
-| `/pr` | Create or update pull requests with structured descriptions |
-| `/restack` | Rebase stacked branches after upstream squash merges |
-| `/prune-branches` | Delete local branches whose commits are fully merged into main |
-| `/gh-issue` | Create consistently-formatted GitHub issues with type, priority, and optional context sections |
+| Command | Model | Description |
+|---|---|---|
+| `/commit` | sonnet | Stage-aware conventional commits with user confirmation |
+| `/pr` | sonnet | Create or update pull requests with structured descriptions |
+| `/restack` | sonnet | Rebase stacked branches after upstream squash merges |
+| `/prune-branches` | sonnet | Delete local branches whose commits are fully merged into main |
+| `/gh-issue` | sonnet | Create consistently-formatted GitHub issues with type, priority, and optional context sections |
 
 ### Meta
 
-| Command | Description |
-|---|---|
-| `/skill-write` | Scaffold a new skill by asking scoping questions and writing the skill file |
-| `/agent-write` | Scaffold a new Claude Code subagent by asking scoping questions and generating an AGENT.md file |
+| Command | Model | Description |
+|---|---|---|
+| `/skill-write` | opus | Scaffold a new skill by asking scoping questions and writing the skill file |
+| `/agent-write` | opus | Scaffold a new Claude Code subagent by asking scoping questions and generating an AGENT.md file |
 
 ### Software Development Workflow
 
-A manifest-driven process to take a feature idea all the way through to merged code. `/sdlc-design` is the single entry point -- it handles research, questioning, spec creation, and implementation planning with a persistent architect-led agent team. Each phase self-validates via built-in agent teams, so there is no separate validation step. When scope grows beyond a single epic, design creates a `MANIFEST.md` that every downstream skill reads and updates.
+A manifest-driven process to take a feature idea all the way through to merged code. `/sdlc-design` is the single entry point -- it handles research, strict one-question-at-a-time clarification, spec creation, and implementation planning through a persistent architect-led agent team that also handles mid-flight architectural revisions. The architect enforces stack-linearity (every task has exactly one parent branch) and NN-prefix ordering (task 01 runs first, 02 second, no gaps). When scope grows beyond a single epic, design creates a `MANIFEST.md` that every downstream skill reads and updates.
 
-| Command | Phase | Description |
-|---|---|---|
-| `/sdlc-design` | 1 -- Design | Turn an idea into specs and implementation plans through guided questioning, research, and architect-led agent teams with built-in validation |
-| `/sdlc-implement` | 2 -- Implement | Execute tasks with a tester-coder-reviewer agent team, user review per AC, and built-in revision handling; auto-picks the next task from the manifest when called without arguments |
-| `/sdlc-complete` | 3 -- Complete | Archive a finished project to plans/complete/ and clean up its local branches |
+| Command | Phase | Model | Description |
+|---|---|---|---|
+| `/sdlc-design` | 1 -- Design | inherit | Turn an idea into specs, plans, and ADRs through strict one-at-a-time questioning and an architect-led team; also handles mid-flight revisions via per-task keep/revise/void triage |
+| `/sdlc-implement` | 2 -- Implement | inherit | Execute tasks with a tester-coder team, TDD loop, and third-party spec-vs-code validation; auto-picks the next task from the manifest when called without arguments |
+| `/sdlc-complete` | 3 -- Complete | inherit | Archive a finished project to `plans/complete/YYYYMMDD-<slug>/` and clean up its local branches |
 
-The commands share a common file layout under `plans/` (add it to `.gitignore`):
+The commands share a common file layout under `plans/` (keep this directory out of version control in your global gitignore):
 
 ```
 plans/
-  YYYY-MM-DD-<slug>/                # project folder (from /sdlc-design)
+  <project-slug>/                   # project folder (from /sdlc-design, no date prefix)
     MANIFEST.md                     # central control document (always present)
+    prd.md                          # optional -- WHAT users need (product requirements)
+    adr.md                          # running log of project-level architecture decisions
     epics.md                        # epic list, dependency graph, and build order (multi-epic)
-    research/                       # research output (if conducted)
-      index.md, questions.md, findings/, ai-summary.md
+    research/<topic>.md             # researcher citations
     epics/
-      YYYY-MM-DD-<epic-slug>/
-        spec.md                     # specification (includes edge cases)
-        plan.md                     # implementation plan (from /sdlc-design)
-        01-<task-name>.md
-        02-<task-name>.md
+      <epic-slug>/
+        spec.md                     # technical specification
+        plan.md                     # implementation plan
+        tasks/
+          01-<task-name>.md         # NN-prefix matches run order
+          02-<task-name>.md
   complete/
-    YYYY-MM-DD-<slug>/              # archived by /sdlc-complete
+    YYYYMMDD-<project-slug>/        # archived by /sdlc-complete (date appended on archive)
 ```
 
-Each task drives one branch and one PR, stacked on the previous task's branch. Implementation follows a strict RED -> GREEN -> REFACTOR loop, committing after each passing criterion.
+Project-level ADRs live in `adr.md`; decisions strong enough to outlive the project are promoted to the host repo under `docs/adrs/<YYYYMMDD>-<slug>.md` and read at the start of every future design session. Each task drives one branch and one PR, stacked on the previous task's branch. Implementation follows a strict RED -> GREEN -> REFACTOR loop with third-party validation before commit.
 
 ## Agents
 
-| Agent | Platform | Description |
-|---|---|---|
-| `gemini-operative` | Claude | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI |
-| `claude-operative` | Gemini | On-demand Claude-powered research, audits, and execution via the `claude` CLI |
+| Agent | Voice | Model | Description |
+|---|---|---|---|
+| `architect` | Vaughn (he/him) | opus | Design-phase architecture and coherence gatekeeper; enforces stack-linearity and NN-ordering |
+| `researcher` | Maren (she/her) | sonnet | Fact-gathering and citations; uses context7 for all package/library/SDK lookups |
+| `document-writer` | Sable (she/her) | sonnet | Generalist structured-prose writer for specs, plans, tasks, PRDs, ADRs, READMEs |
+| `tester` | Rhea (she/her) | opus | TDD discipline and independent third-party spec-vs-code validation |
+| `coder` | Cormac (he/him) | opus | Smallest-diff implementation specialist |
+| `gemini-operative` | -- | -- | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI (Claude Code only) |
+| `claude-operative` | -- | -- | On-demand Claude-powered research, audits, and execution via the `claude` CLI (Gemini CLI only) |
+
+The five SDLC agents (architect, researcher, document-writer, tester, coder) each have self-authored identities and one-line impressions of their teammates baked into their AGENT.md. They are spawned by `/sdlc-design` and `/sdlc-implement` via TeamCreate but are generic and reusable outside the SDLC flow.
 
 ## File Layout
 
 ```
 skills/                             # shared by Claude Code and Gemini CLI
   <name>/SKILL.md
-agents/                             # cross-platform operative agents
+agents/                             # Claude Code agents (cross-platform where noted)
+  architect/AGENT.md
+  researcher/AGENT.md
+  document-writer/AGENT.md
+  tester/AGENT.md
+  coder/AGENT.md
   gemini-operative/AGENT.md
   claude-operative/AGENT.md
 claude/                             # Claude Code project settings
