@@ -80,7 +80,7 @@ Project-level ADRs live in `adr.md`; decisions strong enough to outlive the proj
 
 | Agent | Voice | Model | Description |
 |---|---|---|---|
-| `architect` | Vaughn (he/him) | opus | Design-phase architecture and coherence gatekeeper; enforces stack-linearity and NN-ordering |
+| `architect` | Vaughn (he/him) | opus | Design-phase architecture, intake questioning, and coherence gatekeeper; enforces stack-linearity and NN-ordering |
 | `researcher` | Maren (she/her) | sonnet | Fact-gathering and citations; uses context7 for all package/library/SDK lookups |
 | `document-writer` | Sable (she/her) | sonnet | Generalist structured-prose writer for specs, plans, tasks, PRDs, ADRs, READMEs |
 | `tester` | Rhea (she/her) | opus | TDD discipline and independent third-party spec-vs-code validation |
