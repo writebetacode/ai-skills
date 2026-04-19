@@ -49,9 +49,9 @@ A manifest-driven process to take a feature idea all the way through to merged c
 
 | Command | Phase | Model | Description |
 |---|---|---|---|
-| `/sdlc-design` | 1 -- Design | inherit | Turn an idea into specs, plans, and ADRs through strict one-at-a-time questioning and an architect-led team; also handles mid-flight revisions via per-task keep/revise/void triage |
-| `/sdlc-implement` | 2 -- Implement | inherit | Execute tasks with a tester-coder team, TDD loop, and third-party spec-vs-code validation; auto-picks the next task from the manifest when called without arguments |
-| `/sdlc-complete` | 3 -- Complete | inherit | Archive a finished project to `plans/complete/YYYYMMDD-<slug>/` and clean up its local branches |
+| `/sdlc-design` | 1 -- Design | opus | Turn an idea into specs, plans, and ADRs through strict one-at-a-time questioning and an architect-led team; also handles mid-flight revisions via per-task keep/revise/void triage |
+| `/sdlc-implement` | 2 -- Implement | opus | Execute tasks with a tester-coder team, TDD loop, and third-party spec-vs-code validation; auto-picks the next task from the manifest when called without arguments |
+| `/sdlc-complete` | 3 -- Complete | sonnet | Archive a finished project to `plans/complete/YYYYMMDD-<slug>/` and clean up its local branches |
 
 The commands share a common file layout under `plans/` (keep this directory out of version control in your global gitignore):
 

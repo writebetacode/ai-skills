@@ -1,6 +1,7 @@
 ---
 name: sdlc-complete
 description: Archive a finished project. Use after all epics are Complete to move the project folder to plans/complete/ with a date-stamped name and clean up its local branches.
+model: sonnet
 ---
 
 # Complete: Archive Finished Work

@@ -1,6 +1,7 @@
 ---
 name: sdlc-implement
 description: Execute a task from an implementation plan with integrated commits, PRs, TDD, and third-party validation via a tester-coder agent team. Use after /sdlc-design to implement tasks one at a time.
+model: opus
 ---
 
 # Implement: Execute Plan with Integrated Commits and PRs
