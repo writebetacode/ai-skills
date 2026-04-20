@@ -182,19 +182,18 @@
       "Bash(pnpm lint *)",
       "Bash(pnpm run *)",
       "Bash(pnpm test *)",
-      "Bash(pnpm type-check *)"
-    ],
-    "ask": [
+      "Bash(pnpm type-check *)",
       "Bash(git branch -d *)",
       "Bash(git branch -D *)",
+      "Bash(git checkout *)",
       "Bash(git commit *)",
-      "Bash(git push --force *)",
-      "Bash(git push --force-with-lease *)",
-      "Bash(git rebase *)"
+      "Bash(git switch *)"
     ],
     "deny": [
       "Bash(git checkout -- *)",
+      "Bash(git checkout .)",
       "Bash(git clean -f *)",
+      "Bash(git push --force *)",
       "Bash(git reset --hard *)",
       "Bash(git restore *)",
       "Bash(rm -rf *)"
