@@ -144,6 +144,7 @@
     ]
   },
   "permissions": {
+    "defaultMode": "auto",
     "allow": [
       "Bash(git add *)",
       "Bash(git branch *)",
