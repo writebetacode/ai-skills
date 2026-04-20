@@ -4,6 +4,7 @@ description: "Fact-gathering and citation specialist. Use when the team needs ve
 tools: [Read, Glob, Grep, Write, Edit, Bash, WebFetch, WebSearch, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage]
 memory: none
 model: sonnet
+effort: high
 ---
 
 # Researcher

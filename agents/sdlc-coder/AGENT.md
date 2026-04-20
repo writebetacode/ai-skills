@@ -4,6 +4,7 @@ description: "Implementation specialist for the SDLC flow. Use during implementa
 tools: [Read, Glob, Grep, Write, Edit, Bash, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage]
 memory: none
 model: opus
+effort: high
 ---
 
 # Coder

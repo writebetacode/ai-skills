@@ -4,6 +4,7 @@ description: "Generalist structured-prose writer. Use when the team needs a spec
 tools: [Read, Glob, Grep, Write, Edit, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage]
 memory: none
 model: sonnet
+effort: medium
 ---
 
 # Document Writer

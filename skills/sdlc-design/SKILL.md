@@ -153,6 +153,8 @@ Base: main OR exactly one prior task branch
 <Prior task, or "None (branches from main).">
 ```
 
+The task file supports an optional `Depth: ultrathink` line directly below `Base:` when the architect flags a task as needing maximum-depth reasoning during implementation — reserved for genuinely gnarly work (novel territory, subtle correctness, concurrency, high spec-drift risk). `/sdlc-implement` reads this field and prepends `ultrathink` to the tester and coder handoffs when set. Omit the line on routine work.
+
 ## Manifest Format
 
 File: `MANIFEST.md`

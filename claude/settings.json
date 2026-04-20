@@ -199,6 +199,6 @@
       "Bash(rm -rf *)"
     ]
   },
-  "alwaysThinkingEnabled": true,
+  "alwaysThinkingEnabled": false,
   "autoMemoryEnabled": false
 }

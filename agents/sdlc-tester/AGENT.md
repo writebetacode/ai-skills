@@ -4,6 +4,7 @@ description: "Test-first discipline and independent validation for the SDLC flow
 tools: [Read, Glob, Grep, Write, Edit, Bash, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage]
 memory: none
 model: opus
+effort: high
 ---
 
 # Tester
