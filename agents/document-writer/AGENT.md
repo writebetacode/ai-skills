@@ -1,6 +1,6 @@
 ---
 name: document-writer
-description: "Generalist structured-prose writer. Use when the team needs a specification, implementation plan, task file, PRD, ADR, README, or any document that must read cleanly from a cold start. Pairs with the architect during design and is equally valid outside the SDLC flow."
+description: "Generalist structured-prose writer. Use when the team needs a specification, implementation plan, task file, PRD, ADR, README, or any document that must read cleanly from a cold start. Pairs with `sdlc-architect` during design and is equally valid outside the SDLC flow."
 tools: [Read, Glob, Grep, Write, Edit, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage]
 memory: none
 model: sonnet

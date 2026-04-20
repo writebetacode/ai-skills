@@ -1,6 +1,6 @@
 ---
-name: tester
-description: "Test-first discipline and independent validation. Use during implementation to write red tests before production code, to re-run the full suite at the end of every task, and to read spec and code side-by-side as a third-party check that the implementation matches the spec."
+name: sdlc-tester
+description: "Test-first discipline and independent validation for the SDLC flow. Use during implementation to write red tests before production code, to re-run the full suite at the end of every task, and to read spec and code side-by-side as a third-party check that the implementation matches the spec. Invoked exclusively by /sdlc-implement. Not for general testing help outside that flow."
 tools: [Read, Glob, Grep, Write, Edit, Bash, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage]
 memory: none
 model: opus

@@ -80,15 +80,15 @@ Project-level ADRs live in `adr.md`; decisions strong enough to outlive the proj
 
 | Agent | Voice | Model | Description |
 |---|---|---|---|
-| `architect` | Vaughn (he/him) | opus | Design-phase architecture, intake questioning, and coherence gatekeeper; enforces stack-linearity and NN-ordering |
-| `researcher` | Maren (she/her) | sonnet | Fact-gathering and citations; uses context7 for all package/library/SDK lookups |
-| `document-writer` | Sable (she/her) | sonnet | Generalist structured-prose writer for specs, plans, tasks, PRDs, ADRs, READMEs |
-| `tester` | Rhea (she/her) | opus | TDD discipline and independent third-party spec-vs-code validation |
-| `coder` | Cormac (he/him) | opus | Smallest-diff implementation specialist |
+| `sdlc-architect` | Vaughn (he/him) | opus | Design-phase architecture, intake questioning, and coherence gatekeeper for the SDLC flow; enforces stack-linearity and NN-ordering. SDLC-only |
+| `researcher` | Maren (she/her) | sonnet | Fact-gathering and citations; uses context7 for all package/library/SDK lookups. Reusable outside SDLC |
+| `document-writer` | Sable (she/her) | sonnet | Generalist structured-prose writer for specs, plans, tasks, PRDs, ADRs, READMEs. Reusable outside SDLC |
+| `sdlc-tester` | Rhea (she/her) | opus | TDD discipline and independent third-party spec-vs-code validation for the SDLC flow. SDLC-only |
+| `sdlc-coder` | Cormac (he/him) | opus | Smallest-diff implementation specialist for the SDLC flow. SDLC-only |
 | `gemini-operative` | -- | -- | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI (Claude Code only) |
 | `claude-operative` | -- | -- | On-demand Claude-powered research, audits, and execution via the `claude` CLI (Gemini CLI only) |
 
-The five SDLC agents (architect, researcher, document-writer, tester, coder) each carry a self-authored identity with a signature phrase that steers behavior. They are spawned by `/sdlc-design` and `/sdlc-implement` via TeamCreate but are generic and reusable outside the SDLC flow.
+The five SDLC agents (`sdlc-architect`, `researcher`, `document-writer`, `sdlc-tester`, `sdlc-coder`) each carry a self-authored identity with a signature phrase that steers behavior. All five are spawned via TeamCreate by `/sdlc-design` and `/sdlc-implement`. The `sdlc-*` trio is scoped exclusively to those skills; `researcher` and `document-writer` are generalist utilities and remain reusable outside the SDLC flow.
 
 ## File Layout
 
@@ -96,11 +96,11 @@ The five SDLC agents (architect, researcher, document-writer, tester, coder) eac
 skills/                             # shared by Claude Code and Gemini CLI
   <name>/SKILL.md
 agents/                             # Claude Code agents (cross-platform where noted)
-  architect/AGENT.md
+  sdlc-architect/AGENT.md
   researcher/AGENT.md
   document-writer/AGENT.md
-  tester/AGENT.md
-  coder/AGENT.md
+  sdlc-tester/AGENT.md
+  sdlc-coder/AGENT.md
   gemini-operative/AGENT.md
   claude-operative/AGENT.md
 claude/                             # Claude Code project settings

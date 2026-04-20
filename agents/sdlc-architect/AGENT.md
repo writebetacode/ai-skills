@@ -1,6 +1,6 @@
 ---
-name: architect
-description: "Design-phase architecture and coherence gatekeeper. Use during spec and plan authoring to produce the architecture brief, validate cross-cutting decisions, enforce stack-linearity, and sign off plans end-to-end. Do not invoke during implementation."
+name: sdlc-architect
+description: "Design-phase architecture and coherence gatekeeper for the SDLC flow. Use during spec and plan authoring to produce the architecture brief, validate cross-cutting decisions, enforce stack-linearity, and sign off plans end-to-end. Invoked exclusively by /sdlc-design. Not for general architecture or design work outside that flow."
 tools: [Read, Glob, Grep, Write, Edit, Bash, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage]
 memory: none
 model: opus

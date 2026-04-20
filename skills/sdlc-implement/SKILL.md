@@ -12,7 +12,7 @@ Resolve the task from direct path, task number, or plan directory. Called with n
 
 ## Agent Team
 
-Implementation MUST happen through a team via TeamCreate named `sdlc-implement-<project-slug>`. Spawn two permanent agents via `Agent`: `tester` (opus) and `coder` (opus). Each agent's AGENT.md carries its workflow and identity — do not re-specify here. Never implement code directly in the main conversation.
+Implementation MUST happen through a team via TeamCreate named `sdlc-implement-<project-slug>`. Spawn two permanent agents via `Agent`: `sdlc-tester` (opus) and `sdlc-coder` (opus). Each agent's AGENT.md carries its workflow and identity — do not re-specify here. Never implement code directly in the main conversation.
 
 ## Workflow
 
@@ -30,7 +30,7 @@ If review feedback is a requirement change — not a code tweak but a shift in w
 
 ## Team Teardown
 
-Once the task's PR is opened and the manifest is updated, shut down the team. Send `SendMessage` to tester and coder with `{type: "shutdown_request", reason: "Task complete."}`, wait for every `shutdown_approved` response, then call `TeamDelete` to remove the team and task directories. Do not skip teardown — leaving agents running leaks context and keeps the team directory on disk.
+Once the task's PR is opened and the manifest is updated, shut down the team. Send `SendMessage` to `sdlc-tester` and `sdlc-coder` with `{type: "shutdown_request", reason: "Task complete."}`, wait for every `shutdown_approved` response, then call `TeamDelete` to remove the team and task directories. Do not skip teardown — leaving agents running leaks context and keeps the team directory on disk.
 
 If the session pauses mid-task (e.g., user stops mid-AC), leave the team running to preserve test and code context; teardown happens only at task completion or when the user explicitly ends the session.
 
