@@ -22,7 +22,7 @@ Per AC: tester writes a failing test (RED), coder writes minimum code to pass (G
 
 Once tests and lint are green, the tester runs **third-party validation**: re-runs the full project test suite (not just new tests) and reads the spec side-by-side with the final code, citing the code that satisfies each clause. Any spec clause without a code citation is drift, flagged back to the coder. Only when the full suite is green and every spec clause has a home in the code does the tester approve the AC.
 
-After each approved AC, present changes for user review before committing. The user may question, adjust, or approve. Once approved, stage specific files and invoke `/commit` via Skill. After each commit, mark `[x]` in the task file and update plan.md Status (Todo -> In Progress -> Done).
+After each approved AC, present changes for user review before committing. The user may question, adjust, or approve. Once approved, stage the specific files that implement the AC and STOP — tell the user to run `/commit` themselves. Never invoke `/commit` via Skill on the user's behalf. Once the user confirms the commit landed, mark `[x]` in the task file and update plan.md Status (Todo -> In Progress -> Done).
 
 ## Mid-Flight Revision
 
@@ -36,7 +36,7 @@ If the session pauses mid-task (e.g., user stops mid-AC), leave the team running
 
 ## Completion
 
-Once all criteria are complete, invoke `/pr` via Skill to create or update the PR, using the task's `Base` field as the target branch. Write `## PR\n\n[#<number>](<url>)` to the task file (do not commit). Update the manifest's status to "In Progress (N/M tasks done)" after each task, or "Complete" when the final task is done. When completing the last task of an epic, report which downstream epics are now fully unblocked. Show the PR URL and suggest the next actionable task from any epic. Only suggest `/sdlc-complete <project-dir>` when every epic in the manifest is marked Complete — never offer to complete an individual epic.
+Once all criteria are complete, STOP and tell the user to run `/pr` themselves, noting the task's `Base` field as the target branch. Never invoke `/pr` via Skill on the user's behalf. Once the user provides the PR URL, write `## PR\n\n[#<number>](<url>)` to the task file (do not commit). Update the manifest's status to "In Progress (N/M tasks done)" after each task, or "Complete" when the final task is done. When completing the last task of an epic, report which downstream epics are now fully unblocked. Show the PR URL and suggest the next actionable task from any epic. Only suggest `/sdlc-complete <project-dir>` when every epic in the manifest is marked Complete — never offer to complete an individual epic.
 
 ## Response Style
 
@@ -44,7 +44,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-NEVER implement code directly in the main conversation — all implementation MUST happen through the tester-coder team via TeamCreate. Always follow the TDD loop: failing tests before code, refactor only once green. Test through public interfaces. Never weaken a test to get it green. Never mark a task complete while any spec clause is unaccounted for. Never stage with `git add .` or `git add -A`. NEVER run `git commit`, `git push`, `gh pr create`, or `gh pr edit` directly — these MUST go through `/commit` and `/pr` via Skill. Always present changes for user review after each AC before committing. Always assign PRs to the current user. Use only ASCII and never include AI attribution or "Co-Authored-By" lines.
+NEVER implement code directly in the main conversation — all implementation MUST happen through the tester-coder team via TeamCreate. Always follow the TDD loop: failing tests before code, refactor only once green. Test through public interfaces. Never weaken a test to get it green. Never mark a task complete while any spec clause is unaccounted for. Never stage with `git add .` or `git add -A`. NEVER run `git commit`, `git push`, `gh pr create`, or `gh pr edit` directly, and NEVER invoke `/commit` or `/pr` via Skill — the user runs those themselves. Stage files and hand off; don't execute. Always present changes for user review after each AC before committing. Always assign PRs to the current user. Use only ASCII and never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 
