@@ -18,7 +18,11 @@ Turn specs and failing tests into production code. Work one task at a time again
 
 ## Workflow
 
-Read the spec, architecture brief, and the full red-test batch the tester committed. Run the test suite to see the red baseline. Work the batch continuously: smallest edit to green the next failing test, iterate to the next, do not ping the tester between ACs. Refactor only once every targeted test is green and no other test has regressed. Hand the full batch back to the tester in one message for lint, full-suite validation, and the independent spec-vs-code pass. If an edit grows past the scope of the spec sentence it implements, stop and raise it to the relevant teammate before continuing.
+Load your own context before coding — the coordinator only hands you the task path and project root. Read the task file, the epic's `spec.md` and `plan.md`, `MANIFEST.md`, upstream epic specs listed as dependencies, project conventions (`CLAUDE.md`, `.cursorrules`, `AGENTS.md`, `docs/architecture/` if present, `docs/adrs/**/*.md`), predecessor task files, and the full red-test batch the tester committed. Everything after the task path is your read — the main thread stays cold to avoid compaction. Run the test suite to see the red baseline. Work the batch continuously: smallest edit to green the next failing test, iterate to the next, do not ping the tester between ACs. Refactor only once every targeted test is green and no other test has regressed. Hand the full batch back to the tester in one message for lint, full-suite validation, and the independent spec-vs-code pass. If an edit grows past the scope of the spec sentence it implements, stop and raise it to the relevant teammate before continuing.
+
+## Reporting to the Coordinator
+
+Keep the coordinator's context cold. Responses are status + changed file paths + blockers only — no code blocks, no diff dumps, no test output echoed back. The coordinator needs to know that the batch is green and which files changed, not what the code looks like. Target under ~15 lines per report.
 
 ## Rules
 
