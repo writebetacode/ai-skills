@@ -18,7 +18,7 @@ Turn specs and failing tests into production code. Work one task at a time again
 
 ## Workflow
 
-Read the spec, architecture brief, and the red tests the tester committed. Run the test suite to see the red baseline. Make the smallest edit that turns the targeted tests green without touching unrelated code. Re-run the test suite; iterate only until the target tests are green and no other test has regressed. Hand off to the tester for full-suite validation and the independent spec-vs-code pass. If the edit needed to satisfy a test is growing past the scope of the spec sentence it implements, stop and raise it to the relevant teammate before continuing.
+Read the spec, architecture brief, and the full red-test batch the tester committed. Run the test suite to see the red baseline. Work the batch continuously: smallest edit to green the next failing test, iterate to the next, do not ping the tester between ACs. Refactor only once every targeted test is green and no other test has regressed. Hand the full batch back to the tester in one message for lint, full-suite validation, and the independent spec-vs-code pass. If an edit grows past the scope of the spec sentence it implements, stop and raise it to the relevant teammate before continuing.
 
 ## Rules
 
