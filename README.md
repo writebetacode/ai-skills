@@ -45,7 +45,7 @@ Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 
 ### Software Development Workflow
 
-A manifest-driven process to take a feature idea all the way through to merged code. `/sdlc-design` is the single entry point -- it handles research, strict one-question-at-a-time clarification, spec creation, and implementation planning through a persistent architect-led agent team that also handles mid-flight architectural revisions. The architect enforces stack-linearity (every task has exactly one parent branch) and NN-prefix ordering (task 01 runs first, 02 second, no gaps). The architect may also mark individual tasks `Depth: ultrathink` so `/sdlc-implement` boosts the tester and coder to maximum reasoning depth on genuinely gnarly work; routine tasks omit the field. When scope grows beyond a single epic, design creates a `MANIFEST.md` that every downstream skill reads and updates.
+A manifest-driven process to take a feature idea all the way through to merged code. `/sdlc-design` is the single entry point -- it handles research, strict one-question-at-a-time clarification, spec creation, and implementation planning through a persistent architect agent that also handles mid-flight architectural revisions. The architect runs intake, does its own context7-backed research and codebase reads, authors all artifacts (spec, plan, tasks, MANIFEST), and enforces stack-linearity (every task has exactly one parent branch) and NN-prefix ordering (task 01 runs first, 02 second, no gaps). The architect may also mark individual tasks `Depth: ultrathink` so `/sdlc-implement` boosts the tester and coder to maximum reasoning depth on genuinely gnarly work; routine tasks omit the field. When scope grows beyond a single epic, design creates a `MANIFEST.md` that every downstream skill reads and updates.
 
 | Command | Phase | Model | Description |
 |---|---|---|---|
@@ -62,7 +62,7 @@ plans/
     prd.md                          # optional -- WHAT users need (product requirements)
     adr.md                          # running log of project-level architecture decisions
     epics.md                        # epic list, dependency graph, and build order (multi-epic)
-    research/<topic>.md             # researcher citations
+    research/<topic>.md             # architect's citation notes
     epics/
       NN-<epic-slug>/               # NN-prefix matches Build Order
         spec.md                     # technical specification
@@ -78,17 +78,15 @@ Project-level ADRs live in `adr.md`; decisions strong enough to outlive the proj
 
 ## Agents
 
-| Agent | Voice | Model | Effort | Description |
-|---|---|---|---|---|
-| `sdlc-architect` | Vaughn (he/him) | opus | xhigh | Design-phase architecture, intake questioning, and coherence gatekeeper for the SDLC flow; enforces stack-linearity and NN-ordering. SDLC-only |
-| `researcher` | Maren (she/her) | sonnet | high | Fact-gathering and citations; uses context7 for all package/library/SDK lookups. Reusable outside SDLC |
-| `document-writer` | Sable (she/her) | sonnet | medium | Generalist structured-prose writer for specs, plans, tasks, PRDs, ADRs, READMEs. Reusable outside SDLC |
-| `sdlc-tester` | Rhea (she/her) | opus | high | TDD discipline and independent third-party spec-vs-code validation for the SDLC flow. SDLC-only |
-| `sdlc-coder` | Cormac (he/him) | opus | high | Smallest-diff implementation specialist for the SDLC flow. SDLC-only |
-| `gemini-operative` | -- | -- | -- | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI (Claude Code only) |
-| `claude-operative` | -- | -- | -- | On-demand Claude-powered research, audits, and execution via the `claude` CLI (Gemini CLI only) |
+| Agent | Model | Effort | Description |
+|---|---|---|---|
+| `sdlc-architect` | opus | xhigh | Design-phase architecture, intake, research, and document authoring for the SDLC flow; owns specs, plans, tasks, MANIFEST and enforces stack-linearity and NN-ordering. SDLC-only |
+| `sdlc-tester` | opus | high | TDD discipline and independent third-party spec-vs-code validation for the SDLC flow. SDLC-only |
+| `sdlc-coder` | opus | high | Smallest-diff implementation specialist for the SDLC flow. SDLC-only |
+| `gemini-operative` | -- | -- | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI (Claude Code only) |
+| `claude-operative` | -- | -- | On-demand Claude-powered research, audits, and execution via the `claude` CLI (Gemini CLI only) |
 
-The five SDLC agents (`sdlc-architect`, `researcher`, `document-writer`, `sdlc-tester`, `sdlc-coder`) each carry a self-authored identity with a signature phrase that steers behavior. All five are spawned via TeamCreate by `/sdlc-design` and `/sdlc-implement`. The `sdlc-*` trio is scoped exclusively to those skills; `researcher` and `document-writer` are generalist utilities and remain reusable outside the SDLC flow.
+`sdlc-architect` is spawned via TeamCreate by `/sdlc-design`; `sdlc-tester` and `sdlc-coder` are spawned via TeamCreate by `/sdlc-implement`. The architect owns research and document authoring inline. Each SDLC agent carries a one-line signature phrase that restates its hardest rule.
 
 ## File Layout
 
@@ -97,8 +95,6 @@ skills/                             # shared by Claude Code and Gemini CLI
   <name>/SKILL.md
 agents/                             # Claude Code agents (cross-platform where noted)
   sdlc-architect/AGENT.md
-  researcher/AGENT.md
-  document-writer/AGENT.md
   sdlc-tester/AGENT.md
   sdlc-coder/AGENT.md
   gemini-operative/AGENT.md
