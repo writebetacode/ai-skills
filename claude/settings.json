@@ -200,5 +200,6 @@
     ]
   },
   "alwaysThinkingEnabled": false,
-  "autoMemoryEnabled": false
+  "autoMemoryEnabled": false,
+  "effort": "high"
 }
