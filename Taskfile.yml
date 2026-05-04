@@ -91,6 +91,27 @@ tasks:
           echo "SKIP claude-operative (claude not found)"
         fi
 
+  verify:response-style:
+    desc: Verify the shared Response Style block is byte-identical across all skills tagged with response-style:v1
+    cmds:
+      - |
+        canonical=""
+        failed=0
+        for f in skills/*/SKILL.md; do
+          if grep -q "response-style:v1" "$f"; then
+            block=$(awk '/<!-- response-style:v1/{flag=1; lines=0; next} flag && lines>0 && /^## /{flag=0} flag{print; lines++}' "$f")
+            if [ -z "$canonical" ]; then
+              canonical="$block"
+              ref="$f"
+            elif [ "$block" != "$canonical" ]; then
+              echo "DRIFT $f differs from $ref"
+              failed=1
+            fi
+          fi
+        done
+        if [ $failed -eq 0 ]; then echo "OK response-style block consistent across all tagged skills"; fi
+        exit $failed
+
   verify:
     desc: Verify all skills and agents are installed
     cmds:

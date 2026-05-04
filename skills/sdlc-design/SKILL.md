@@ -28,6 +28,10 @@ The skill opens by creating the team and spawning `sdlc-architect`. On spawn, th
 
 Before plan signoff, the architect walks the task graph and rejects any task whose `Base` field names two different prior branches. Every task has exactly one parent -- `main` or one prior task branch. If a task needs state from two prior branches, flatten them (merge the priors into one task, or split the current task) and redo the plan. This is an absolute gate; no exceptions.
 
+## Concurrency Model
+
+Within an epic, tasks are strictly linear: NN order is run order, every task stacks on exactly one parent, and the implement skill walks them in sequence. This is a deliberate design choice, not an oversight -- it keeps the stack reviewable and the rebase story simple. Across epics, parallelism is allowed: when two epics in `epics.md` declare disjoint dependency sets, they may be implemented concurrently in separate working trees or on separate days, since each epic's first task branches from `main`. The Build Order in `epics.md` records a recommended sequence for a single operator; the dependency graph is the source of truth for what can fan out. The implement skill operates on one epic at a time; running two concurrent epics means two `/sdlc-implement` sessions in two checkouts.
+
 ## Ordering Gate
 
 The architect confirms every task's NN-prefix matches its position in the run order: 01 runs first, 02 second, no gaps, no reorderings. A task file named `04-...` that runs before `03-...` is rejected as a seam bug and renumbered before signoff. The same rule applies to epic folders: every epic's NN-prefix must match its position in the Build Order, and single-epic projects use `01-`. Mismatches are renumbered before signoff.
@@ -57,7 +61,7 @@ Neither project nor epic slug carries a date prefix; the date is appended only o
 
 ## PRD and ADR Handling
 
-`prd.md` is optional -- write it only when the project has user-facing product requirements worth separating from the technical spec (the WHAT, distinct from the HOW). `adr.md` is required as a running log of every project-level architecture decision, one heading per decision with context, decision, and consequences. When a decision is strong enough to outlive the project (naming conventions, cross-cutting framework choice, data contract family), promote it to the host repo as `docs/adrs/<YYYYMMDD>-<slug>.md` and note the promotion in `adr.md`. Every design session begins with the architect reading all existing `docs/adrs/**/*.md` so prior decisions bind the new work.
+`prd.md` is optional -- write it only when the project has user-facing product requirements worth separating from the technical spec (the WHAT, distinct from the HOW). When `prd.md` exists, every epic's `spec.md` MUST cite it under `## Dependencies` ("PRD: prd.md") and trace each Functional Requirement to a specific PRD section by quoted phrase or section heading; an unreferenced PRD is a stranded artifact and the architect either wires it in or deletes it. `adr.md` is required as a running log of every project-level architecture decision, one heading per decision with context, decision, and consequences. When a decision is strong enough to outlive the project (naming conventions, cross-cutting framework choice, data contract family), promote it to the host repo as `docs/adrs/<YYYYMMDD>-<slug>.md` and note the promotion in `adr.md`. Every design session begins with the architect reading all existing `docs/adrs/**/*.md` so prior decisions bind the new work.
 
 ## Team Teardown
 

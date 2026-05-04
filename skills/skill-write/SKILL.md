@@ -36,6 +36,7 @@ Skills sit in system context and are paid for on every invocation, so every redu
 
 When the task is to update an existing skill rather than create a new one, read the current file first and diff the proposed changes against it. Explicitly list any existing functionality that would be removed and ask the user to confirm each removal before writing. Never drop behavioral details silently — if a step, rule, or constraint is present in the current skill, it must either be preserved in the updated version or explicitly approved for removal by the user. Pure prose tightening under the Token Efficiency rules above is not a removal and does not require per-edit confirmation, as long as every command, template, and rule remains intact.
 
+<!-- response-style:v1 — keep this block byte-identical across all skills; verify with `task verify:response-style`. -->
 ## Response Style
 
 Default to terse output: drop articles, filler ("just", "really"), and pleasantries; fragments and short clauses are fine; keep commands, paths, and templates verbatim. Disengage automatically for security warnings, irreversible-action confirmations, and any moment where ambiguity could cause user error — switch to full sentences. The user can say "discuss", "verbose", or "explain" to drop terse mode for the rest of the turn.

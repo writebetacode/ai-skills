@@ -17,10 +17,13 @@ This symlinks all skills and agents into `~/.claude` and `~/.gemini` so updates 
 You can also install per platform or verify the current state:
 
 ```bash
-task install:claude   # Claude only
-task install:gemini   # Gemini only
-task verify           # check all symlinks are in place
+task install:claude            # Claude only
+task install:gemini            # Gemini only
+task verify                    # check all symlinks are in place
+task verify:response-style     # check the shared Response Style block has not drifted
 ```
+
+The `## Response Style` block is duplicated verbatim across every skill that uses it (skills load standalone with no include mechanism). Each duplicate is preceded by a `<!-- response-style:v1 -->` marker; `task verify:response-style` reads every tagged block and fails if any has drifted from the canonical first one. When updating the rule, edit every tagged file and bump the marker version.
 
 ## What's included
 
@@ -45,12 +48,14 @@ Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 
 ### Software Development Workflow
 
-A manifest-driven process to take a feature idea all the way through to merged code. `/sdlc-design` is the single entry point -- it handles research, strict one-question-at-a-time clarification, spec creation, and implementation planning through a persistent architect agent that also handles mid-flight architectural revisions. The architect runs intake, does its own context7-backed research and codebase reads, authors all artifacts (spec, plan, tasks, MANIFEST), and enforces stack-linearity (every task has exactly one parent branch) and NN-prefix ordering (task 01 runs first, 02 second, no gaps). The architect may also mark individual tasks `Depth: ultrathink` so `/sdlc-implement` boosts the tester and coder to maximum reasoning depth on genuinely gnarly work; routine tasks omit the field. When scope grows beyond a single epic, design creates a `MANIFEST.md` that every downstream skill reads and updates.
+A manifest-driven process to take a feature idea all the way through to merged code. `/sdlc-design` is the single entry point -- it handles research, strict one-question-at-a-time clarification, spec creation, and implementation planning through a persistent architect agent that also handles mid-flight architectural revisions. The architect runs intake, does its own context7-backed research and codebase reads, authors all artifacts (spec, plan, tasks, MANIFEST), and enforces stack-linearity (every task has exactly one parent branch) and NN-prefix ordering (task 01 runs first, 02 second, no gaps). Within an epic, tasks run linearly; across epics, disjoint dependency sets may be implemented in parallel via two `/sdlc-implement` sessions in two checkouts. The architect may also mark individual tasks `Depth: ultrathink` so `/sdlc-implement` boosts the tester and coder to maximum reasoning depth on genuinely gnarly work; routine tasks omit the field. When scope grows beyond a single epic, design creates a `MANIFEST.md` that every downstream skill reads and updates.
+
+`/sdlc-implement` checkpoints between AC-group test batches rather than handing the coder one monolithic red batch -- the tester writes batch 1's red tests, the coder greens them, and only then does the tester write batch 2 (informed by what batch 1 revealed). Before resolving any task in a dependent epic, the implement skill validates that every epic listed under `## Dependencies` is `Complete` in the manifest. The coder routes blockers deliberately: scope drift to the tester, factual or structural ambiguity to the architect, `unbuildable: <reason>` verdicts back to the tester for void-or-revise via mid-flight revision. After all batches are green, the tester runs lint and the full suite, updates the task file's `Key Files` to the files actually changed, and hands a clean report back to the coordinator. The coordinator -- not the tester -- then spawns a fresh sub-agent (general-purpose) as the third-party spec-vs-code validator, handing it only the spec path, task path, and diff range. Coordinator-level spawn keeps the validator unbiased by the tester's "I think this is done" framing and outside the team's lifecycle. The validator returns a JSON report of satisfied clauses and drift; the task is approved only when the drift array is empty, otherwise the coordinator routes the drift list back to the tester for another loop.
 
 | Command | Phase | Model | Description |
 |---|---|---|---|
 | `/sdlc-design` | 1 -- Design | opus | Turn an idea into specs, plans, and ADRs through strict one-at-a-time questioning and an architect-led team; also handles mid-flight revisions via per-task keep/revise/void triage |
-| `/sdlc-implement` | 2 -- Implement | opus | Execute tasks with a tester-coder team, TDD loop, and third-party spec-vs-code validation; auto-picks the next task from the manifest when called without arguments |
+| `/sdlc-implement` | 2 -- Implement | opus | Execute tasks with a tester-coder team, batched TDD loop, epic-precondition gate, and third-party spec-vs-code validation via a fresh sub-agent; auto-picks the next task from the manifest when called without arguments |
 | `/sdlc-complete` | 3 -- Complete | sonnet | Archive a finished project to `plans/complete/YYYYMMDD-<slug>/` and clean up its local branches |
 
 The commands share a common file layout under `plans/` (keep this directory out of version control in your global gitignore):
@@ -74,7 +79,7 @@ plans/
     YYYYMMDD-<project-slug>/        # archived by /sdlc-complete (date appended on archive)
 ```
 
-Project-level ADRs live in `adr.md`; decisions strong enough to outlive the project are promoted to the host repo under `docs/adrs/<YYYYMMDD>-<slug>.md` and read at the start of every future design session. Each task drives one branch and one PR, stacked on the previous task's branch. Implementation follows a strict RED -> GREEN -> REFACTOR loop with third-party validation before commit.
+Project-level ADRs live in `adr.md`; decisions strong enough to outlive the project are promoted to the host repo under `docs/adrs/<YYYYMMDD>-<slug>.md` and read at the start of every future design session. `prd.md` is optional, but when written every epic's `spec.md` MUST cite it under `## Dependencies` and trace each FR to a PRD section -- an unreferenced PRD is dropped at signoff. Each task drives one branch and one PR, stacked on the previous task's branch. Implementation follows a strict RED -> GREEN -> REFACTOR loop, batched per AC group, with a fresh sub-agent third-party spec-vs-code validation before commit.
 
 ## Agents
 

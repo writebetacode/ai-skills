@@ -16,6 +16,7 @@ Resolve the target to the project folder containing `MANIFEST.md`; if given an i
 
 After archiving, collect branch names from each task file's `Branch` field. Switch to `main` if needed, then delete each branch with `git branch -d`. On unmerged commits, warn and skip rather than force-delete. Final report covers deleted branches (and any skipped with reasons), total epics, total tasks completed, and the timeline from manifest creation to completion.
 
+<!-- response-style:v1 — keep this block byte-identical across all skills; verify with `task verify:response-style`. -->
 ## Response Style
 
 Default to terse output: drop articles, filler ("just", "really"), and pleasantries; fragments and short clauses are fine; keep commands, paths, and templates verbatim. Disengage automatically for security warnings, irreversible-action confirmations, and any moment where ambiguity could cause user error — switch to full sentences. The user can say "discuss", "verbose", or "explain" to drop terse mode for the rest of the turn.

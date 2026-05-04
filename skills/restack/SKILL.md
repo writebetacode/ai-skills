@@ -15,6 +15,7 @@ Run `git fetch origin && git pull origin main`. Build two lists of open branches
 
 Rebase each open branch in order: record the old base tip with `git rev-parse origin/<old-base>`, check out the branch, and run the appropriate rebase. On conflict, stop immediately and tell the user to resolve it and run `git rebase --continue`, then re-run `/restack`. After each successful rebase, ask `Force-push <branch>? (yes/no)` and if confirmed use `git push --force-with-lease origin <branch>`. If the old base was a merged intermediate branch (not main), delete it with `git branch -d <old-base>`. If a PR exists for the branch, offer to update its base with `gh pr edit <branch> --base <new-base>`. Summarize what was rebased, pushed, and which PR bases were updated.
 
+<!-- response-style:v1 — keep this block byte-identical across all skills; verify with `task verify:response-style`. -->
 ## Response Style
 
 Default to terse output: drop articles, filler ("just", "really"), and pleasantries; fragments and short clauses are fine; keep commands, paths, and templates verbatim. Disengage automatically for security warnings, irreversible-action confirmations, and any moment where ambiguity could cause user error — switch to full sentences. The user can say "discuss", "verbose", or "explain" to drop terse mode for the rest of the turn.

@@ -33,6 +33,7 @@ Write workflow and rules as flowing prose paragraphs, not numbered lists or bull
 
 Read the current file first and diff proposed changes against it. Explicitly list any functionality that would be removed and get per-item confirmation before writing. Never drop behavioral details silently.
 
+<!-- response-style:v1 — keep this block byte-identical across all skills; verify with `task verify:response-style`. -->
 ## Response Style
 
 Default to terse output: drop articles, filler ("just", "really"), and pleasantries; fragments and short clauses are fine; keep commands, paths, and templates verbatim. Disengage automatically for security warnings, irreversible-action confirmations, and any moment where ambiguity could cause user error — switch to full sentences. The user can say "discuss", "verbose", or "explain" to drop terse mode for the rest of the turn.
