@@ -6,11 +6,11 @@ model: opus
 
 # Skill Write: Scaffold a New Skill
 
-Use any provided name or description as a starting point, otherwise begin by asking the user what the skill should accomplish.
+Use any provided name or description as a starting point; otherwise ask what the skill should accomplish.
 
 ## Workflow
 
-Ask scoping questions one at a time to determine the skill's name, description, model tier, workflow steps, and rules. Pick a model tier using the same guidance as delegated agents — Haiku for read-only lookups and scans, Sonnet for routine coding, commits, PRs, and mechanical edits, Opus for design, architecture, scaffolding new skills or agents, spec authoring, and code review — and omit the `model` field only when inheriting the caller's tier is genuinely appropriate. If the workflow will also delegate to sub-agents via the `Agent` or `TeamCreate` tools, ask the same tier question for each delegated role. Once details are gathered, present a full draft, get explicit confirmation, incorporate edits, then create the directory and file and confirm the final path.
+Ask scoping questions one at a time for name, description, model tier, workflow steps, and rules. Pick a model tier using the same guidance as delegated agents — Haiku for read-only lookups/scans; Sonnet for routine coding, commits, PRs, mechanical edits; Opus for design, architecture, scaffolding skills/agents, spec authoring, code review. Omit `model` only when inheriting the caller's tier is genuinely appropriate. If the workflow delegates to sub-agents via `Agent` or `TeamCreate`, ask the same tier question per role. Present a full draft, get explicit confirmation, incorporate edits, create the directory and file, confirm the path.
 
 ## File Format
 
@@ -22,19 +22,19 @@ model: <sonnet | opus>
 ---
 ```
 
-Place the skill at `skills/<name>/SKILL.md` relative to the repo root. Each skill ends with a `## User Input\n\n$ARGUMENTS` section. A single file serves both Claude Code and Gemini CLI -- `task install` symlinks it into `~/.claude/skills/` and `~/.gemini/skills/`. The `description` field is how the model decides when to invoke the skill, so it must state the concrete trigger ("Use when the user wants to …") and, where ambiguity is likely, the conditions under which it should be skipped.
+Place at `skills/<name>/SKILL.md` relative to repo root. Each skill ends with `## User Input\n\n$ARGUMENTS`. A single file serves both Claude Code and Gemini CLI — `task install` symlinks it into `~/.claude/skills/` and `~/.gemini/skills/`. The `description` is how the model decides when to invoke — state the concrete trigger ("Use when the user wants to …") and, where ambiguity is likely, when to skip.
 
 ## Writing Style
 
-Write all skill content — workflow steps, rules, and explanations — as flowing prose paragraphs, not numbered lists or bullet points. Prose keeps intent and reasoning connected across the full workflow, producing better model execution. Numbered steps cause mechanical step-checking without judgment; bullets fragment context and strip the causal connectives ("then", "after", "once") that tell the model why to do something. The only exception is structured reference formats like templates or examples that are genuinely tabular or code-like.
+Write all skill content — workflow, rules, explanations — as flowing prose paragraphs, not numbered lists or bullets. Prose keeps intent and reasoning connected; numbered steps cause mechanical step-checking without judgment; bullets fragment context and strip causal connectives ("then", "after", "once"). Exception: structured reference formats like templates or tabular/code-like examples.
 
 ## Token Efficiency
 
-Skills sit in system context and are paid for on every invocation, so every redundant word has a recurring cost. Keep prose tight: drop filler openers like "Begin by", "Start by", and "Finally", collapse repetitive connectives, merge sequential sentences that share a subject, and prefer one strong sentence over two weak ones. Fidelity is non-negotiable — every quoted command, flag, template section, and explicit rule must be preserved verbatim, and every behavioral detail (confirmation gates, stop conditions, ordering constraints) must survive intact. Tighten only the connective prose around the functional payload.
+Skills sit in system context and are paid for on every invocation; redundant words have a recurring cost. Keep prose tight: drop filler openers ("Begin by", "Start by", "Finally"), collapse repetitive connectives, merge sequential sentences sharing a subject, prefer one strong sentence over two weak ones. Fidelity is non-negotiable — every quoted command, flag, template section, and explicit rule preserved verbatim; every behavioral detail (confirmation gates, stop conditions, ordering constraints) intact. Tighten only the connective prose around the functional payload.
 
 ## Updating Existing Skills
 
-When the task is to update an existing skill rather than create a new one, read the current file first and diff the proposed changes against it. Explicitly list any existing functionality that would be removed and ask the user to confirm each removal before writing. Never drop behavioral details silently — if a step, rule, or constraint is present in the current skill, it must either be preserved in the updated version or explicitly approved for removal by the user. Pure prose tightening under the Token Efficiency rules above is not a removal and does not require per-edit confirmation, as long as every command, template, and rule remains intact.
+When updating rather than creating, read the current file first and diff proposed changes. Explicitly list any functionality that would be removed and confirm each removal before writing. Never drop behavioral details silently — every step, rule, and constraint must be preserved or explicitly approved for removal. Pure prose tightening under Token Efficiency is not a removal and does not need per-edit confirmation, as long as every command, template, and rule remains intact.
 
 <!-- response-style:v1 — keep this block byte-identical across all skills; verify with `task verify:response-style`. -->
 ## Response Style
@@ -43,7 +43,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Always ask scoping questions one at a time to avoid overwhelming the user and never write any files without explicit confirmation. Ensure the skill is correctly placed in its own subdirectory under `skills/` at the repo root. After writing the skill file, update README.md to include the new skill in the appropriate table. Keep all skills under 100 lines and use only ASCII characters in all generated content and never include AI attribution or "Co-Authored-By" lines. Prefer dedicated tools over shell commands in generated workflow text (Read/Edit/Write/Glob/Grep over `cat`/`sed`/`find`/`rg`) so the skill reads the same way the host CLIs execute it.
+Always ask scoping questions one at a time; never write files without explicit confirmation. Place each skill in its own subdirectory under `skills/` at the repo root. After writing, update README.md to include the new skill in the appropriate table. Keep skills under 100 lines. Use only ASCII; never include AI attribution or "Co-Authored-By" lines. Prefer dedicated tools over shell commands in generated workflow text (Read/Edit/Write/Glob/Grep over `cat`/`sed`/`find`/`rg`) so skills read the same way the host CLIs execute them.
 
 ## User Input
 

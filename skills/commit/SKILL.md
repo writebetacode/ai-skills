@@ -20,7 +20,7 @@ model: sonnet
 
 ## Workflow
 
-Gather context in parallel: `git diff --cached --name-only` (staged files), `git diff --cached` (full changes), `git branch --show-current`, `git log --oneline -5`. Treat the `--name-only` list as the authoritative check: if it is empty, nothing is staged — run `git status --short`, tell the user to stage their changes first, and stop. If any files appear in the list, treat every one of them as in-scope for this commit regardless of how or why it was staged. Infer the commit type from the branch prefix or diff content, defaulting to `chore` when neither maps cleanly, and use any provided user input as additional context. Draft a message in the imperative mood under 72 characters that focuses on purpose rather than mechanics. Execute the commit immediately via HEREDOC:
+Gather context in parallel: `git diff --cached --name-only` (staged files), `git diff --cached` (full changes), `git branch --show-current`, `git log --oneline -5`. The `--name-only` list is authoritative: if empty, nothing is staged — run `git status --short`, tell the user to stage first, stop. If files appear, every one is in-scope regardless of how it was staged. Infer commit type from branch prefix or diff content, defaulting to `chore` when neither maps cleanly. Use any provided user input as additional context. Draft a message in imperative mood under 72 characters focusing on purpose, not mechanics. Execute immediately via HEREDOC:
 
 ```bash
 git commit -F - <<'EOF'
@@ -35,7 +35,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Commit every file currently in the index exactly as the user has staged it — the user's staging is authoritative and may include files staged externally from the AI conversation. Never run `git reset`, `git restore --staged`, `git rm --cached`, or any other command that removes or alters entries in the index, and never suggest excluding a staged file. Never stage files automatically. Use HEREDOC for all commit messages to preserve formatting. Trailer lines (e.g. `Refs: #123`, `Closes: #456`) may be added after a blank line when they provide useful context. Use only ASCII and never include AI attribution or "Co-Authored-By" lines.
+Commit every file in the index exactly as staged — user staging is authoritative and may include files staged externally. Never run `git reset`, `git restore --staged`, `git rm --cached`, or anything that alters index entries; never suggest excluding a staged file. Never stage automatically. Use HEREDOC for all commit messages to preserve formatting. Trailer lines (`Refs: #123`, `Closes: #456`) may follow a blank line when useful. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

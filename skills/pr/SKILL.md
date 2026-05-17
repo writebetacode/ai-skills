@@ -8,7 +8,7 @@ model: sonnet
 
 ## Workflow
 
-Verify `gh auth status`; stop on failure. Gather in parallel — current branch, remote URL, user login, PR status — and warn on uncommitted changes. Resolve the base from arguments, or auto-detect by matching the branch-name prefix against other local branches, falling back to `git merge-base` against `main`. Validate ticket numbers via `gh issue view`, then draft a human-readable title under 70 characters covering the combined changes. Compose the body from the template, run `gh pr create --assignee @me` or `gh pr edit` (add `--draft` if "draft" appears in `$ARGUMENTS`), and display the PR URL.
+Verify `gh auth status`; stop on failure. Gather in parallel: current branch, remote URL, user login, PR status. Warn on uncommitted changes. Resolve base from arguments, or auto-detect by matching branch-name prefix against other local branches, falling back to `git merge-base` against `main`. Validate ticket numbers via `gh issue view`. Draft a human-readable title under 70 characters covering combined changes. Compose body from the template, run `gh pr create --assignee @me` or `gh pr edit` (add `--draft` if "draft" appears in `$ARGUMENTS`), display the PR URL.
 
 ## PR Body Template
 
@@ -49,11 +49,11 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Always assign the PR to @me. Validate all ticket links before use. Do not include a "Test Plan" section; only the authorized sections (Tickets, Summary, Why, Changes, Breaking Changes, Dependencies) are permitted. Use only ASCII and never include AI attribution or "Co-Authored-By" lines.
+Always assign to @me. Validate all ticket links before use. No "Test Plan" section — only authorized sections (Tickets, Summary, Why, Changes, Breaking Changes, Dependencies) are permitted. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
 
-It is a violation to use a PR title that is not a plain-English, human-readable sentence. Raw branch names, ticket slugs, kebab-case strings, or any machine-style identifier must be rewritten into a natural-language summary before the PR is created or updated. For example, `fix/auth-token-refresh` or `PROJ-123` are violations; "Fix authentication token refresh on expired sessions" is acceptable.
+**Title violation:** any title that is not a plain-English, human-readable sentence. Raw branch names, ticket slugs, kebab-case, or machine-style identifiers must be rewritten before create/update. `fix/auth-token-refresh` or `PROJ-123` are violations; "Fix authentication token refresh on expired sessions" is acceptable.
 
-It is a violation to produce a PR body that does not follow the exact template. The body must contain Tickets, Summary, Why, and Changes in that order using the prescribed markdown structure. Freeform prose, generic layouts, or invented sections like "Test Plan" are violations and must be corrected before the PR is created or updated.
+**Body violation:** any body that does not follow the exact template. Body must contain Tickets, Summary, Why, and Changes in that order using the prescribed markdown. Freeform prose, generic layouts, or invented sections like "Test Plan" are violations and must be corrected before create/update.
 
 ## User Input
 

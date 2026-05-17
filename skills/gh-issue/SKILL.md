@@ -8,7 +8,7 @@ model: sonnet
 
 ## Workflow
 
-Verify `gh auth status` and the repo name; stop on failure. Parse any provided arguments for a title, then prompt for missing fields: issue type, title, description, priority, and optional sections like reproduction steps or acceptance criteria. Build the body using the template below, omitting any optional sections that were skipped. Show the formatted title and body and get confirmation or edits. Once confirmed, create the issue via `gh issue create --assignee @me` and display the final URL.
+Verify `gh auth status` and repo name; stop on failure. Parse arguments for a title, then prompt for missing fields: type, title, description, priority, and optional sections (repro steps, acceptance criteria). Build the body from the template, omitting skipped sections. Show formatted title and body, get confirmation or edits. On confirmation, create via `gh issue create --assignee @me` and display the URL.
 
 ## Issue Body Template
 
@@ -46,7 +46,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Strictly follow the body template without changing section headers or order. Always format the title as `<type>: <title>` and never create an issue without explicit user confirmation. Assign every created issue to the current user with `--assignee @me`. Stop if `gh` is not installed or the user is not authenticated. Use only ASCII and never include AI attribution or "Co-Authored-By" lines.
+Follow the body template exactly — no header or order changes. Title format: `<type>: <title>`. Never create without explicit confirmation. Assign every issue to the current user with `--assignee @me`. Stop if `gh` is missing or unauthenticated. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 
