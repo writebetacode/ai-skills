@@ -10,7 +10,7 @@ Use any provided name or description as a starting point; otherwise ask what the
 
 ## Workflow
 
-Ask scoping questions one at a time for name, description, model tier, workflow steps, and rules. Pick a model tier using the same guidance as delegated agents — Haiku for read-only lookups/scans; Sonnet for routine coding, commits, PRs, mechanical edits; Opus for design, architecture, scaffolding skills/agents, spec authoring, code review. Omit `model` only when inheriting the caller's tier is genuinely appropriate. If the workflow delegates to sub-agents via `Agent` or `TeamCreate`, ask the same tier question per role. Present a full draft, get explicit confirmation, incorporate edits, create the directory and file, confirm the path.
+Ask scoping questions one at a time for name, description, model tier, workflow steps, and rules. Pick a model tier using the same guidance as delegated agents — Haiku for read-only lookups and scans; Sonnet for routine coding, commits, PRs, and mechanical edits; Opus for design, architecture, scaffolding skills/agents, spec authoring, and code review. Use the bare aliases (`opus`, `sonnet`, `haiku`); they resolve to the latest model in each family. Omit `model` only when inheriting the caller's tier is genuinely appropriate. If the workflow delegates to sub-agents via `Agent` or `TeamCreate`, ask the same tier question per role. Present a full draft, get explicit confirmation, incorporate edits, create the directory and file, confirm the path.
 
 ## File Format
 

@@ -10,7 +10,7 @@ Flow: **[design]** -> implement -> complete
 
 ## Agent Team
 
-Spec/plan authoring and all intake MUST happen through a team via TeamCreate named `sdlc-design-<project-slug>`. Create the team at the very start, before any questioning. Spawn one permanent agent via `Agent` with `team_name` matching and `name` set to `sdlc-architect` (opus). The architect's AGENT.md carries its workflow and identity — do not re-specify here. The architect owns intake, research, all artifact authoring (specs, plans, task files, MANIFEST), and signoff; it stays live throughout design. Never produce specs, plans, or task files directly in the main conversation, and never drive questioning from the main conversation.
+Spec/plan authoring and all intake MUST happen through a team via TeamCreate named `sdlc-design-<project-slug>`, created at the very start before any questioning. Spawn one permanent agent via `Agent` with matching `team_name` and `name` set to `sdlc-architect` (opus). Its AGENT.md carries the workflow and identity — do not re-specify here. The architect owns intake, research, all artifact authoring (specs, plans, task files, MANIFEST), and signoff, and stays live throughout design.
 
 ## Orchestrator Role
 
@@ -18,7 +18,7 @@ The main thread is a pure router. It creates the team, spawns the agent, forward
 
 ## Questioning Rules
 
-Architect asks exactly one question per turn. No compounds ("A and also B?"), no sub-questions smuggled in as examples ("What auth? JWT or sessions?"), no lettered/numbered/bulleted sub-parts within a turn — each sub-part is its own question on its own turn. When the codebase suggests an answer, propose it as a one-word-confirm default ("Looks like you're using JWTs — confirm?") instead of open-ended. After every answer, the architect pauses and decides: accept, drill, or move on. The user may interrupt to drill any topic; honor it fully before resuming. Respond completely to any question the user asks back before continuing. The main thread enforces discipline by relaying untouched — no batching, rephrasing, or supplementing.
+The architect owns question discipline (one question per turn, no compounds, codebase-informed defaults, honor drill-downs) — its AGENT.md "Intake loop" is authoritative. The main thread's only job is to enforce that discipline by relaying every turn untouched: no batching, rephrasing, supplementing, or injecting questions of its own.
 
 ## Workflow
 
@@ -34,7 +34,7 @@ Within an epic, tasks are strictly linear: NN order is run order, every task sta
 
 ## Ordering Gate
 
-Every task's NN-prefix matches its position in run order: 01 first, 02 second, no gaps, no reorderings. A task file `04-...` that runs before `03-...` is rejected as a seam bug and renumbered before signoff. Same rule for epic folders; single-epic projects use `01-`. Mismatches are renumbered before signoff.
+Every task's NN-prefix matches its position in run order: 01 first, 02 second, no gaps, no reorderings. A task file `04-...` that runs before `03-...` is a seam bug. Same rule for epic folders; single-epic projects use `01-`. Mismatches are renumbered before signoff.
 
 ## Mid-Flight Revision
 
@@ -155,8 +155,6 @@ Base: main OR exactly one prior task branch
 <Prior task, or "None (branches from main).">
 ```
 
-Optional `Depth: ultrathink` line directly below `Base:` when the architect flags a task as needing maximum-depth reasoning — reserved for genuinely gnarly work (novel territory, subtle correctness, concurrency, high spec-drift risk). `/sdlc-implement` reads this and prepends `ultrathink` to tester and coder handoffs. Omit on routine work.
-
 ## Manifest Format
 
 File: `MANIFEST.md`
@@ -180,7 +178,7 @@ Spec Ready -> Planned -> In Progress (N/M) -> Complete
 
 ## Rules
 
-NEVER produce specs, plans, or task files directly in the main conversation; NEVER drive intake from the main conversation — all artifacts and questions come through `sdlc-architect` via TeamCreate. Architect owns intake, research, authoring, signoff inline. Main thread is a pure router: relay messages between user and architect without injecting questions or commentary. One question per turn, no compounds, no sub-questions as examples, no lettered/numbered/bulleted sub-parts. Honor user-initiated drill-downs fully before resuming. Every task has exactly one parent branch — stack-linearity is absolute. NN-prefix must match run order for epics and tasks. Always read `docs/adrs/**/*.md` at session start. Never fabricate sources or URLs. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
+NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through `sdlc-architect` via TeamCreate; the main thread is a pure router that relays untouched. Question discipline and research rules are the architect's (its AGENT.md is authoritative). Every task has exactly one parent branch — stack-linearity is absolute. NN-prefix must match run order for epics and tasks. Always read `docs/adrs/**/*.md` at session start. Never fabricate sources or URLs. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

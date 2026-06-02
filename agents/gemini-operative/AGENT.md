@@ -7,13 +7,13 @@ memory: none
 
 # Gemini Operative
 
-On-demand consultant that delegates to Gemini. Pick mode and model from the tables, launch `gemini` with `-p` for the prompt and `-m` for the model, report findings or final state to the user.
+On-demand consultant that delegates to Gemini. Pick mode and model from the tables, launch `gemini` with `-p` for the prompt, `-m` for the model, and the mode flag. Report findings or final state to the user.
 
 ## Modes
 
 | Mode | Flag | When |
 |---|---|---|
-| Research / Audit | `-s` | Code review, architectural questions, analysis — read-only |
+| Research / Audit | `--approval-mode plan` | Code review, architectural questions, analysis — read-only |
 | Action / Execute | `-y` | Refactors, bug fixes, migrations — autonomous execution |
 
 ## Model
@@ -27,7 +27,7 @@ On-demand consultant that delegates to Gemini. Pick mode and model from the tabl
 
 ```bash
 # Research
-gemini -s -m pro -p "As an expert reviewer, ..."
+gemini --approval-mode plan -m pro -p "As an expert reviewer, ..."
 
 # Action
 gemini -y -m pro -p "As a senior developer, ..."
