@@ -14,27 +14,19 @@ Spec/plan authoring and all intake MUST happen through a team via TeamCreate nam
 
 ## Orchestrator Role
 
-The main thread is a pure router. It creates the team, spawns the agent, forwards every user reply to `sdlc-architect` via `SendMessage`, and relays the architect's next question back verbatim. No own questions, no pre-review, no commentary, no deciding when intake is complete. If `$ARGUMENTS` is empty, forward that fact to the architect on spawn so it opens with a prompt for what to build.
-
-## Questioning Rules
-
-The architect owns question discipline (one question per turn, no compounds, codebase-informed defaults, honor drill-downs) — its AGENT.md "Intake loop" is authoritative. The main thread's only job is to enforce that discipline by relaying every turn untouched: no batching, rephrasing, supplementing, or injecting questions of its own.
+The main thread is a pure router: forward every user reply to `sdlc-architect` via `SendMessage`, relay the architect's next question back verbatim. No own questions, pre-review, commentary, or deciding when intake is complete. If `$ARGUMENTS` is empty, tell the architect on spawn so it opens by asking what to build. Question discipline (one per turn, no compounds, codebase-informed defaults, honor drill-downs) is the architect's — its AGENT.md "Intake loop" is authoritative; the orchestrator only enforces it by relaying untouched, never batching, rephrasing, or supplementing.
 
 ## Workflow
 
-Open by creating the team and spawning `sdlc-architect`. On spawn, the architect reads `docs/adrs/**/*.md` so prior decisions bind new work, then pulls existing skills, patterns, and files the prompt touches. Runs the questioning loop under the rules above, doing codebase lookups inline and resolving every package/library/framework/SDK/CLI version via `context7` with source/version/retrieval-date citations. If scope decomposes into independent work streams, the architect proposes: "This looks like a multi-epic project — I'd like to decompose it into N epics." Once concrete, the architect authors `spec.md` per epic, decomposes each spec into vertical-slice tasks (~500 LOC per PR target), writes `plan.md`, emits `tasks/NN-<name>.md` files in run order, runs the gates below, and writes `MANIFEST.md`.
+Create the team and spawn `sdlc-architect`; it then runs its own AGENT.md workflow — read ADRs, intake loop, context7 research, authoring. When scope decomposes into independent streams, the architect proposes a multi-epic split for the user to confirm. Once concrete, it authors `spec.md`, `plan.md`, `tasks/NN-<name>.md` (in run order), runs the gates, and writes `MANIFEST.md`.
 
-## Stack-Linearity Gate
+## Gates
 
-Before plan signoff, the architect walks the task graph and rejects any task whose `Base` names two different prior branches. Every task has exactly one parent — `main` or one prior task branch. If a task needs state from two prior branches, flatten them (merge priors into one task, or split the current task) and redo the plan. Absolute gate; no exceptions.
+The architect runs the signoff gates (stack-linearity, NN-ordering, cross-check, AC rejection) per its AGENT.md "Gates before signoff" — they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (`main` or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
 
 ## Concurrency Model
 
-Within an epic, tasks are strictly linear: NN order is run order, every task stacks on one parent, the implement skill walks them in sequence. Deliberate choice — keeps the stack reviewable and the rebase story simple. Across epics, parallelism is allowed: when two epics in `epics.md` declare disjoint dependency sets, they may run concurrently in separate working trees, since each epic's first task branches from `main`. Build Order in `epics.md` is the recommended single-operator sequence; the dependency graph is the source of truth for fan-out. The implement skill operates on one epic at a time; concurrent epics means two `/sdlc-implement` sessions in two checkouts.
-
-## Ordering Gate
-
-Every task's NN-prefix matches its position in run order: 01 first, 02 second, no gaps, no reorderings. A task file `04-...` that runs before `03-...` is a seam bug. Same rule for epic folders; single-epic projects use `01-`. Mismatches are renumbered before signoff.
+Within an epic, tasks are strictly linear: NN order is run order, every task stacks on one parent, the implement skill walks them in sequence — a deliberate choice that keeps the stack reviewable and the rebase story simple. Across epics, parallelism is allowed: two epics in `epics.md` with disjoint dependency sets run concurrently in separate working trees, since each epic's first task branches from `main`. Build Order is the recommended single-operator sequence; the dependency graph is the source of truth for fan-out. Concurrent epics means two `/sdlc-implement` sessions in two checkouts.
 
 ## Mid-Flight Revision
 
@@ -61,13 +53,11 @@ Neither project nor epic slug carries a date prefix; date appends only on archiv
 
 ## PRD and ADR Handling
 
-`prd.md` is optional — write it only when the project has user-facing product requirements worth separating from the technical spec (the WHAT, distinct from the HOW). When `prd.md` exists, every epic's `spec.md` MUST cite it under `## Dependencies` ("PRD: prd.md") and trace each FR to a specific PRD section by quoted phrase or heading; an unreferenced PRD is a stranded artifact and the architect either wires it in or deletes it. `adr.md` is required as a running log of every project-level decision, one heading per decision with context, decision, consequences. When a decision is strong enough to outlive the project (naming conventions, cross-cutting framework choice, data contract family), promote it to `docs/adrs/<YYYYMMDD>-<slug>.md` in the host repo and note the promotion in `adr.md`. Every design session begins with the architect reading all existing `docs/adrs/**/*.md`.
+`prd.md` is optional — write it only for user-facing product requirements worth separating from the technical spec (the WHAT, not the HOW). When it exists, every epic's `spec.md` MUST cite it under `## Dependencies` ("PRD: prd.md") and trace each FR to a PRD section by quoted phrase or heading; an unreferenced PRD is wired in or deleted. `adr.md` is a required running log, one heading per project-level decision with context, decision, consequences. A decision strong enough to outlive the project (naming conventions, cross-cutting framework choice, data contract family) promotes to `docs/adrs/<YYYYMMDD>-<slug>.md` in the host repo, noted back in `adr.md`. Every session starts with the architect reading all existing `docs/adrs/**/*.md`.
 
 ## Team Teardown
 
-Once the architect signs off and `MANIFEST.md` is written, shut down the team. Send `SendMessage` with `{type: "shutdown_request", reason: "Design complete."}`, wait for `shutdown_approved`, then call `TeamDelete`. Do not skip teardown — leaving agents running leaks context and keeps the team directory on disk.
-
-If the session pauses mid-design, leave the team running to preserve context; teardown happens only at signoff or when a mid-flight revision returns control to `/sdlc-implement`.
+After signoff and `MANIFEST.md` write, shut down: `SendMessage {type: "shutdown_request", reason: "Design complete."}`, await `shutdown_approved`, then `TeamDelete`. Never skip it — running agents leak context and keep the team directory on disk. If the session pauses mid-design, leave the team running; teardown happens only at signoff or when a mid-flight revision hands control to `/sdlc-implement`.
 
 ## Completion
 

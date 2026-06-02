@@ -36,19 +36,13 @@ Implementation MUST happen through a team via TeamCreate named `sdlc-implement-<
 
 **Agent reports.** Agents report per their own "Reporting to the Coordinator" sections — status, paths, blockers, no code or test output. The coordinator receives `approved` or a blocker list keyed by AC or spec clause; citations stay in the tester's context so the main thread stays cold.
 
-## Mid-Flight Revision
+## Mid-Flight Revision and Abandon Task
 
-If review feedback is a requirement change — not a code tweak but a shift in what to build — pause tester and coder (no partial commits; leave the tree or stash) and invoke `/sdlc-design` scoped to the change. Design team re-spawns, reads manifest and in-flight work, decides per remaining task: keep, revise, or void. Once the user confirms, the implement team resumes on the current or revised task.
-
-## Abandon Task
-
-Distinct from a requirements shift: when implementation reveals the task as written cannot be built — wrong decomposition, missing dependency surfaced mid-build, contract incompatible with predecessor — the coder reports `unbuildable: <reason>` to the tester, the tester confirms (or downgrades to a fixable blocker), and on confirmation the team pauses and invokes `/sdlc-design` for void-or-revise. Architect either voids (mark `[voided: <reason>]` in MANIFEST, leave the file) or revises (mark `[revised: vN]`, overwrite). Stash any WIP before the design session; do not commit a partial green. Resume only after the user confirms the revised plan.
+Two triggers route to `/sdlc-design` for keep/revise/void (its Mid-Flight Revision section owns the mechanics): a **requirement change** — review feedback shifting what to build, not a code tweak — or an **unbuildable task** — the coder reports `unbuildable: <reason>`, the tester confirms or downgrades to a fixable blocker. Either way, pause tester and coder, stash WIP (never commit a partial green), invoke `/sdlc-design` scoped to the change, and resume only after the user confirms the revised plan.
 
 ## Team Teardown
 
-Once the PR is opened and the manifest is updated, shut down the team. Send `SendMessage` to `sdlc-tester` and `sdlc-coder` with `{type: "shutdown_request", reason: "Task complete."}`, wait for every `shutdown_approved`, then call `TeamDelete`. Do not skip teardown — leaving agents running leaks context and keeps the team directory on disk.
-
-If the session pauses mid-task, leave the team running to preserve test and code context; teardown happens only at task completion or when the user explicitly ends the session.
+After the PR is opened and the manifest updated, shut down: `SendMessage` to `sdlc-tester` and `sdlc-coder` with `{type: "shutdown_request", reason: "Task complete."}`, await every `shutdown_approved`, then `TeamDelete`. Never skip it — running agents leak context and keep the team directory on disk. If the session pauses mid-task, leave the team running; teardown happens only at task completion or when the user ends the session.
 
 ## Completion
 
