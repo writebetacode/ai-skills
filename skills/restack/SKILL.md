@@ -22,7 +22,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Always push with `--force-with-lease`; never rebase branches already merged into main. Rebase in stack order; stop immediately on conflict without skipping ahead. Never push without per-branch confirmation. Use only the safe `git branch -d` for deletes. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
+Always push with `--force-with-lease`, never without per-branch confirmation. Never rebase branches already merged into main. Rebase in stack order; stop immediately on conflict without skipping ahead. Delete only with the safe `git branch -d`. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 
