@@ -4,7 +4,7 @@ description: Turn an idea into specs, plans, tasks, and ADRs through strict one-
 model: opus
 ---
 
-# Design: From Idea to Implementation Plan
+# Design
 
 Flow: **[design]** -> implement -> complete
 
@@ -14,7 +14,7 @@ Spec/plan authoring and all intake MUST happen through a team via TeamCreate nam
 
 ## Orchestrator Role
 
-The main thread is a pure router: forward every user reply to `sdlc-architect` via `SendMessage`, relay the architect's next question back verbatim. No own questions, pre-review, commentary, or deciding when intake is complete. If `$ARGUMENTS` is empty, tell the architect on spawn so it opens by asking what to build. Question discipline (one per turn, no compounds, codebase-informed defaults, honor drill-downs) is the architect's — its AGENT.md "Intake loop" is authoritative; the orchestrator only enforces it by relaying untouched, never batching, rephrasing, or supplementing.
+The main thread is a pure router: forward every user reply to `sdlc-architect` via `SendMessage` and relay the architect's next question back verbatim — never batching, rephrasing, or supplementing; no own questions, pre-review, commentary, or deciding when intake is complete. If `$ARGUMENTS` is empty, tell the architect on spawn so it opens by asking what to build. Question discipline is the architect's — its AGENT.md "Intake loop" is authoritative.
 
 ## Workflow
 
@@ -22,11 +22,11 @@ Create the team and spawn `sdlc-architect`; it then runs its own AGENT.md workfl
 
 ## Gates
 
-The architect runs the signoff gates (stack-linearity, NN-ordering, cross-check, AC rejection) per its AGENT.md "Gates before signoff" — they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (`main` or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
+The architect runs the signoff gates (stack-linearity, NN-ordering, cross-check, AC rejection, PRD wiring, ADR coverage) per its AGENT.md "Gates before signoff" — they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (`main` or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
 
 ## Concurrency Model
 
-Within an epic, tasks are strictly linear: NN order is run order, every task stacks on one parent, the implement skill walks them in sequence — a deliberate choice that keeps the stack reviewable and the rebase story simple. Across epics, parallelism is allowed: two epics in `epics.md` with disjoint dependency sets run concurrently in separate working trees, since each epic's first task branches from `main`. Build Order is the recommended single-operator sequence; the dependency graph is the source of truth for fan-out. Concurrent epics means two `/sdlc-implement` sessions in two checkouts.
+Within an epic, tasks are strictly linear: NN order is run order, every task stacks on one parent, the implement skill walks them in sequence, keeping the stack reviewable and rebases simple. Across epics, parallelism is allowed: two epics in `epics.md` with disjoint dependency sets run concurrently in separate working trees, since each epic's first task branches from `main`. Build Order is the recommended single-operator sequence; the dependency graph is the source of truth for fan-out. Concurrent epics means two `/sdlc-implement` sessions in two checkouts.
 
 ## Mid-Flight Revision
 
@@ -168,7 +168,7 @@ Spec Ready -> Planned -> In Progress (N/M) -> Complete
 
 ## Rules
 
-NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through `sdlc-architect` via TeamCreate; the main thread is a pure router that relays untouched. Question discipline and research rules are the architect's (its AGENT.md is authoritative). Every task has exactly one parent branch — stack-linearity is absolute. NN-prefix must match run order for epics and tasks. Always read `docs/adrs/**/*.md` at session start. Never fabricate sources or URLs. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
+NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through `sdlc-architect` via TeamCreate. Research rules are the architect's. Every task has exactly one parent branch — stack-linearity is absolute. NN-prefix must match run order for epics and tasks. Always read `docs/adrs/**/*.md` at session start. Never fabricate sources or URLs. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

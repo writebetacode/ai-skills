@@ -4,7 +4,7 @@ description: Scaffold a new Claude Code subagent by asking scoping questions and
 model: opus
 ---
 
-# Agent Write: Scaffold a New Agent
+# Agent Write
 
 Use any provided name or description as a starting point; otherwise ask what the agent should accomplish.
 

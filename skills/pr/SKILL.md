@@ -4,7 +4,7 @@ description: Create or update a pull request with a human-readable title and str
 model: sonnet
 ---
 
-# PR: Create or Update Pull Request
+# PR
 
 ## Workflow
 
@@ -51,9 +51,9 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 Always assign to @me. Validate all ticket links before use. No "Test Plan" section — only authorized sections (Tickets, Summary, Why, Changes, Breaking Changes, Dependencies) are permitted. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
 
-**Title violation:** any title that is not a plain-English, human-readable sentence. Raw branch names, ticket slugs, kebab-case, or machine-style identifiers must be rewritten before create/update. `fix/auth-token-refresh` or `PROJ-123` are violations; "Fix authentication token refresh on expired sessions" is acceptable.
+**Title violation:** any title that is not a plain-English, human-readable sentence — raw branch names, ticket slugs, kebab-case, or machine-style identifiers must be rewritten before create/update. `fix/auth-token-refresh` or `PROJ-123` are violations; "Fix authentication token refresh on expired sessions" is acceptable.
 
-**Body violation:** any body that does not follow the exact template. Body must contain Tickets, Summary, Why, and Changes in that order using the prescribed markdown. Freeform prose, generic layouts, or invented sections like "Test Plan" are violations and must be corrected before create/update.
+**Body violation:** any body off the exact template — Tickets, Summary, Why, and Changes in that order using the prescribed markdown. Freeform prose, generic layouts, or invented sections like "Test Plan" must be corrected before create/update.
 
 ## User Input
 

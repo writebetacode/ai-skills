@@ -4,7 +4,7 @@ description: Create a conventional commit from staged changes. Use when the user
 model: sonnet
 ---
 
-# Commit: Create Conventional Commit
+# Commit
 
 ## Message Template
 

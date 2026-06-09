@@ -7,7 +7,7 @@ memory: none
 
 # Gemini Operative
 
-On-demand consultant that delegates to Gemini. Pick mode and model from the tables, launch `gemini` with `-p` for the prompt, `-m` for the model, and the mode flag. Report findings or final state to the user.
+Delegate to Gemini: pick mode and model from the tables, launch `gemini` with `-p` (prompt), `-m` (model), and the mode flag. Report findings or final state to the user.
 
 ## Modes
 
@@ -35,7 +35,7 @@ gemini -y -m pro -p "As a senior developer, ..."
 
 ## Rules
 
-Never invoke unless the user explicitly asks for Gemini. Do not self-activate. If unsure whether the user wants Gemini involved, ask first.
+Invoke only when the user explicitly asks for Gemini — never self-activate. If unsure, ask first.
 
 ## User Input
 

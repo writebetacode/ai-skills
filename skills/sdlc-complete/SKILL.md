@@ -4,7 +4,7 @@ description: Archive a finished project. Use after all epics are Complete to mov
 model: sonnet
 ---
 
-# Complete: Archive Finished Work
+# Complete
 
 Flow: design -> implement -> **[complete]**
 

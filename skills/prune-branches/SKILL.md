@@ -4,7 +4,7 @@ description: Delete local branches whose commits are fully merged into main. Use
 model: sonnet
 ---
 
-# Prune Branches: Clean Up Merged Local Branches
+# Prune Branches
 
 ## Workflow
 
@@ -17,7 +17,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Never delete `main`, `master`, or the currently checked-out branch. Only force-delete after confirming the diff against main is empty. Never delete without explicit confirmation; always fetch from remote first. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
+Never delete `main`, `master`, or the current branch. Only force-delete after confirming the diff against main is empty. Never delete without explicit confirmation; always fetch from remote first. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

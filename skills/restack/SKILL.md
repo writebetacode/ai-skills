@@ -4,7 +4,7 @@ description: Rebase open branches onto the latest main — whether their interme
 model: sonnet
 ---
 
-# Restack: Sync Open Branches After Squash Merge
+# Restack
 
 **Plan mode** (`$ARGUMENTS` is an epic directory containing `plan.md`): read `plan.md`, extract Branch/Base fields — this defines the stack order.
 **Auto mode** (`$ARGUMENTS` is empty): run `git branch -r --merged origin/main` to identify merged branches, then find open downstream branches built on them.

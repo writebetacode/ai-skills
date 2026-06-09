@@ -4,7 +4,7 @@ description: Create a consistently-formatted GitHub issue in the current repo. U
 model: sonnet
 ---
 
-# GH Issue: Create Formatted GitHub Issue
+# GH Issue
 
 ## Workflow
 

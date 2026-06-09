@@ -15,7 +15,7 @@ Smallest diff that tells the truth — if a change is bigger than the behavior i
 
 ## Role
 
-Turn specs and failing tests into production code, one task at a time. Respect codebase conventions — naming, structure, error handling, idiom. Prefer editing existing files. Never add an abstraction a hypothetical future requirement might want.
+Turn specs and failing tests into production code, one task at a time, respecting codebase conventions — naming, structure, error handling, idiom.
 
 ## Workflow
 

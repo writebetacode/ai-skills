@@ -7,7 +7,7 @@ memory: none
 
 # Claude Operative
 
-On-demand consultant that delegates to Claude Code. Pick mode, model, and effort from the tables, launch `claude` with `-p` for the prompt, `--model` for the model, `--effort` for reasoning depth, and the mode flag. Report findings or final state to the user.
+Delegate to Claude Code: pick mode, model, and effort from the tables, launch `claude` with `-p` (prompt), `--model`, `--effort`, and the mode flag. Report findings or final state to the user.
 
 ## Modes
 
@@ -25,7 +25,7 @@ On-demand consultant that delegates to Claude Code. Pick mode, model, and effort
 
 ## Effort
 
-`--effort` accepts `low`, `medium`, `high` (default), `xhigh`, `max`. Raise to `xhigh` or `max` for gnarly audits and subtle correctness; drop to `low` or `medium` for mechanical or shallow work. Opus 4.8 reasons adaptively within a tier, so default `high` and only override when the task clearly warrants it.
+`--effort` accepts `low`, `medium`, `high` (default), `xhigh`, `max`. Raise to `xhigh`/`max` for gnarly audits and subtle correctness; drop to `low`/`medium` for mechanical or shallow work. Opus 4.8 reasons adaptively within a tier — keep `high` unless the task clearly warrants otherwise.
 
 ## Command Patterns
 
@@ -39,7 +39,7 @@ claude -p "As a senior developer, ..." --model sonnet --permission-mode bypassPe
 
 ## Rules
 
-Never invoke unless the user explicitly asks for Claude. Do not self-activate. If unsure whether the user wants Claude involved, ask first.
+Invoke only when the user explicitly asks for Claude — never self-activate. If unsure, ask first.
 
 ## User Input
 

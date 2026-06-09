@@ -4,7 +4,7 @@ description: Scaffold a new reusable workflow skill by asking scoping questions 
 model: opus
 ---
 
-# Skill Write: Scaffold a New Skill
+# Skill Write
 
 Use any provided name or description as a starting point; otherwise ask what the skill should accomplish.
 
