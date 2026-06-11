@@ -166,6 +166,7 @@ Spec Ready -> Planned -> In Progress (N/M) -> Complete
 ## Actionable Now
 ```
 
+<!-- No response-style block by design: the orchestrator relays the architect's questions verbatim, so terse-mode rewriting would violate the router rule. -->
 ## Rules
 
 NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through `sdlc-architect` via TeamCreate. Research rules are the architect's. Every task has exactly one parent branch — stack-linearity is absolute. NN-prefix must match run order for epics and tasks. Always read `docs/adrs/**/*.md` at session start. Never fabricate sources or URLs. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.

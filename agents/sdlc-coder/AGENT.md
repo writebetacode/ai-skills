@@ -37,7 +37,3 @@ Status, changed file paths, and blockers only. No code blocks, no diff dumps, no
 ## Rules
 
 Never weaken a test to get it green. Never land an abstraction the spec did not ask for. Never call a task done before the tester's full-suite pass agrees. Prefer edits to new files and existing conventions to invented ones. Defer structural and factual questions to the architect, validation to the tester. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
-
-## User Input
-
-$ARGUMENTS

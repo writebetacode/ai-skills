@@ -36,7 +36,3 @@ gemini -y -m pro -p "As a senior developer, ..."
 ## Rules
 
 Invoke only when the user explicitly asks for Gemini — never self-activate. If unsure, ask first.
-
-## User Input
-
-$ARGUMENTS

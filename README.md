@@ -4,7 +4,7 @@ A collection of skills and agents for [Claude Code](https://claude.ai/code) and 
 
 ## Installation
 
-Requires [Task](https://taskfile.dev) (`brew install go-task`).
+Requires [Task](https://taskfile.dev) (`brew install go-task`) and [jq](https://jqlang.org) (`brew install jq`) for the settings merge.
 
 ```bash
 git clone https://github.com/writebetacode/ai-skills
@@ -14,11 +14,14 @@ task install
 
 Symlinks all skills and agents into `~/.claude` and `~/.gemini` so repo updates apply immediately without reinstalling. A single set of skill files serves both platforms. Stale symlinks pointing back to this repo are cleaned up before each install. CLI-specific agents (`gemini-operative` needs `gemini`, `claude-operative` needs `claude`) are skipped silently if the CLI is missing.
 
+`task install:claude` also merges `claude/settings.json` into `~/.claude/settings.json`: the permission `allow`/`ask`/`deny` lists are unioned, and every other key takes the repo's value — the repo is the source of truth for the settings it defines, so local edits to those keys are overwritten on each install. `task uninstall` removes every symlink pointing into this repo (the merged settings file is left in place).
+
 Per-platform install and verification:
 
 ```bash
 task install:claude            # Claude only
 task install:gemini            # Gemini only
+task uninstall                 # remove all symlinks pointing to this repo
 task verify                    # check all symlinks
 task verify:response-style     # check the shared Response Style block has not drifted
 ```
@@ -33,9 +36,9 @@ Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 
 | Command | Model | Description |
 |---|---|---|
-| `/commit` | sonnet | Stage-aware conventional commits with user confirmation |
+| `/commit` | sonnet | Stage-aware conventional commits — commits exactly what is staged, immediately |
 | `/pr` | sonnet | Create or update pull requests with structured descriptions |
-| `/restack` | sonnet | Rebase stacked branches after upstream squash merges |
+| `/restack` | sonnet | Rebase open branches onto the latest main, whether their base was squash-merged or main simply moved ahead |
 | `/prune-branches` | sonnet | Delete local branches whose commits are fully merged into main |
 | `/gh-issue` | sonnet | Create consistently-formatted GitHub issues with type, priority, and optional context sections |
 
@@ -48,7 +51,7 @@ Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 
 ### Software Development Workflow
 
-A manifest-driven process from feature idea to merged code. `/sdlc-design` is the single entry point — research, strict one-question-at-a-time clarification, spec creation, implementation planning through a persistent architect agent that also handles mid-flight architectural revisions. The architect runs intake, does its own context7-backed research and codebase reads, authors all artifacts (spec, plan, tasks, MANIFEST), and enforces stack-linearity (every task has exactly one parent branch) and NN-prefix ordering (01 runs first, 02 second, no gaps). Within an epic, tasks run linearly; across epics, disjoint dependency sets may run in parallel via two `/sdlc-implement` sessions in two checkouts. The tester and coder run at fixed `high` effort and rely on Opus 4.8's adaptive reasoning to self-allocate depth on gnarly steps, so there is no per-task depth flag. When scope exceeds a single epic, design creates a `MANIFEST.md` that every downstream skill reads and updates.
+A manifest-driven process from feature idea to merged code. `/sdlc-design` is the single entry point — research, strict one-question-at-a-time clarification, spec creation, implementation planning through a persistent architect agent that also handles mid-flight architectural revisions. The architect runs intake, does its own context7-backed research and codebase reads, authors all artifacts (spec, plan, tasks, MANIFEST), and enforces stack-linearity (every task has exactly one parent branch) and NN-prefix ordering (01 runs first, 02 second, no gaps). Within an epic, tasks run linearly; across epics, disjoint dependency sets may run in parallel via two `/sdlc-implement` sessions in two checkouts. The tester and coder run at fixed `high` effort and rely on the Opus tier's adaptive reasoning to self-allocate depth on gnarly steps, so there is no per-task depth flag. When scope exceeds a single epic, design creates a `MANIFEST.md` that every downstream skill reads and updates.
 
 `/sdlc-implement` checkpoints between AC-group test batches instead of handing the coder one monolithic red batch — tester writes batch 1's red tests, coder greens them, then tester writes batch 2 informed by what batch 1 revealed. Before resolving any task in a dependent epic, the skill validates that every epic listed under `## Dependencies` is `Complete` in the manifest. The coder routes blockers: scope drift to the tester, factual/structural ambiguity to the architect, `unbuildable: <reason>` back to the tester for void-or-revise via mid-flight revision. After all batches are green, the tester runs lint and the full suite, updates the task file's `Key Files` to actual files changed, and hands a clean report to the coordinator. The coordinator — not the tester — then spawns a fresh sub-agent (general-purpose) as third-party spec-vs-code validator, handing it only the spec path, task path, and diff range. Coordinator-level spawn keeps the validator unbiased by the tester's "I think this is done" framing and outside the team's lifecycle. The validator returns JSON satisfied/drift; the task approves only on empty drift, otherwise the coordinator routes the drift list back to the tester for another loop.
 
@@ -86,7 +89,7 @@ Project-level ADRs live in `adr.md`; decisions strong enough to outlive the proj
 | Agent | Model | Effort | Description |
 |---|---|---|---|
 | `sdlc-architect` | opus | xhigh | Design-phase architecture, intake, research, and document authoring for the SDLC flow; owns specs, plans, tasks, MANIFEST and enforces stack-linearity and NN-ordering. SDLC-only |
-| `sdlc-tester` | opus | high | TDD discipline and independent third-party spec-vs-code validation for the SDLC flow. SDLC-only |
+| `sdlc-tester` | opus | high | TDD discipline — red-first batches and full-suite reruns — for the SDLC flow; reworks drift reported by the coordinator's third-party validator. SDLC-only |
 | `sdlc-coder` | opus | high | Smallest-diff implementation specialist for the SDLC flow. SDLC-only |
 | `gemini-operative` | -- | -- | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI (Claude Code only) |
 | `claude-operative` | -- | -- | On-demand Claude-powered research, audits, and execution via the `claude` CLI (Gemini CLI only) |

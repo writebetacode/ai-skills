@@ -18,7 +18,7 @@ Ask scoping questions one at a time for name, description, model tier, workflow 
 ---
 name: <name>
 description: <description>
-model: <sonnet | opus>
+model: <haiku | sonnet | opus>
 ---
 ```
 

@@ -25,7 +25,7 @@ effort: <low | medium | high | xhigh | max>
 ---
 ```
 
-Omit `model` and `effort` unless a specific tier is required, in which case set both. Pick `model` by task weight — opus for design/architecture/spec authoring, sonnet for routine coding and mechanical edits, haiku for read-only lookups. Pick `effort` by reasoning load: `high` (default) for most work, `xhigh` or `max` for subtle correctness or novel territory, `low`/`medium` for shallow scans. Opus 4.8 reasons adaptively within a tier, so a single fixed effort suffices — there is no per-invocation effort override. Omit `tools` only if inheriting all session tools; otherwise scope narrowly. Set `memory: none` unless persistent state across conversations is needed (omit to enable the default memory directory).
+Omit `model` and `effort` unless a specific tier is required, in which case set both. Pick `model` by task weight — opus for design/architecture/spec authoring, sonnet for routine coding and mechanical edits, haiku for read-only lookups. Pick `effort` by reasoning load: `high` (default) for most work, `xhigh` or `max` for subtle correctness or novel territory, `low`/`medium` for shallow scans. Current Opus-tier models reason adaptively within a tier, so a single fixed effort suffices — there is no per-invocation effort override. Omit `tools` only if inheriting all session tools; otherwise scope narrowly. Set `memory: none` unless persistent state across conversations is needed (omit to enable the default memory directory).
 
 ## Writing Style
 
