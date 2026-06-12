@@ -14,14 +14,14 @@ task install
 
 Symlinks all skills and agents into `~/.claude` and `~/.gemini` so repo updates apply immediately without reinstalling. A single set of skill files serves both platforms. Stale symlinks pointing back to this repo are cleaned up before each install. CLI-specific agents (`gemini-operative` needs `gemini`, `claude-operative` needs `claude`) are skipped silently if the CLI is missing.
 
-`task install:claude` also merges `claude/settings.json` into `~/.claude/settings.json`: the permission `allow`/`ask`/`deny` lists are unioned, and every other key takes the repo's value — the repo is the source of truth for the settings it defines, so local edits to those keys are overwritten on each install. `task uninstall` removes every symlink pointing into this repo (the merged settings file is left in place).
+`task install:claude` also merges `claude/settings.json` into `~/.claude/settings.json`: the permission `allow`/`ask`/`deny` lists are unioned, and every other key takes the repo's value — the repo is the source of truth for the settings it defines, so local edits to those keys are overwritten on each install. `task uninstall` removes every symlink pointing into this repo and subtracts the repo-defined settings back out of `~/.claude/settings.json`: permission entries listed in the repo are removed (including any you happened to add independently — re-add those if needed), repo-defined keys are deleted, and everything the repo never defined survives untouched.
 
 Per-platform install and verification:
 
 ```bash
 task install:claude            # Claude only
 task install:gemini            # Gemini only
-task uninstall                 # remove all symlinks pointing to this repo
+task uninstall                 # remove symlinks and subtract repo-defined settings
 task verify                    # check all symlinks
 task verify:response-style     # check the shared Response Style block has not drifted
 ```
@@ -46,7 +46,7 @@ Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 
 | Command | Model | Description |
 |---|---|---|
-| `/skill-write` | opus | Scaffold a new skill by asking scoping questions and writing the skill file |
+| `/skill-write` | opus | Scaffold a new reusable workflow skill by asking scoping questions and writing the skill file |
 | `/agent-write` | opus | Scaffold a new Claude Code subagent by asking scoping questions and generating an AGENT.md file |
 
 ### Software Development Workflow
@@ -57,7 +57,7 @@ A manifest-driven process from feature idea to merged code. `/sdlc-design` is th
 
 | Command | Phase | Model | Description |
 |---|---|---|---|
-| `/sdlc-design` | 1 -- Design | opus | Turn an idea into specs, plans, and ADRs through strict one-at-a-time questioning and an architect-led team; also handles mid-flight revisions via per-task keep/revise/void triage |
+| `/sdlc-design` | 1 -- Design | opus | Turn an idea into specs, plans, tasks, and ADRs through strict one-at-a-time questioning and an architect-led agent team; also handles mid-flight revisions via per-task keep/revise/void triage |
 | `/sdlc-implement` | 2 -- Implement | opus | Execute tasks with a tester-coder team, batched TDD loop, epic-precondition gate, and third-party spec-vs-code validation via a fresh sub-agent; auto-picks the next task from the manifest when called without arguments |
 | `/sdlc-complete` | 3 -- Complete | sonnet | Archive a finished project to `plans/complete/YYYYMMDD-<slug>/` and clean up its local branches |
 

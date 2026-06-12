@@ -118,6 +118,8 @@ main -> feat/<slug>/01-name -> feat/<slug>/02-name
 | 01-<name> | <type>/<slug>/01-<name> | main | FR-1, FR-2 | <one-line> | Todo |
 ```
 
+Task Status values: `Todo`, `In Progress`, `Done` (no counts -- counts apply only to epic Status in the manifest).
+
 ## Task File Format
 
 File: `epics/NN-<epic-slug>/tasks/NN-<name>.md`

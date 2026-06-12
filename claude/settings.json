@@ -1,6 +1,5 @@
 {
   "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1"
   },
   "enabledPlugins": {
@@ -146,6 +145,10 @@
   "permissions": {
     "defaultMode": "auto",
     "allow": [
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.claude.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(git add *)",
       "Bash(git branch *)",
       "Bash(git diff *)",
@@ -154,6 +157,7 @@
       "Bash(git merge-base *)",
       "Bash(git pull *)",
       "Bash(git push *)",
+      "Bash(git rebase *)",
       "Bash(git remote *)",
       "Bash(git rev-parse *)",
       "Bash(git status *)",
@@ -202,7 +206,9 @@
       "Bash(rm -Rf *)"
     ]
   },
+  "skipAutoPermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
   "alwaysThinkingEnabled": false,
   "autoMemoryEnabled": false,
-  "effort": "high"
+  "effortLevel": "high"
 }

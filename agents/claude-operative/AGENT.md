@@ -1,5 +1,5 @@
 ---
-name: Claude Operative
+name: claude-operative
 description: "ON-DEMAND ONLY: Single point of contact for Claude-powered research, analysis, and execution via the 'claude' CLI. Use for deep audits, broad research, or agentic problem-solving."
 tools: [Bash]
 memory: none

@@ -89,8 +89,27 @@ tasks:
         fi
 
   uninstall:
-    desc: Remove all symlinks in ~/.claude and ~/.gemini pointing to this repo (merged settings.json is left in place)
+    desc: Remove all symlinks pointing to this repo and subtract repo-defined settings from ~/.claude/settings.json
     cmds:
+      - |
+        target="$HOME/.claude/settings.json"
+        if [ -f "claude/settings.json" ] && [ -f "$target" ] && [ ! -L "$target" ]; then
+          command -v jq >/dev/null 2>&1 || { echo "ERR jq is required to subtract settings.json (brew install jq)"; exit 1; }
+          jq -s '
+            .[0] as $host | .[1] as $repo |
+            $host
+            | .permissions.allow = ((.permissions.allow // []) - ($repo.permissions.allow // []))
+            | .permissions.ask = ((.permissions.ask // []) - ($repo.permissions.ask // []))
+            | .permissions.deny = ((.permissions.deny // []) - ($repo.permissions.deny // []))
+            | if ($repo.permissions.defaultMode != null) and (.permissions.defaultMode == $repo.permissions.defaultMode) then del(.permissions.defaultMode) else . end
+            | .env = ((.env // {}) | with_entries(select(.key as $k | ($repo.env // {}) | has($k) | not)))
+            | .enabledPlugins = ((.enabledPlugins // {}) | with_entries(select(.key as $k | ($repo.enabledPlugins // {}) | has($k) | not)))
+            | reduce (($repo | keys) - ["permissions", "env", "enabledPlugins"])[] as $k (.; del(.[$k]))
+            | .permissions |= with_entries(select(.value != []))
+            | reduce ["permissions", "env", "enabledPlugins"][] as $k (.; if .[$k] == {} then del(.[$k]) else . end)
+          ' "$target" "claude/settings.json" > "$target.tmp" && mv "$target.tmp" "$target"
+          echo "SUBTRACTED repo-defined settings from $target"
+        fi
       - |
         repo="$(pwd)"
         remove_link() {

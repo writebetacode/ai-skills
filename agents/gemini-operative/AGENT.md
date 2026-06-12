@@ -1,5 +1,5 @@
 ---
-name: Gemini Operative
+name: gemini-operative
 description: "ON-DEMAND ONLY: Single point of contact for Gemini-powered research, analysis, and execution. Do not invoke proactively. Use for deep audits, broad research, or agentic problem-solving."
 tools: [Bash]
 memory: none

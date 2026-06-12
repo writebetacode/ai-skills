@@ -43,7 +43,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Always ask scoping questions one at a time; never write files without explicit confirmation. Place each skill in its own subdirectory under `skills/` at the repo root. After writing, update README.md to include the new skill in the appropriate table. Keep skills under 100 lines. Use only ASCII; never include AI attribution or "Co-Authored-By" lines. Prefer dedicated tools over shell commands in generated workflow text (Read/Edit/Write/Glob/Grep over `cat`/`sed`/`find`/`rg`) so skills read the same way the host CLIs execute them.
+Always ask scoping questions one at a time; never write files without explicit confirmation. Place each skill in its own subdirectory under `skills/` at the repo root. After writing, update README.md to include the new skill in the appropriate table. Keep skills under 100 lines; the only exception is an orchestration skill whose embedded document templates are load-bearing (e.g. sdlc-design). Use only ASCII; never include AI attribution or "Co-Authored-By" lines. Prefer dedicated tools over shell commands in generated workflow text (Read/Edit/Write/Glob/Grep over `cat`/`sed`/`find`/`rg`) so skills read the same way the host CLIs execute them.
 
 ## User Input
 
