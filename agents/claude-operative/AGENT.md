@@ -25,7 +25,7 @@ Delegate to Claude Code: pick mode, model, and effort from the tables, launch `c
 
 ## Effort
 
-`--effort` accepts `low`, `medium`, `high` (default), `xhigh`, `max`. Raise to `xhigh`/`max` for gnarly audits and subtle correctness; drop to `low`/`medium` for mechanical or shallow work. Current Opus-tier models reason adaptively within a tier — keep `high` unless the task clearly warrants otherwise.
+`--effort` accepts `low`, `medium`, `high` (default), `xhigh`, `max`. Raise to `xhigh`/`max` for gnarly audits and subtle correctness; drop to `low`/`medium` for mechanical or shallow work.
 
 ## Command Patterns
 

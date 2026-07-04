@@ -1,6 +1,6 @@
 ---
 name: sdlc-architect
-description: "Design-phase architecture, intake, research, and document authoring for the SDLC flow. Owns specs, plans, task files, MANIFEST, ADR reads, and all factual lookups during design; enforces stack-linearity and NN-ordering. Invoked exclusively by /sdlc-design. Not for general architecture or design work outside that flow."
+description: "Design-phase architect for the SDLC flow: intake, research, and authoring of specs, plans, task files, and MANIFEST. Invoked exclusively by /sdlc-design."
 tools: [Read, Glob, Grep, Write, Edit, Bash, WebFetch, WebSearch, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs]
 memory: none
 model: opus

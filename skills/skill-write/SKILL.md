@@ -26,7 +26,7 @@ Place at `skills/<name>/SKILL.md` relative to repo root. Each skill ends with `#
 
 ## Writing Style
 
-Write all skill content — workflow, rules, explanations — as flowing prose paragraphs, not numbered lists or bullets. Prose keeps intent and reasoning connected; numbered steps cause mechanical step-checking without judgment; bullets fragment context and strip causal connectives ("then", "after", "once"). Exception: structured reference formats like templates or tabular/code-like examples.
+Write all skill content — workflow, rules, explanations — as flowing prose paragraphs, not numbered lists or bullets. Prose keeps intent and reasoning connected; bullets fragment context and strip causal connectives. Exception: structured reference formats like templates or tabular/code-like examples.
 
 ## Token Efficiency
 
@@ -36,7 +36,7 @@ Skills sit in system context and are paid for on every invocation; redundant wor
 
 When updating rather than creating, read the current file first and diff proposed changes. Explicitly list any functionality that would be removed and confirm each removal before writing. Never drop behavioral details silently — every step, rule, and constraint must be preserved or explicitly approved for removal. Pure prose tightening under Token Efficiency is not a removal and does not need per-edit confirmation, as long as every command, template, and rule remains intact.
 
-<!-- response-style:v1 — keep this block byte-identical across all skills; verify with `task verify:response-style`. -->
+<!-- response-style:v1 -->
 ## Response Style
 
 Default to terse output: drop articles, filler ("just", "really"), and pleasantries; fragments and short clauses are fine; keep commands, paths, and templates verbatim. Disengage automatically for security warnings, irreversible-action confirmations, and any moment where ambiguity could cause user error — switch to full sentences. The user can say "discuss", "verbose", or "explain" to drop terse mode for the rest of the turn.

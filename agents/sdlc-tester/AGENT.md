@@ -1,6 +1,6 @@
 ---
 name: sdlc-tester
-description: "Test-first discipline for the SDLC flow. Use during implementation to write red tests before production code, to re-run the full suite at the end of every task, and to rework any drift reported by the coordinator-spawned third-party validator. Invoked exclusively by /sdlc-implement. Not for general testing help outside that flow."
+description: "Test-first discipline for the SDLC flow: writes red tests before production code, re-runs the full suite at end of task, reworks validator-reported drift. Invoked exclusively by /sdlc-implement."
 tools: [Read, Glob, Grep, Write, Edit, Bash, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage]
 memory: none
 model: opus

@@ -10,23 +10,19 @@ Flow: **[design]** -> implement -> complete
 
 ## Agent Team
 
-Spec/plan authoring and all intake MUST happen through a team via TeamCreate named `sdlc-design-<project-slug>`, created at the very start before any questioning. Spawn one permanent agent via `Agent` with matching `team_name` and `name` set to `sdlc-architect` (opus). Its AGENT.md carries the workflow and identity — do not re-specify here. The architect owns intake, research, all artifact authoring (specs, plans, task files, MANIFEST), and signoff, and stays live throughout design.
+Spec/plan authoring and all intake MUST happen through a team via TeamCreate named `sdlc-design-<project-slug>`, created at the very start before any questioning. Spawn one permanent agent via `Agent` with matching `team_name` and `name` set to `sdlc-architect` (opus); its AGENT.md carries the workflow and identity — do not re-specify here. The architect owns intake, research, all artifact authoring, and signoff, and stays live throughout design: it runs its own AGENT.md workflow — ADR reads, intake loop, context7 research — proposes a multi-epic split for the user to confirm when scope decomposes into independent streams, then authors `spec.md`, `plan.md`, `tasks/NN-<name>.md` (in run order), runs the gates, and writes `MANIFEST.md`.
 
 ## Orchestrator Role
 
 The main thread is a pure router: forward every user reply to `sdlc-architect` via `SendMessage` and relay the architect's next question back verbatim — never batching, rephrasing, or supplementing; no own questions, pre-review, commentary, or deciding when intake is complete. If `$ARGUMENTS` is empty, tell the architect on spawn so it opens by asking what to build. Question discipline is the architect's — its AGENT.md "Intake loop" is authoritative.
 
-## Workflow
-
-Create the team and spawn `sdlc-architect`; it then runs its own AGENT.md workflow — read ADRs, intake loop, context7 research, authoring. When scope decomposes into independent streams, the architect proposes a multi-epic split for the user to confirm. Once concrete, it authors `spec.md`, `plan.md`, `tasks/NN-<name>.md` (in run order), runs the gates, and writes `MANIFEST.md`.
-
 ## Gates
 
-The architect runs the signoff gates (stack-linearity, NN-ordering, cross-check, AC rejection, PRD wiring, ADR coverage) per its AGENT.md "Gates before signoff" — they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (`main` or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
+The architect runs all six signoff gates per its AGENT.md "Gates before signoff" — they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (`main` or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
 
 ## Concurrency Model
 
-Within an epic, tasks are strictly linear: NN order is run order, every task stacks on one parent, the implement skill walks them in sequence, keeping the stack reviewable and rebases simple. Across epics, parallelism is allowed: two epics in `epics.md` with disjoint dependency sets run concurrently in separate working trees, since each epic's first task branches from `main`. Build Order is the recommended single-operator sequence; the dependency graph is the source of truth for fan-out. Concurrent epics means two `/sdlc-implement` sessions in two checkouts.
+Within an epic, tasks are strictly linear: NN order is run order, every task stacks on one parent, the implement skill walks them in sequence, keeping the stack reviewable and rebases simple. Across epics, parallelism is allowed: two epics in `epics.md` with disjoint dependency sets run concurrently via two `/sdlc-implement` sessions in separate checkouts, since each epic's first task branches from `main`. Build Order is the recommended single-operator sequence; the dependency graph is the source of truth for fan-out.
 
 ## Mid-Flight Revision
 
@@ -57,7 +53,7 @@ Neither project nor epic slug carries a date prefix; date appends only on archiv
 
 ## Team Teardown
 
-After signoff and `MANIFEST.md` write, shut down: `SendMessage {type: "shutdown_request", reason: "Design complete."}`, await `shutdown_approved`, then `TeamDelete`. Never skip it — running agents leak context and keep the team directory on disk. If the session pauses mid-design, leave the team running; teardown happens only at signoff or when a mid-flight revision hands control to `/sdlc-implement`.
+After signoff and `MANIFEST.md` write, shut down: `SendMessage {type: "shutdown_request", reason: "Design complete."}`, await `shutdown_approved`, then `TeamDelete`. Never skip it — running agents leak context and disk state. If the session pauses mid-design, leave the team running; teardown happens only at signoff or when a mid-flight revision hands control to `/sdlc-implement`.
 
 ## Completion
 
@@ -168,10 +164,10 @@ Spec Ready -> Planned -> In Progress (N/M) -> Complete
 ## Actionable Now
 ```
 
-<!-- No response-style block by design: the orchestrator relays the architect's questions verbatim, so terse-mode rewriting would violate the router rule. -->
+<!-- no response-style block by design: router relays architect questions verbatim -->
 ## Rules
 
-NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through `sdlc-architect` via TeamCreate. Research rules are the architect's. Every task has exactly one parent branch — stack-linearity is absolute. NN-prefix must match run order for epics and tasks. Always read `docs/adrs/**/*.md` at session start. Never fabricate sources or URLs. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
+NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through `sdlc-architect` via TeamCreate. Research and gate rules are the architect's. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

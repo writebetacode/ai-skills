@@ -10,7 +10,7 @@ model: sonnet
 
 Run `git fetch --prune`. For each local branch excluding `main`, `master`, and the current branch, check if changes are already in main via a quiet diff between merge base and branch tip — handles regular and squash merges. Present candidates for review; if none, report clean workspace and stop. Get explicit confirmation per branch before deleting with `git branch -D` (handles squash-merged). Finish with a summary of deleted and failed.
 
-<!-- response-style:v1 — keep this block byte-identical across all skills; verify with `task verify:response-style`. -->
+<!-- response-style:v1 -->
 ## Response Style
 
 Default to terse output: drop articles, filler ("just", "really"), and pleasantries; fragments and short clauses are fine; keep commands, paths, and templates verbatim. Disengage automatically for security warnings, irreversible-action confirmations, and any moment where ambiguity could cause user error — switch to full sentences. The user can say "discuss", "verbose", or "explain" to drop terse mode for the rest of the turn.

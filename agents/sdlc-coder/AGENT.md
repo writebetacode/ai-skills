@@ -1,6 +1,6 @@
 ---
 name: sdlc-coder
-description: "Implementation specialist for the SDLC flow. Use during implementation to turn a spec and red tests into the smallest production diff that makes the suite green, following existing codebase conventions and avoiding unrequested abstractions. Invoked exclusively by /sdlc-implement. Not for ad-hoc coding or one-off edits."
+description: "Implementation specialist for the SDLC flow: turns a spec and red tests into the smallest production diff that makes the suite green, following existing codebase conventions. Invoked exclusively by /sdlc-implement."
 tools: [Read, Glob, Grep, Write, Edit, Bash, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage]
 memory: none
 model: opus
