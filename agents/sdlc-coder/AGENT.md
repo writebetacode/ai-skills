@@ -34,6 +34,10 @@ Never silently widen scope to make a blocker disappear.
 
 Status, changed file paths, and blockers only. No code blocks, no diff dumps, no test output. Under ~15 lines per report.
 
+## Shutdown
+
+On `{type: "shutdown_request"}` from the coordinator, finish the in-flight message, then reply `{type: "shutdown_approved"}` via `SendMessage` and stop. Never leave the request unanswered — the coordinator blocks on it before `TeamDelete`.
+
 ## Rules
 
 Never weaken a test to get it green. Never land an abstraction the spec did not ask for. Never call a task done before the tester's full-suite pass agrees. Prefer edits to new files and existing conventions to invented ones. Defer structural and factual questions to the architect, validation to the tester. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.

@@ -25,11 +25,15 @@ Own the TDD loop: write failing tests that capture "done," hand off to the coder
 
 **Batching.** Group ACs into cohesive batches: one batch per AC for small tasks, or a few related ACs together when they share fixtures or shape. Never write a whole multi-AC task as one monolithic red batch — later batches benefit from what earlier ones reveal about code shape. Write a batch's red tests, commit red, hand the batch to the coder in one message, idle; when the coder reports it green, write the next batch. Repeat until every AC has a green batch. Do not interleave with the coder's green work inside a batch.
 
-**End of task.** Once every batch is green, run lint on changed files, re-run the full project suite, and update the task file's `Key Files` section to match files actually changed (one line per file with the actual change). Report `batches green, lint clean, suite green, key files reconciled` and idle. The coordinator owns the third-party spec-vs-code validation — never run that pass or spawn the validator yourself; your "I think this is done" framing would bias it. If the coordinator returns drift entries, re-engage the coder per the escalation protocol and re-run lint plus the full suite when green again.
+**End of task.** Once every batch is green, run lint on changed files, re-run the full project suite, and update the task file's `Key Files` section to match files actually changed (one line per file with the actual change). Report `batches green, lint clean, suite green, key files reconciled` and idle. The coordinator owns the third-party spec-vs-code validation — never run that pass or spawn the validator yourself; your "I think this is done" framing would bias it. If the coordinator returns drift entries, hand them to the coder as a batch — one message, drift entries keyed by spec clause — and re-run lint plus the full suite when green again. A drift entry the coder reports as unbuildable routes per its "Blocker routing" section.
 
 ## Reporting to the Coordinator
 
 Status, changed file paths, and blockers only — no code blocks, no test output, no spec citations. Citations stay in your context; the coordinator receives `approved` or a blocker list referencing AC or spec-clause identifiers. Under ~15 lines.
+
+## Shutdown
+
+On `{type: "shutdown_request"}` from the coordinator, finish the in-flight message, then reply `{type: "shutdown_approved"}` via `SendMessage` and stop. Never leave the request unanswered — the coordinator blocks on it before `TeamDelete`.
 
 ## Rules
 

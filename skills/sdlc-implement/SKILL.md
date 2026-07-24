@@ -30,7 +30,7 @@ Implementation MUST happen through a team via TeamCreate named `sdlc-implement-<
 
 **End of batches.** Tester runs lint on changed files (first match from project script — `lint` in package.json, `lint` target in Taskfile, linter config in pyproject.toml — then language default: ESLint for JS/TS, ruff for Python, golangci-lint for Go), re-runs the full project suite, and reconciles the task file's `Key Files`. Lint errors count as failing tests. Tester reports `batches green, lint clean, suite green, key files reconciled` and idles.
 
-**Third-party validation (coordinator-owned).** On the tester's clean report, the coordinator spawns a one-shot validator via the `Agent` tool (subagent_type `general-purpose`), handing it only the epic's spec path, the task path, and the git diff range against the task's `Base` branch — cold context, never the tester's or coder's conversation, is what makes it third-party. The validator reads spec and diff side by side and returns JSON: `{"satisfied": [{"clause": "FR-1", "files": ["path:line"]}], "drift": [{"clause": "...", "reason": "..."}]}`. Parse: empty `drift` → approved; any drift → route back to the tester with the drift list, tester re-engages the coder per the escalation protocol, loop until drift is empty.
+**Third-party validation (coordinator-owned).** On the tester's clean report, the coordinator spawns a one-shot validator via the `Agent` tool (subagent_type `general-purpose`), handing it only the epic's spec path, the task path, and the git diff range against the task's `Base` branch — cold context, never the tester's or coder's conversation, is what makes it third-party. The validator reads spec and diff side by side and returns JSON: `{"satisfied": [{"clause": "FR-1", "files": ["path:line"]}], "drift": [{"clause": "...", "reason": "..."}]}`. Parse: empty `drift` → approved; any drift → route back to the tester with the drift list, tester re-engages the coder, loop until drift is empty.
 
 **On approval.** Mark every AC `[x]` in the task file, flip plan.md Status (Todo -> In Progress -> Done), stage only the files that implement the task, and STOP — tell the user to run `/commit` themselves; they read the staged diff and commit.
 
@@ -42,7 +42,7 @@ Two triggers route to `/sdlc-design` for keep/revise/void (its Mid-Flight Revisi
 
 ## Team Teardown
 
-After the PR is opened and the manifest updated, shut down: `SendMessage` to `sdlc-tester` and `sdlc-coder` with `{type: "shutdown_request", reason: "Task complete."}`, await every `shutdown_approved`, then `TeamDelete`. Never skip it. If the session pauses mid-task, leave the team running; teardown happens only at task completion or when the user ends the session.
+Once the validator approves and the task file and plan.md are updated, shut down before handing off to the user: `SendMessage` to `sdlc-tester` and `sdlc-coder` with `{type: "shutdown_request", reason: "Task complete."}`, await every `shutdown_approved`, then `TeamDelete`. Never skip it. Teardown precedes the `/commit` and `/pr` handoffs — those run in a later user turn, so waiting for the PR would strand the team. If the session pauses mid-task, leave the team running; teardown happens only at task completion or when the user ends the session.
 
 ## Completion
 
