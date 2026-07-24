@@ -3,3 +3,6 @@
 
 # Plans (local only)
 plans/
+
+# Local install config (copy config.example.yml to config.yml)
+config.yml
