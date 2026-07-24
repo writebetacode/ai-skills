@@ -12,9 +12,9 @@ Resolve target from `$ARGUMENTS`, a task file path, or prompt user.
 
 ## Workflow
 
-Resolve the target to the project folder containing `MANIFEST.md`; if given an epic or task path, walk up to the project root. Read the manifest, check whether all epics are "Complete". If so, present source and target archival paths and request explicit confirmation. If some remain incomplete, list them and ask whether to proceed anyway. Move the entire project folder — manifest, research, epics, tasks, supporting files — to `plans/complete/YYYYMMDD-<project-slug>/` (today's date). Date appends at archive time so the original slug can be reused without collision.
+Resolve the target to the project folder containing `MANIFEST.md`; if given an epic or task path, walk up to the project root. Read the manifest, check whether all epics are "Complete". If so, present source and target archival paths for confirmation. If some remain incomplete, list them and ask whether to proceed anyway. Move the entire project folder — manifest, research, epics, tasks, supporting files — to `plans/complete/YYYYMMDD-<project-slug>/` (today's date). Date appends at archive time so the original slug can be reused without collision.
 
-After archiving, collect branch names from each task file's `Branch` field. Switch to `main` if needed. For each branch, verify its changes are in main via a quiet diff between merge base and branch tip — squash merges leave `git branch -d` reporting "not merged", so ancestry alone cannot decide. If the diff is empty, delete with `git branch -D`; otherwise warn and skip — never delete unverified work. Final report: deleted branches (and any skipped with reasons), total epics, total tasks completed, timeline from manifest creation to completion.
+After archiving, collect branch names from each task file's `Branch` field. Switch to `main` if needed. For each branch, verify its changes are in main via a quiet diff between merge base and branch tip — squash merges leave `git branch -d` reporting "not merged", so ancestry alone cannot decide. If the diff is empty, delete with `git branch -D`; otherwise warn and skip. Final report: deleted branches (and any skipped with reasons), total epics, total tasks completed, timeline from manifest creation to completion.
 
 <!-- response-style:v1 -->
 ## Response Style

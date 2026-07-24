@@ -1,12 +1,12 @@
 ---
 name: skill-write
-description: Scaffold a new reusable workflow skill by asking scoping questions and generating a skill file. Use when the user wants to codify a repetitive task into a skill.
+description: Scaffold a new reusable workflow skill or Claude Code subagent by asking scoping questions and generating the SKILL.md or AGENT.md file. Use when the user wants to codify a repetitive task into a skill, or a specialized workflow into a subagent.
 model: opus
 ---
 
 # Skill Write
 
-Use any provided name or description as a starting point; otherwise ask what the skill should accomplish.
+Use any provided name or description as a starting point; otherwise ask what the skill or agent should accomplish. Establish which of the two is being written before scoping — the questions and the output path differ.
 
 ## Workflow
 
@@ -22,7 +22,26 @@ model: <haiku | sonnet | opus>
 ---
 ```
 
-Place at `skills/<name>/SKILL.md` relative to repo root. Each skill ends with `## User Input\n\n$ARGUMENTS`. A single file serves both Claude Code and Gemini CLI — `task install` symlinks it into `~/.claude/skills/` and `~/.gemini/skills/`. The `description` is how the model decides when to invoke — state the concrete trigger ("Use when the user wants to …") and, where ambiguity is likely, when to skip.
+Place at `skills/<name>/SKILL.md` relative to repo root. Each skill ends with `## User Input\n\n$ARGUMENTS`. A skill that carries a `## Response Style` section MUST precede it with the response-style marker comment and copy the block byte-identically from an existing tagged skill — `task verify:response-style` checks only marked files, so an unmarked copy drifts silently while a marked copy with edited text fails the build. Copy both marker and block from a tagged skill rather than retyping either. A single file serves both Claude Code and Gemini CLI — `task install` symlinks it into `~/.claude/skills/` and `~/.gemini/skills/`. The `description` is how the model decides when to invoke — state the concrete trigger ("Use when the user wants to …") and, where ambiguity is likely, when to skip.
+
+## Authoring Agents
+
+The same workflow scaffolds a Claude Code subagent — ask the same scoping questions plus invocation mode, tools, memory, and effort, then write `agents/<name>/AGENT.md`. Agents have no Gemini counterpart and take no `## User Input` section.
+
+```yaml
+---
+name: <name>
+description: <description>
+tools: [Tool1, Tool2]
+memory: none
+model: <opus | sonnet | haiku>
+effort: <low | medium | high | xhigh | max>
+---
+```
+
+Omit `model` and `effort` unless a specific tier is required, in which case set both. Pick `effort` by reasoning load: `high` for most work, `xhigh` or `max` for subtle correctness or novel territory, `low`/`medium` for shallow scans; one fixed effort suffices, as there is no per-invocation override. Omit `tools` only when inheriting all session tools; otherwise scope narrowly. Set `memory: none` unless persistent state across conversations is needed. The `description` drives invocation — state concrete triggers and any "do not invoke" constraint; include "PROACTIVELY" to opt into proactive invocation, otherwise the agent stays on-demand. An agent's Identity line sets the disposition it argues from when a judgment call is close.
+
+An agent that participates in a coordinator-run team must answer `{type: "shutdown_request"}` with `{type: "shutdown_approved"}` via `SendMessage`, and must declare `SendMessage` in `tools` to do so — the coordinator blocks on that reply before `TeamDelete`.
 
 ## Writing Style
 
@@ -30,11 +49,17 @@ Write all skill content — workflow, rules, explanations — as flowing prose p
 
 ## Token Efficiency
 
-Skills sit in system context and are paid for on every invocation; redundant words have a recurring cost. Keep prose tight: drop filler openers ("Begin by", "Start by", "Finally"), collapse repetitive connectives, merge sequential sentences sharing a subject, prefer one strong sentence over two weak ones. Fidelity is non-negotiable — every quoted command, flag, template section, and explicit rule preserved verbatim; every behavioral detail (confirmation gates, stop conditions, ordering constraints) intact. Tighten only the connective prose around the functional payload.
+Skills sit in system context and are paid for on every invocation. Before writing or cutting any sentence, classify it.
 
-## Updating Existing Skills
+**Derivable — leave it out.** Behavior a current model produces from the task itself: rationale for a rule it would follow anyway, explanations of why an approach is correct, restatements of a constraint already stated elsewhere in the same file, step-by-step sequencing of an obvious procedure, defensive hedging against mistakes these models do not make. Current models do not need to be told to work carefully or to be walked through inferable steps.
 
-When updating rather than creating, read the current file first and diff proposed changes. Explicitly list any functionality that would be removed and confirm each removal before writing. Never drop behavioral details silently — every step, rule, and constraint must be preserved or explicitly approved for removal. Pure prose tightening under Token Efficiency is not a removal and does not need per-edit confirmation, as long as every command, template, and rule remains intact.
+**Specification — keep verbatim.** Anything the model cannot derive because it is a fact about this setup or an arbitrary choice: exact templates and their section order, literal commands and flags, tool and agent names, file paths and naming schemes, message and JSON contracts, status vocabularies, numeric thresholds, and every safety constraint on a destructive or irreversible operation. Preserve these word for word; never paraphrase a command or reorder a template.
+
+Two constraints on the cut. When a sentence is genuinely ambiguous between the categories, keep it — losing capability costs more than the tokens save. And when Workflow and Rules would state the same constraint twice, state it once, in whichever section makes it likelier to be followed; for destructive operations that means the imperative-negative form in Rules ("Never delete without..."), even at the cost of the Workflow line.
+
+## Updating Existing Skills and Agents
+
+When updating rather than creating, read the current file first and diff proposed changes. Explicitly list any functionality that would be removed and confirm each removal before writing. Never drop behavioral details silently — every step, rule, and constraint must be preserved or explicitly approved for removal. Cutting derivable prose is not a removal and needs no per-edit confirmation, as long as every specification item survives intact. Do not treat a prior commit message claiming the file was already tightened as evidence; verify against the file.
 
 <!-- response-style:v1 -->
 ## Response Style
@@ -43,7 +68,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Always ask scoping questions one at a time; never write files without explicit confirmation. Place each skill in its own subdirectory under `skills/` at the repo root. After writing, update README.md to include the new skill in the appropriate table. Keep skills under 100 lines; the only exception is an orchestration skill whose embedded document templates are load-bearing (e.g. sdlc-design). Use only ASCII; never include AI attribution or "Co-Authored-By" lines. Prefer dedicated tools over shell commands in generated workflow text (Read/Edit/Write/Glob/Grep over `cat`/`sed`/`find`/`rg`) so skills read the same way the host CLIs execute them.
+Always ask scoping questions one at a time; never write files without explicit confirmation. Place each skill in its own subdirectory under `skills/` at the repo root, each agent under `agents/`. After writing, update README.md to include the new skill or agent in the appropriate table, then run `task install && task verify` and confirm both exit 0. Keep skills and agents under 100 lines; the only exception is an orchestration skill whose embedded document templates are load-bearing (e.g. sdlc-design). Use only ASCII; never include AI attribution or "Co-Authored-By" lines. Prefer dedicated tools over shell commands in generated workflow text (Read/Edit/Write/Glob/Grep over `cat`/`sed`/`find`/`rg`) so skills read the same way the host CLIs execute them.
 
 ## User Input
 

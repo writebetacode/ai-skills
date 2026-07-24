@@ -1,6 +1,6 @@
 ---
 name: prune-branches
-description: Delete local branches whose commits are fully merged into main. Use when you want to clean up stale local branches.
+description: Delete local branches whose changes already landed in main, including squash-merged branches that `git branch -d` refuses as unmerged. Use when you want to clean up stale local branches.
 model: sonnet
 ---
 
@@ -8,7 +8,7 @@ model: sonnet
 
 ## Workflow
 
-Run `git fetch --prune`. For each local branch excluding `main`, `master`, and the current branch, check if changes are already in main via a quiet diff between merge base and branch tip — handles regular and squash merges. Present candidates for review; if none, report clean workspace and stop. Get explicit confirmation per branch before deleting with `git branch -D` (handles squash-merged). Finish with a summary of deleted and failed.
+Run `git fetch --prune`. For each local branch excluding `main`, `master`, and the current branch, check whether its changes are already in main via a quiet diff between merge base and branch tip — squash merges leave `git branch -d` reporting "not merged", so ancestry alone cannot decide. Present candidates; if none, report clean workspace and stop. Delete confirmed branches with `git branch -D`. Finish with a summary of deleted and failed.
 
 <!-- response-style:v1 -->
 ## Response Style
@@ -17,7 +17,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Never delete `main`, `master`, or the current branch. Only force-delete after confirming the diff against main is empty. Never delete without explicit confirmation; always fetch from remote first. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
+Never delete `main`, `master`, or the current branch. Never delete a branch without explicit per-branch confirmation, and never before its diff against main is verified empty — never on ancestry alone. Always fetch from remote first. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

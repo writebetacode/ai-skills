@@ -12,42 +12,67 @@ cd ai-skills
 task install
 ```
 
-Symlinks all skills and agents into `~/.claude` and `~/.gemini` so repo updates apply immediately without reinstalling. A single set of skill files serves both platforms. Stale symlinks pointing back to this repo are cleaned up before each install. CLI-specific agents (`gemini-operative` needs `gemini`, `claude-operative` needs `claude`) are skipped silently if the CLI is missing.
+Symlinks all skills and agents into `~/.claude` and `~/.gemini` so repo updates apply immediately without reinstalling. A single set of skill files serves both platforms; agents are Claude Code only. `task install` runs `task uninstall` first, so it fully reconciles the installed state with your config on every run — newly excluded items are removed, newly re-included ones come back.
 
-`task install:claude` also merges `claude/settings.json` into `~/.claude/settings.json`: the permission `allow`/`ask`/`deny` lists are unioned, and every other key takes the repo's value — the repo is the source of truth for the settings it defines, so local edits to those keys are overwritten on each install. `task uninstall` removes every symlink pointing into this repo and subtracts the repo-defined settings back out of `~/.claude/settings.json`: permission entries listed in the repo are removed (including any you happened to add independently — re-add those if needed), repo-defined keys are deleted, and everything the repo never defined survives untouched.
+### Choosing what gets installed
 
-Per-platform install and verification:
+Everything installs by default. To opt out of specific skills or agents, copy `config.example.yml` to `config.yml` (gitignored) and list the directory names you don't want:
 
-```bash
-task install:claude            # Claude only
-task install:gemini            # Gemini only
-task uninstall                 # remove symlinks and subtract repo-defined settings
-task verify                    # check all symlinks
-task verify:response-style     # check the shared Response Style block has not drifted
+```yaml
+exclude:
+  skills:
+    - mr
+    - gh-issue
+  agents:
+    - sdlc-tester
+
+platforms:
+  claude: true
+  gemini: false      # skip a whole platform
 ```
 
+Because it's an exclude list, a skill added to the repo later installs automatically unless you name it. Use block form for the lists — inline form (`skills: [mr]`) is rejected with an error rather than silently ignored.
+
+`task verify` follows the same config: excluded items are checked to be *absent*, so a stale symlink from a previous install is reported as an error.
+
+`task install` also merges `claude/settings.json` into `~/.claude/settings.json`: the permission `allow`/`ask`/`deny` lists are unioned, and every other key takes the repo's value — the repo is the source of truth for the settings it defines, so local edits to those keys are overwritten on each install. `task uninstall` removes every symlink pointing into this repo and subtracts the repo-defined settings back out of `~/.claude/settings.json`: permission entries listed in the repo are removed (including any you happened to add independently — re-add those if needed), repo-defined keys are deleted, and everything the repo never defined survives untouched.
+
+Verification and teardown:
+
+```bash
+task uninstall                 # remove symlinks and subtract repo-defined settings
+task verify                    # run every check below, in order
+task verify:skills-installed   # check all symlinks
+task verify:response-style     # check the shared Response Style block has not drifted
+task verify:pr-body            # check the shared PR/MR body template has not drifted
+```
+
+`task verify` runs the three checks sequentially and stops at the first failure, so fix an early failure to see the later checks run.
+
 The `## Response Style` block is duplicated verbatim across skills that use it (skills load standalone — no include mechanism). Each duplicate is preceded by a `<!-- response-style:v1 -->` marker; `task verify:response-style` reads every tagged block and fails on drift from the canonical first one. When updating the rule, edit every tagged file and bump the marker version.
+
+The PR/MR body template is shared the same way between `/pr` and `/mr`, marked with `<!-- pr-body:v1 -->` and checked by `task verify:pr-body`. The marker sits below the section heading, so `## PR Body Template` and `## MR Body Template` may differ while everything from the intro line through the closing fence stays byte-identical. Review artifacts read the same on both forges; edit both files and bump the marker together.
 
 ## What's included
 
 Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 
-### Git & GitHub
+### Git, GitHub & GitLab
 
 | Command | Model | Description |
 |---|---|---|
 | `/commit` | sonnet | Stage-aware conventional commits — commits exactly what is staged, immediately |
-| `/pr` | sonnet | Create or update pull requests with structured descriptions |
+| `/pr` | sonnet | Create or update GitHub pull requests with structured descriptions |
+| `/mr` | sonnet | Create or update GitLab merge requests with the same structured description, via `glab` |
 | `/restack` | sonnet | Rebase open branches onto the latest main, whether their base was squash-merged or main simply moved ahead |
-| `/prune-branches` | sonnet | Delete local branches whose commits are fully merged into main |
+| `/prune-branches` | sonnet | Delete local branches whose changes already landed in main, including squash-merged branches `git branch -d` refuses as unmerged |
 | `/gh-issue` | sonnet | Create consistently-formatted GitHub issues with type, priority, and optional context sections |
 
 ### Meta
 
 | Command | Model | Description |
 |---|---|---|
-| `/skill-write` | opus | Scaffold a new reusable workflow skill by asking scoping questions and writing the skill file |
-| `/agent-write` | opus | Scaffold a new Claude Code subagent by asking scoping questions and generating an AGENT.md file |
+| `/skill-write` | opus | Scaffold a new reusable workflow skill or Claude Code subagent by asking scoping questions and writing the SKILL.md or AGENT.md file |
 
 ### Software Development Workflow
 
@@ -91,8 +116,6 @@ Project-level ADRs live in `adr.md`; decisions strong enough to outlive the proj
 | `sdlc-architect` | opus | xhigh | Design-phase architecture, intake, research, and document authoring for the SDLC flow; owns specs, plans, tasks, MANIFEST and enforces stack-linearity and NN-ordering. SDLC-only |
 | `sdlc-tester` | opus | high | TDD discipline — red-first batches and full-suite reruns — for the SDLC flow; reworks drift reported by the coordinator's third-party validator. SDLC-only |
 | `sdlc-coder` | opus | high | Smallest-diff implementation specialist for the SDLC flow. SDLC-only |
-| `gemini-operative` | -- | -- | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI (Claude Code only) |
-| `claude-operative` | -- | -- | On-demand Claude-powered research, audits, and execution via the `claude` CLI (Gemini CLI only) |
 
 `sdlc-architect` is spawned via TeamCreate by `/sdlc-design`; `sdlc-tester` and `sdlc-coder` by `/sdlc-implement`. The architect owns research and document authoring inline. Each SDLC agent carries a one-line signature phrase that restates its hardest rule.
 
@@ -101,12 +124,10 @@ Project-level ADRs live in `adr.md`; decisions strong enough to outlive the proj
 ```
 skills/                             # shared by Claude Code and Gemini CLI
   <name>/SKILL.md
-agents/                             # Claude Code agents (cross-platform where noted)
+agents/                             # Claude Code agents
   sdlc-architect/AGENT.md
   sdlc-tester/AGENT.md
   sdlc-coder/AGENT.md
-  gemini-operative/AGENT.md
-  claude-operative/AGENT.md
 claude/                             # Claude Code project settings
   settings.json
 ```

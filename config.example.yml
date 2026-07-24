@@ -1,0 +1,20 @@
+# Copy to config.yml (gitignored) to customize what `task install` links.
+#
+# Everything in skills/ and agents/ installs by default. List the names you
+# do NOT want -- a new skill added to the repo installs automatically unless
+# you name it here.
+#
+# Names are directory names under skills/ and agents/.
+
+exclude:
+  skills:
+    # - mr
+    # - gh-issue
+  agents:
+    # - sdlc-tester
+    # - sdlc-coder
+
+# Per-platform opt-out. Set to false to skip that platform entirely.
+platforms:
+  claude: true
+  gemini: true

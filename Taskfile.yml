@@ -1,9 +1,115 @@
 version: '3'
 
+vars:
+  # Shared config reader, inlined into any task that needs exclusion logic.
+  # Parses config.yml without requiring yq: reads the `exclude:` block's
+  # `skills:`/`agents:` list items and the `platforms:` booleans.
+  CONFIG_READER: |
+    _cfg_check_syntax() {
+      # Inline lists (skills: [a, b]) are valid YAML but not supported by the
+      # block-form reader below -- fail loudly instead of silently ignoring.
+      [ -f config.yml ] || return 0
+      if grep -Eq '^[[:space:]]+(skills|agents):[[:space:]]*\[' config.yml; then
+        echo "ERR config.yml uses inline list syntax (skills: [a, b]); use block form:" >&2
+        echo "      skills:" >&2
+        echo "        - a" >&2
+        return 1
+      fi
+      return 0
+    }
+    _cfg_list() {
+      # $1 = section key under exclude: (skills|agents)
+      [ -f config.yml ] || return 0
+      _cfg_check_syntax || exit 1
+      awk -v want="$1" '
+        /^[^[:space:]#]/ { top=$1; sub(":.*","",top); inex=(top=="exclude"); next }
+        !inex { next }
+        /^[[:space:]]+[a-z]+:[[:space:]]*$/ { key=$1; sub(":","",key); cur=key; next }
+        /^[[:space:]]+-[[:space:]]*/ {
+          if (cur != want) next
+          line=$0
+          sub(/^[[:space:]]*-[[:space:]]*/, "", line)
+          sub(/[[:space:]]*#.*$/, "", line)
+          gsub(/^["'"'"']|["'"'"']$/, "", line)
+          if (line != "") print line
+        }
+      ' config.yml
+    }
+    excluded_names() {
+      { _cfg_list skills; _cfg_list agents; } | sed '/^[[:space:]]*$/d' | sort -u
+    }
+    is_excluded() {
+      # $1 = name, $2 = kind (skills|agents)
+      local n
+      for n in $(_cfg_list "$2"); do
+        [ "$n" = "$1" ] && return 0
+      done
+      return 1
+    }
+    platform_enabled() {
+      # $1 = claude|gemini -- true unless config.yml sets it false
+      [ -f config.yml ] || return 0
+      awk -v want="$1" '
+        /^[^[:space:]#]/ { top=$1; sub(":.*","",top); inp=(top=="platforms"); next }
+        !inp { next }
+        {
+          line=$0
+          sub(/[[:space:]]*#.*$/, "", line)
+          if (match(line, "^[[:space:]]+" want ":")) {
+            val=line; sub("^[[:space:]]+" want ":[[:space:]]*", "", val)
+            gsub(/[[:space:]]/, "", val)
+            if (val == "false") exit 1
+          }
+        }
+      ' config.yml
+    }
+
 tasks:
   install:
-    desc: Install all skills, agents, and settings into ~/.claude and ~/.gemini
-    deps: [install:claude, install:gemini]
+    desc: Install skills, agents, and settings per config.yml (uninstalls first)
+    cmds:
+      - task: config:check
+      - task: config:show
+      - task: uninstall
+      - task: install:claude
+      - task: install:gemini
+      - |
+        echo "INSTALLED run 'task verify' to check"
+
+  config:check:
+    internal: true
+    desc: Fail fast on config.yml syntax the block-form reader cannot parse
+    cmds:
+      - |
+        [ -f config.yml ] || exit 0
+        if grep -Eq '^[[:space:]]+(skills|agents):[[:space:]]*\[' config.yml; then
+          echo "ERR config.yml uses inline list syntax (skills: [a, b])."
+          echo "    Use block form instead:"
+          echo "      exclude:"
+          echo "        skills:"
+          echo "          - mr"
+          exit 1
+        fi
+
+  config:show:
+    internal: true
+    desc: Print the active exclusion config
+    cmds:
+      - |
+        {{.CONFIG_READER}}
+        if [ -f config.yml ]; then
+          echo "CONFIG config.yml"
+        else
+          echo "CONFIG none (config.yml not found -- installing everything; see config.example.yml)"
+        fi
+        skipped="$(excluded_names)"
+        if [ -n "$skipped" ]; then
+          echo "CONFIG excluding: $(echo $skipped)"
+        else
+          echo "CONFIG excluding: nothing"
+        fi
+        platform_enabled claude || echo "CONFIG platform claude: disabled"
+        platform_enabled gemini || echo "CONFIG platform gemini: disabled"
 
   clean:stale:
     internal: true
@@ -24,16 +130,22 @@ tasks:
         done
 
   install:claude:
+    internal: true
     desc: Symlink skills and agents, merge settings into ~/.claude
     deps: [clean:stale]
     cmds:
       - |
+        {{.CONFIG_READER}}
+        platform_enabled claude || { echo "SKIP claude platform (disabled in config.yml)"; exit 0; }
         for dir in skills/*/; do
           name=$(basename "$dir")
+          if is_excluded "$name" skills; then echo "SKIP $name skill (excluded)"; continue; fi
           mkdir -p "$HOME/.claude/skills/$name"
           ln -sf "$(pwd)/${dir}SKILL.md" "$HOME/.claude/skills/$name/SKILL.md"
         done
       - |
+        {{.CONFIG_READER}}
+        platform_enabled claude || exit 0
         if [ -f "claude/settings.json" ]; then
           command -v jq >/dev/null 2>&1 || { echo "ERR jq is required to merge settings.json (brew install jq)"; exit 1; }
           target="$HOME/.claude/settings.json"
@@ -47,46 +159,30 @@ tasks:
           echo "MERGED settings.json"
         fi
       - |
+        {{.CONFIG_READER}}
+        platform_enabled claude || exit 0
         for dir in agents/*/; do
           name=$(basename "$dir")
-          case "$name" in
-            gemini-operative)
-              if command -v gemini >/dev/null 2>&1; then
-                mkdir -p "$HOME/.claude/agents/$name"
-                ln -sf "$(pwd)/${dir}AGENT.md" "$HOME/.claude/agents/$name/AGENT.md"
-                echo "LINKED $name agent"
-              else
-                echo "SKIP $name (gemini not found)"
-              fi
-              ;;
-            claude-operative)
-              ;;
-            *)
-              mkdir -p "$HOME/.claude/agents/$name"
-              ln -sf "$(pwd)/${dir}AGENT.md" "$HOME/.claude/agents/$name/AGENT.md"
-              echo "LINKED $name agent"
-              ;;
-          esac
+          if is_excluded "$name" agents; then echo "SKIP $name agent (excluded)"; continue; fi
+          mkdir -p "$HOME/.claude/agents/$name"
+          ln -sf "$(pwd)/${dir}AGENT.md" "$HOME/.claude/agents/$name/AGENT.md"
+          echo "LINKED $name agent"
         done
 
   install:gemini:
-    desc: Symlink skills and agents into ~/.gemini
+    internal: true
+    desc: Symlink skills into ~/.gemini (agents are Claude Code only)
     deps: [clean:stale]
     cmds:
       - |
+        {{.CONFIG_READER}}
+        platform_enabled gemini || { echo "SKIP gemini platform (disabled in config.yml)"; exit 0; }
         for dir in skills/*/; do
           name=$(basename "$dir")
+          if is_excluded "$name" skills; then continue; fi
           mkdir -p "$HOME/.gemini/skills/$name"
           ln -sf "$(pwd)/${dir}SKILL.md" "$HOME/.gemini/skills/$name/SKILL.md"
         done
-      - |
-        if command -v claude >/dev/null 2>&1; then
-          mkdir -p "$HOME/.gemini/agents/claude-operative"
-          ln -sf "$(pwd)/agents/claude-operative/AGENT.md" "$HOME/.gemini/agents/claude-operative/AGENT.md"
-          echo "LINKED claude-operative agent"
-        else
-          echo "SKIP claude-operative (claude not found)"
-        fi
 
   uninstall:
     desc: Remove all symlinks pointing to this repo and subtract repo-defined settings from ~/.claude/settings.json
@@ -145,10 +241,44 @@ tasks:
         if [ $failed -eq 0 ]; then echo "OK response-style block consistent across all tagged skills"; fi
         exit $failed
 
+  verify:pr-body:
+    desc: Verify the shared PR/MR body template is byte-identical across all skills tagged with pr-body:v1
+    cmds:
+      - |
+        canonical=""
+        failed=0
+        for f in skills/*/SKILL.md; do
+          if grep -q "pr-body:v1" "$f"; then
+            block=$(awk '
+              /<!-- pr-body:v1/{flag=1; next}
+              flag && /^```/{fence=!fence; print; next}
+              flag && !fence && /^(## |<!-- )/{flag=0; next}
+              flag{print}
+            ' "$f")
+            if [ -z "$canonical" ]; then
+              canonical="$block"
+              ref="$f"
+            elif [ "$block" != "$canonical" ]; then
+              echo "DRIFT $f differs from $ref"
+              failed=1
+            fi
+          fi
+        done
+        if [ $failed -eq 0 ]; then echo "OK pr-body block consistent across all tagged skills"; fi
+        exit $failed
+
   verify:
+    desc: Run all verification steps (install, response-style, pr-body)
+    cmds:
+      - task: verify:skills-installed
+      - task: verify:response-style
+      - task: verify:pr-body
+
+  verify:skills-installed:
     desc: Verify all skills and agents are installed
     cmds:
       - |
+        {{.CONFIG_READER}}
         failed=0
         check() {
           if [ -e "$1" ]; then
@@ -158,12 +288,26 @@ tasks:
             failed=1
           fi
         }
+        absent() {
+          # excluded items must NOT be installed
+          if [ -e "$1" ]; then
+            echo "ERR $1 (excluded but still installed)"
+            failed=1
+          else
+            echo "OK  excluded: $1"
+          fi
+        }
         for dir in skills/*/; do
           name=$(basename "$dir")
-          check "$HOME/.claude/skills/$name/SKILL.md"
-          check "$HOME/.gemini/skills/$name/SKILL.md"
+          if is_excluded "$name" skills; then
+            absent "$HOME/.claude/skills/$name/SKILL.md"
+            absent "$HOME/.gemini/skills/$name/SKILL.md"
+            continue
+          fi
+          if platform_enabled claude; then check "$HOME/.claude/skills/$name/SKILL.md"; fi
+          if platform_enabled gemini; then check "$HOME/.gemini/skills/$name/SKILL.md"; fi
         done
-        if [ -f "claude/settings.json" ]; then
+        if platform_enabled claude 2>/dev/null && [ -f "claude/settings.json" ]; then
           if jq -e '.spinnerVerbs' "$HOME/.claude/settings.json" >/dev/null 2>&1; then
             echo "OK  $HOME/.claude/settings.json (merged)"
           else
@@ -173,20 +317,10 @@ tasks:
         fi
         for dir in agents/*/; do
           name=$(basename "$dir")
-          case "$name" in
-            gemini-operative)
-              if command -v gemini >/dev/null 2>&1; then
-                check "$HOME/.claude/agents/$name/AGENT.md"
-              fi
-              ;;
-            claude-operative)
-              if command -v claude >/dev/null 2>&1; then
-                check "$HOME/.gemini/agents/$name/AGENT.md"
-              fi
-              ;;
-            *)
-              check "$HOME/.claude/agents/$name/AGENT.md"
-              ;;
-          esac
+          if is_excluded "$name" agents; then
+            absent "$HOME/.claude/agents/$name/AGENT.md"
+            continue
+          fi
+          if platform_enabled claude; then check "$HOME/.claude/agents/$name/AGENT.md"; fi
         done
         exit $failed
