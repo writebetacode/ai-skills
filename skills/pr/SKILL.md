@@ -8,7 +8,7 @@ model: sonnet
 
 ## Workflow
 
-Verify `gh auth status`; stop on failure. Gather in parallel: current branch, remote URL, user login, PR status. Warn on uncommitted changes. Resolve base from arguments, or auto-detect by matching branch-name prefix against other local branches, falling back to `git merge-base` against `main`. Validate ticket numbers via `gh issue view`. Draft a human-readable title under 70 characters covering combined changes. Compose body from the template, run `gh pr create --assignee @me` or `gh pr edit` (add `--draft` if "draft" appears in `$ARGUMENTS`), display the PR URL.
+Verify `gh auth status`; stop on failure. Gather in parallel: current branch, remote URL, user login, PR status. Warn on uncommitted changes. Resolve base from arguments, or auto-detect by matching branch-name prefix against other local branches, falling back to `git merge-base` against `main`. Validate ticket numbers via `gh issue view`. Draft a human-readable title under 70 characters covering combined changes. Compose body from the template, run `gh pr create --assignee @me --base <base>` or `gh pr edit --base <base>` (add `--draft` if "draft" appears in `$ARGUMENTS`), display the PR URL.
 
 ## PR Body Template
 
