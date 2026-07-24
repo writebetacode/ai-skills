@@ -25,15 +25,17 @@ effort: <low | medium | high | xhigh | max>
 ---
 ```
 
-Omit `model` and `effort` unless a specific tier is required, in which case set both. Pick `model` by task weight — opus for design/architecture/spec authoring, sonnet for routine coding and mechanical edits, haiku for read-only lookups. Pick `effort` by reasoning load: `high` (default) for most work, `xhigh` or `max` for subtle correctness or novel territory, `low`/`medium` for shallow scans. Current Opus-tier models reason adaptively within a tier, so a single fixed effort suffices — there is no per-invocation effort override. Omit `tools` only if inheriting all session tools; otherwise scope narrowly. Set `memory: none` unless persistent state across conversations is needed (omit to enable the default memory directory).
+Omit `model` and `effort` unless a specific tier is required, in which case set both. Pick `model` by task weight — opus for design/architecture/spec authoring, sonnet for routine coding and mechanical edits, haiku for read-only lookups. Pick `effort` by reasoning load: `high` (default) for most work, `xhigh` or `max` for subtle correctness or novel territory, `low`/`medium` for shallow scans. Current models reason adaptively within a tier, so one fixed effort suffices — there is no per-invocation override. Omit `tools` only if inheriting all session tools; otherwise scope narrowly. Set `memory: none` unless persistent state across conversations is needed (omit to enable the default memory directory).
 
 ## Writing Style
 
 Write workflow and rules as flowing prose paragraphs, not numbered lists or bullets. Prose keeps intent and reasoning connected; bullets fragment context and strip causal connectives. Structured reference data (mode tables, command examples) is the only exception.
 
+An agent file is resident context for every turn that agent runs, so classify each sentence before writing it. **Derivable** content — rationale for a rule the agent would follow anyway, restatements of a constraint already in the file, sequencing of an obvious procedure, hedging against mistakes current models do not make — is left out. **Specification** — tool and agent names, message contracts and report formats, literal commands and paths, status vocabularies, escalation routing, and every safety constraint — is kept verbatim. Keep anything genuinely ambiguous between the two; a lost constraint costs more than the tokens. An agent's Identity line is not filler: it sets the disposition the agent argues from when a judgment call is close.
+
 ## Updating Existing Agents
 
-Read the current file first and diff proposed changes. Explicitly list any functionality that would be removed; get per-item confirmation before writing. Never drop behavioral details silently.
+Read the current file first and diff proposed changes. Explicitly list any functionality that would be removed; get per-item confirmation before writing. Never drop behavioral details silently. Cutting derivable prose is not a removal, provided every specification item survives intact.
 
 <!-- response-style:v1 -->
 ## Response Style

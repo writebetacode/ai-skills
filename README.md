@@ -22,22 +22,29 @@ Per-platform install and verification:
 task install:claude            # Claude only
 task install:gemini            # Gemini only
 task uninstall                 # remove symlinks and subtract repo-defined settings
-task verify                    # check all symlinks
+task verify                    # run every check below, in order
+task verify:skills-installed   # check all symlinks
 task verify:response-style     # check the shared Response Style block has not drifted
+task verify:pr-body            # check the shared PR/MR body template has not drifted
 ```
 
+`task verify` runs the three checks sequentially and stops at the first failure, so fix an early failure to see the later checks run.
+
 The `## Response Style` block is duplicated verbatim across skills that use it (skills load standalone — no include mechanism). Each duplicate is preceded by a `<!-- response-style:v1 -->` marker; `task verify:response-style` reads every tagged block and fails on drift from the canonical first one. When updating the rule, edit every tagged file and bump the marker version.
+
+The PR/MR body template is shared the same way between `/pr` and `/mr`, marked with `<!-- pr-body:v1 -->` and checked by `task verify:pr-body`. The marker sits below the section heading, so `## PR Body Template` and `## MR Body Template` may differ while everything from the intro line through the closing fence stays byte-identical. Review artifacts read the same on both forges; edit both files and bump the marker together.
 
 ## What's included
 
 Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 
-### Git & GitHub
+### Git, GitHub & GitLab
 
 | Command | Model | Description |
 |---|---|---|
 | `/commit` | sonnet | Stage-aware conventional commits — commits exactly what is staged, immediately |
-| `/pr` | sonnet | Create or update pull requests with structured descriptions |
+| `/pr` | sonnet | Create or update GitHub pull requests with structured descriptions |
+| `/mr` | sonnet | Create or update GitLab merge requests with the same structured description, via `glab` |
 | `/restack` | sonnet | Rebase open branches onto the latest main, whether their base was squash-merged or main simply moved ahead |
 | `/prune-branches` | sonnet | Delete local branches whose commits are fully merged into main |
 | `/gh-issue` | sonnet | Create consistently-formatted GitHub issues with type, priority, and optional context sections |

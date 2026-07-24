@@ -30,11 +30,17 @@ Write all skill content — workflow, rules, explanations — as flowing prose p
 
 ## Token Efficiency
 
-Skills sit in system context and are paid for on every invocation; redundant words have a recurring cost. Keep prose tight: drop filler openers ("Begin by", "Start by", "Finally"), collapse repetitive connectives, merge sequential sentences sharing a subject, prefer one strong sentence over two weak ones. Fidelity is non-negotiable — every quoted command, flag, template section, and explicit rule preserved verbatim; every behavioral detail (confirmation gates, stop conditions, ordering constraints) intact. Tighten only the connective prose around the functional payload.
+Skills sit in system context and are paid for on every invocation. Before writing or cutting any sentence, classify it.
+
+**Derivable — leave it out.** Behavior a current model produces from the task itself: rationale for a rule it would follow anyway, explanations of why an approach is correct, restatements of a constraint already stated elsewhere in the same file, step-by-step sequencing of an obvious procedure, defensive hedging against mistakes these models do not make. Current models do not need to be told to work carefully or to be walked through inferable steps.
+
+**Specification — keep verbatim.** Anything the model cannot derive because it is a fact about this setup or an arbitrary choice: exact templates and their section order, literal commands and flags, tool and agent names, file paths and naming schemes, message and JSON contracts, status vocabularies, numeric thresholds, and every safety constraint on a destructive or irreversible operation. Preserve these word for word; never paraphrase a command or reorder a template.
+
+Two constraints on the cut. When a sentence is genuinely ambiguous between the categories, keep it — losing capability costs more than the tokens save. And when Workflow and Rules would state the same constraint twice, state it once, in whichever section makes it likelier to be followed; for destructive operations that means the imperative-negative form in Rules ("Never delete without..."), even at the cost of the Workflow line.
 
 ## Updating Existing Skills
 
-When updating rather than creating, read the current file first and diff proposed changes. Explicitly list any functionality that would be removed and confirm each removal before writing. Never drop behavioral details silently — every step, rule, and constraint must be preserved or explicitly approved for removal. Pure prose tightening under Token Efficiency is not a removal and does not need per-edit confirmation, as long as every command, template, and rule remains intact.
+When updating rather than creating, read the current file first and diff proposed changes. Explicitly list any functionality that would be removed and confirm each removal before writing. Never drop behavioral details silently — every step, rule, and constraint must be preserved or explicitly approved for removal. Cutting derivable prose is not a removal and needs no per-edit confirmation, as long as every specification item survives intact. Do not treat a prior commit message claiming the file was already tightened as evidence; verify against the file.
 
 <!-- response-style:v1 -->
 ## Response Style

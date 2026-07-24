@@ -10,11 +10,11 @@ Flow: **[design]** -> implement -> complete
 
 ## Agent Team
 
-Spec/plan authoring and all intake MUST happen through a team via TeamCreate named `sdlc-design-<project-slug>`, created at the very start before any questioning. Spawn one permanent agent via `Agent` with matching `team_name` and `name` set to `sdlc-architect` (opus); its AGENT.md carries the workflow and identity — do not re-specify here. The architect owns intake, research, all artifact authoring, and signoff, and stays live throughout design: it runs its own AGENT.md workflow — ADR reads, intake loop, context7 research — proposes a multi-epic split for the user to confirm when scope decomposes into independent streams, then authors `spec.md`, `plan.md`, `tasks/NN-<name>.md` (in run order), runs the gates, and writes `MANIFEST.md`.
+Spec/plan authoring and all intake MUST happen through a team via TeamCreate named `sdlc-design-<project-slug>`, created at the very start before any questioning. Spawn one permanent agent via `Agent` with matching `team_name` and `name` set to `sdlc-architect` (opus); its AGENT.md carries the workflow and identity — do not re-specify here. The architect stays live throughout design and owns intake, research, signoff, and every artifact: it proposes a multi-epic split for the user to confirm when scope decomposes into independent streams, then authors `spec.md`, `plan.md`, `tasks/NN-<name>.md` (in run order), runs the gates, and writes `MANIFEST.md`.
 
 ## Orchestrator Role
 
-The main thread is a pure router: forward every user reply to `sdlc-architect` via `SendMessage` and relay the architect's next question back verbatim — never batching, rephrasing, or supplementing; no own questions, pre-review, commentary, or deciding when intake is complete. If `$ARGUMENTS` is empty, tell the architect on spawn so it opens by asking what to build. Question discipline is the architect's — its AGENT.md "Intake loop" is authoritative.
+The main thread is a pure router: forward every user reply to `sdlc-architect` via `SendMessage` and relay the architect's next question back verbatim — never batching, rephrasing, or supplementing; no own questions, pre-review, commentary, or deciding when intake is complete. Question discipline is the architect's — its AGENT.md "Intake loop" is authoritative. If `$ARGUMENTS` is empty, tell the architect on spawn so it opens by asking what to build.
 
 ## Gates
 
@@ -22,11 +22,11 @@ The architect runs all six signoff gates per its AGENT.md "Gates before signoff"
 
 ## Concurrency Model
 
-Within an epic, tasks are strictly linear: NN order is run order, every task stacks on one parent, the implement skill walks them in sequence, keeping the stack reviewable and rebases simple. Across epics, parallelism is allowed: two epics in `epics.md` with disjoint dependency sets run concurrently via two `/sdlc-implement` sessions in separate checkouts, since each epic's first task branches from `main`. Build Order is the recommended single-operator sequence; the dependency graph is the source of truth for fan-out.
+Within an epic, tasks are strictly linear: NN order is run order, every task stacks on one parent, the implement skill walks them in sequence. Across epics, parallelism is allowed: two epics in `epics.md` with disjoint dependency sets run concurrently via two `/sdlc-implement` sessions in separate checkouts, since each epic's first task branches from `main`. Build Order is the recommended single-operator sequence; the dependency graph is the source of truth for fan-out.
 
 ## Mid-Flight Revision
 
-When `$ARGUMENTS` names an existing project and the user requests a revision (architecture shift, scope change, reshape), enter revision mode. Pause in-flight implementation — do not touch partial work; tell the user to stash or leave the tree alone. Re-spawn the design team (same TeamCreate name is fine) and route all revision intake through it under the orchestrator-as-router rule. The architect reads the manifest, completed task files, and in-progress work, then decides per remaining task: **keep** (unchanged), **revise** (updated spec — mark `[revised: vN]` in MANIFEST and overwrite the task file), or **void** (no longer needed — mark `[voided: <reason>]` in MANIFEST, leave the file in place for history). Append any new tasks with fresh NN-prefixes continuing the sequence. Update `adr.md` with the triggering decision. Confirm the updated plan with the user before returning them to `/sdlc-implement`.
+When `$ARGUMENTS` names an existing project and the user requests a revision (architecture shift, scope change, reshape), enter revision mode. Never touch in-flight partial work — tell the user to stash or leave the tree alone. Re-spawn the design team (same TeamCreate name is fine) and route all revision intake through it under the orchestrator-as-router rule. The architect reads the manifest, completed task files, and in-progress work, then decides per remaining task: **keep** (unchanged), **revise** (updated spec — mark `[revised: vN]` in MANIFEST and overwrite the task file), or **void** (no longer needed — mark `[voided: <reason>]` in MANIFEST, leave the file in place for history). Append any new tasks with fresh NN-prefixes continuing the sequence. Update `adr.md` with the triggering decision. Confirm the updated plan with the user before returning them to `/sdlc-implement`.
 
 ## Project Structure
 
@@ -53,7 +53,7 @@ Neither project nor epic slug carries a date prefix; date appends only on archiv
 
 ## Team Teardown
 
-After signoff and `MANIFEST.md` write, shut down: `SendMessage {type: "shutdown_request", reason: "Design complete."}`, await `shutdown_approved`, then `TeamDelete`. Never skip it — running agents leak context and disk state. If the session pauses mid-design, leave the team running; teardown happens only at signoff or when a mid-flight revision hands control to `/sdlc-implement`.
+After signoff and `MANIFEST.md` write, shut down: `SendMessage {type: "shutdown_request", reason: "Design complete."}`, await `shutdown_approved`, then `TeamDelete`. Never skip it. If the session pauses mid-design, leave the team running; teardown happens only at signoff or when a mid-flight revision hands control to `/sdlc-implement`.
 
 ## Completion
 

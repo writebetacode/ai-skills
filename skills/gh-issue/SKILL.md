@@ -8,7 +8,7 @@ model: sonnet
 
 ## Workflow
 
-Verify `gh auth status` and repo name; stop on failure. Parse arguments for a title, then prompt for missing fields: type, title, description, priority, and optional sections (repro steps, acceptance criteria). Build the body from the template, omitting skipped sections. Show formatted title and body, get confirmation or edits. On confirmation, create via `gh issue create --assignee @me` and display the URL.
+Verify `gh auth status` and repo name; stop on failure. Parse arguments for a title, then prompt for missing fields: type, title, description, priority, and optional sections (repro steps, acceptance criteria). Build the body from the template, omitting skipped sections. Show formatted title and body for confirmation or edits, then create via `gh issue create --assignee @me` and display the URL.
 
 ## Issue Body Template
 
