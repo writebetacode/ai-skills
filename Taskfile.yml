@@ -164,29 +164,14 @@ tasks:
         for dir in agents/*/; do
           name=$(basename "$dir")
           if is_excluded "$name" agents; then echo "SKIP $name agent (excluded)"; continue; fi
-          case "$name" in
-            gemini-operative)
-              if command -v gemini >/dev/null 2>&1; then
-                mkdir -p "$HOME/.claude/agents/$name"
-                ln -sf "$(pwd)/${dir}AGENT.md" "$HOME/.claude/agents/$name/AGENT.md"
-                echo "LINKED $name agent"
-              else
-                echo "SKIP $name (gemini not found)"
-              fi
-              ;;
-            claude-operative)
-              ;;
-            *)
-              mkdir -p "$HOME/.claude/agents/$name"
-              ln -sf "$(pwd)/${dir}AGENT.md" "$HOME/.claude/agents/$name/AGENT.md"
-              echo "LINKED $name agent"
-              ;;
-          esac
+          mkdir -p "$HOME/.claude/agents/$name"
+          ln -sf "$(pwd)/${dir}AGENT.md" "$HOME/.claude/agents/$name/AGENT.md"
+          echo "LINKED $name agent"
         done
 
   install:gemini:
     internal: true
-    desc: Symlink skills and agents into ~/.gemini
+    desc: Symlink skills into ~/.gemini (agents are Claude Code only)
     deps: [clean:stale]
     cmds:
       - |
@@ -198,17 +183,6 @@ tasks:
           mkdir -p "$HOME/.gemini/skills/$name"
           ln -sf "$(pwd)/${dir}SKILL.md" "$HOME/.gemini/skills/$name/SKILL.md"
         done
-      - |
-        {{.CONFIG_READER}}
-        platform_enabled gemini || exit 0
-        if is_excluded claude-operative agents; then echo "SKIP claude-operative agent (excluded)"; exit 0; fi
-        if command -v claude >/dev/null 2>&1; then
-          mkdir -p "$HOME/.gemini/agents/claude-operative"
-          ln -sf "$(pwd)/agents/claude-operative/AGENT.md" "$HOME/.gemini/agents/claude-operative/AGENT.md"
-          echo "LINKED claude-operative agent"
-        else
-          echo "SKIP claude-operative (claude not found)"
-        fi
 
   uninstall:
     desc: Remove all symlinks pointing to this repo and subtract repo-defined settings from ~/.claude/settings.json
@@ -345,23 +319,8 @@ tasks:
           name=$(basename "$dir")
           if is_excluded "$name" agents; then
             absent "$HOME/.claude/agents/$name/AGENT.md"
-            absent "$HOME/.gemini/agents/$name/AGENT.md"
             continue
           fi
-          case "$name" in
-            gemini-operative)
-              if platform_enabled claude && command -v gemini >/dev/null 2>&1; then
-                check "$HOME/.claude/agents/$name/AGENT.md"
-              fi
-              ;;
-            claude-operative)
-              if platform_enabled gemini && command -v claude >/dev/null 2>&1; then
-                check "$HOME/.gemini/agents/$name/AGENT.md"
-              fi
-              ;;
-            *)
-              if platform_enabled claude; then check "$HOME/.claude/agents/$name/AGENT.md"; fi
-              ;;
-          esac
+          if platform_enabled claude; then check "$HOME/.claude/agents/$name/AGENT.md"; fi
         done
         exit $failed

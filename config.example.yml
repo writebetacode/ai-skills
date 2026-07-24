@@ -11,8 +11,8 @@ exclude:
     # - mr
     # - gh-issue
   agents:
-    # - gemini-operative
-    # - claude-operative
+    # - sdlc-tester
+    # - sdlc-coder
 
 # Per-platform opt-out. Set to false to skip that platform entirely.
 platforms:

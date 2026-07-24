@@ -12,7 +12,7 @@ cd ai-skills
 task install
 ```
 
-Symlinks all skills and agents into `~/.claude` and `~/.gemini` so repo updates apply immediately without reinstalling. A single set of skill files serves both platforms. `task install` runs `task uninstall` first, so it fully reconciles the installed state with your config on every run — newly excluded items are removed, newly re-included ones come back. CLI-specific agents (`gemini-operative` needs `gemini`, `claude-operative` needs `claude`) are skipped silently if the CLI is missing.
+Symlinks all skills and agents into `~/.claude` and `~/.gemini` so repo updates apply immediately without reinstalling. A single set of skill files serves both platforms; agents are Claude Code only. `task install` runs `task uninstall` first, so it fully reconciles the installed state with your config on every run — newly excluded items are removed, newly re-included ones come back.
 
 ### Choosing what gets installed
 
@@ -22,8 +22,9 @@ Everything installs by default. To opt out of specific skills or agents, copy `c
 exclude:
   skills:
     - mr
+    - gh-issue
   agents:
-    - gemini-operative
+    - sdlc-tester
 
 platforms:
   claude: true
@@ -72,7 +73,6 @@ Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 | Command | Model | Description |
 |---|---|---|
 | `/skill-write` | opus | Scaffold a new reusable workflow skill by asking scoping questions and writing the skill file |
-| `/agent-write` | opus | Scaffold a new Claude Code subagent by asking scoping questions and generating an AGENT.md file |
 
 ### Software Development Workflow
 
@@ -116,8 +116,6 @@ Project-level ADRs live in `adr.md`; decisions strong enough to outlive the proj
 | `sdlc-architect` | opus | xhigh | Design-phase architecture, intake, research, and document authoring for the SDLC flow; owns specs, plans, tasks, MANIFEST and enforces stack-linearity and NN-ordering. SDLC-only |
 | `sdlc-tester` | opus | high | TDD discipline — red-first batches and full-suite reruns — for the SDLC flow; reworks drift reported by the coordinator's third-party validator. SDLC-only |
 | `sdlc-coder` | opus | high | Smallest-diff implementation specialist for the SDLC flow. SDLC-only |
-| `gemini-operative` | -- | -- | On-demand Gemini-powered research, audits, and execution via the `gemini` CLI (Claude Code only) |
-| `claude-operative` | -- | -- | On-demand Claude-powered research, audits, and execution via the `claude` CLI (Gemini CLI only) |
 
 `sdlc-architect` is spawned via TeamCreate by `/sdlc-design`; `sdlc-tester` and `sdlc-coder` by `/sdlc-implement`. The architect owns research and document authoring inline. Each SDLC agent carries a one-line signature phrase that restates its hardest rule.
 
@@ -126,12 +124,10 @@ Project-level ADRs live in `adr.md`; decisions strong enough to outlive the proj
 ```
 skills/                             # shared by Claude Code and Gemini CLI
   <name>/SKILL.md
-agents/                             # Claude Code agents (cross-platform where noted)
+agents/                             # Claude Code agents
   sdlc-architect/AGENT.md
   sdlc-tester/AGENT.md
   sdlc-coder/AGENT.md
-  gemini-operative/AGENT.md
-  claude-operative/AGENT.md
 claude/                             # Claude Code project settings
   settings.json
 ```
