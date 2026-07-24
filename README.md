@@ -72,7 +72,7 @@ Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 
 | Command | Model | Description |
 |---|---|---|
-| `/skill-write` | opus | Scaffold a new reusable workflow skill by asking scoping questions and writing the skill file |
+| `/skill-write` | opus | Scaffold a new reusable workflow skill or Claude Code subagent by asking scoping questions and writing the SKILL.md or AGENT.md file |
 
 ### Software Development Workflow
 
