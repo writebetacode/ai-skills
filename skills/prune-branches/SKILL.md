@@ -1,6 +1,6 @@
 ---
 name: prune-branches
-description: Delete local branches whose commits are fully merged into main. Use when you want to clean up stale local branches.
+description: Delete local branches whose changes already landed in main, including squash-merged branches that `git branch -d` refuses as unmerged. Use when you want to clean up stale local branches.
 model: sonnet
 ---
 

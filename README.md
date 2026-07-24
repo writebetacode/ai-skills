@@ -65,7 +65,7 @@ Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 | `/pr` | sonnet | Create or update GitHub pull requests with structured descriptions |
 | `/mr` | sonnet | Create or update GitLab merge requests with the same structured description, via `glab` |
 | `/restack` | sonnet | Rebase open branches onto the latest main, whether their base was squash-merged or main simply moved ahead |
-| `/prune-branches` | sonnet | Delete local branches whose commits are fully merged into main |
+| `/prune-branches` | sonnet | Delete local branches whose changes already landed in main, including squash-merged branches `git branch -d` refuses as unmerged |
 | `/gh-issue` | sonnet | Create consistently-formatted GitHub issues with type, priority, and optional context sections |
 
 ### Meta
