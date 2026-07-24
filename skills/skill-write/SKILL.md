@@ -22,7 +22,7 @@ model: <haiku | sonnet | opus>
 ---
 ```
 
-Place at `skills/<name>/SKILL.md` relative to repo root. Each skill ends with `## User Input\n\n$ARGUMENTS`. A single file serves both Claude Code and Gemini CLI — `task install` symlinks it into `~/.claude/skills/` and `~/.gemini/skills/`. The `description` is how the model decides when to invoke — state the concrete trigger ("Use when the user wants to …") and, where ambiguity is likely, when to skip.
+Place at `skills/<name>/SKILL.md` relative to repo root. Each skill ends with `## User Input\n\n$ARGUMENTS`. A skill that carries a `## Response Style` section MUST precede it with the response-style marker comment and copy the block byte-identically from an existing tagged skill — `task verify:response-style` checks only marked files, so an unmarked copy drifts silently while a marked copy with edited text fails the build. Copy both marker and block from a tagged skill rather than retyping either. A single file serves both Claude Code and Gemini CLI — `task install` symlinks it into `~/.claude/skills/` and `~/.gemini/skills/`. The `description` is how the model decides when to invoke — state the concrete trigger ("Use when the user wants to …") and, where ambiguity is likely, when to skip.
 
 ## Writing Style
 
@@ -49,7 +49,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Always ask scoping questions one at a time; never write files without explicit confirmation. Place each skill in its own subdirectory under `skills/` at the repo root. After writing, update README.md to include the new skill in the appropriate table. Keep skills under 100 lines; the only exception is an orchestration skill whose embedded document templates are load-bearing (e.g. sdlc-design). Use only ASCII; never include AI attribution or "Co-Authored-By" lines. Prefer dedicated tools over shell commands in generated workflow text (Read/Edit/Write/Glob/Grep over `cat`/`sed`/`find`/`rg`) so skills read the same way the host CLIs execute them.
+Always ask scoping questions one at a time; never write files without explicit confirmation. Place each skill in its own subdirectory under `skills/` at the repo root. After writing, update README.md to include the new skill in the appropriate table, then run `task install && task verify` and confirm both exit 0. Keep skills under 100 lines; the only exception is an orchestration skill whose embedded document templates are load-bearing (e.g. sdlc-design). Use only ASCII; never include AI attribution or "Co-Authored-By" lines. Prefer dedicated tools over shell commands in generated workflow text (Read/Edit/Write/Glob/Grep over `cat`/`sed`/`find`/`rg`) so skills read the same way the host CLIs execute them.
 
 ## User Input
 

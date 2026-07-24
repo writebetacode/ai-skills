@@ -8,7 +8,13 @@ model: sonnet
 
 ## Workflow
 
-Verify `gh auth status` and repo name; stop on failure. Parse arguments for a title, then prompt for missing fields: type, title, description, priority, and optional sections (repro steps, acceptance criteria). Build the body from the template, omitting skipped sections. Show formatted title and body for confirmation or edits, then create via `gh issue create --assignee @me` and display the URL.
+Verify `gh auth status` and repo name; stop on failure. Parse arguments for a title, then prompt for missing fields: type, title, description, priority, and optional sections (repro steps, acceptance criteria). Build the body from the template, omitting skipped sections. Show formatted title and body for confirmation or edits, then create via `gh issue create --assignee @me --title <title> --body-file -`, piping the body on stdin through a HEREDOC so backticks and quotes survive unescaped. Display the URL.
+
+```bash
+gh issue create --assignee @me --title "<type>: <title>" --body-file - <<'EOF'
+<body>
+EOF
+```
 
 ## Issue Body Template
 
@@ -46,7 +52,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Follow the body template exactly — no header or order changes. Title format: `<type>: <title>`. Never create without explicit confirmation. Assign every issue to the current user with `--assignee @me`. Stop if `gh` is missing or unauthenticated. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
+Follow the body template exactly — no header or order changes. Title format: `<type>: <title>`. Never create without explicit confirmation. Assign every issue to the current user with `--assignee @me`. Always pass `--title` and `--body-file -`; without them `gh` discards the composed body and prompts interactively. Stop if `gh` is missing or unauthenticated. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 
