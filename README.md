@@ -35,6 +35,8 @@ Because it's an exclude list, a skill added to the repo later installs automatic
 
 `task verify` follows the same config: excluded items are checked to be *absent*, so a stale symlink from a previous install is reported as an error.
 
+The `deny` list blocks irreversible git operations outright — `reset --hard`, `clean -f`, `restore`, and force-push. Branch deletion (`git branch -d/-D`) sits in `ask` instead: rules are evaluated deny, then ask, then allow, so it prompts on every deletion even though `Bash(git branch *)` is allowed, and you approve inline rather than being blocked. That is deliberate — `/prune-branches` and `/sdlc-complete` already require per-branch confirmation, and the permission layer is what enforces it when a prompt-level rule is misread.
+
 `task install` also merges `claude/settings.json` into `~/.claude/settings.json`: the permission `allow`/`ask`/`deny` lists are unioned, and every other key takes the repo's value — the repo is the source of truth for the settings it defines, so local edits to those keys are overwritten on each install. `task uninstall` removes every symlink pointing into this repo and subtracts the repo-defined settings back out of `~/.claude/settings.json`: permission entries listed in the repo are removed (including any you happened to add independently — re-add those if needed), repo-defined keys are deleted, and everything the repo never defined survives untouched.
 
 Verification and teardown:
