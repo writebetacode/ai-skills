@@ -69,6 +69,7 @@ Skills live in `skills/` and are shared by both Claude Code and Gemini CLI. Ever
 | `/restack` | Rebase open branches onto the latest default branch, whether their base was squash-merged or the default branch simply moved ahead |
 | `/prune-branches` | Delete local branches whose changes already landed in the default branch, including squash-merged branches `git branch -d` refuses as unmerged |
 | `/gh-issue` | Create consistently-formatted GitHub issues with type, priority, and optional context sections |
+| `/gh-release` | Tag the default branch and publish a GitHub release, inferring the version from commit history and drafting notes in the repo's established voice |
 
 ### Software Development Workflow
 
