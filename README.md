@@ -43,7 +43,6 @@ Verification and teardown:
 task uninstall                 # remove symlinks and subtract repo-defined settings
 task verify                    # run every check below, in order
 task verify:skills-installed   # check all symlinks
-task verify:response-style     # check the shared Response Style block has not drifted
 task verify:pr-body            # check the shared PR/MR body template has not drifted
 task doctor                    # report installed skills/agents this repo does not manage
 ```
@@ -52,9 +51,7 @@ task doctor                    # report installed skills/agents this repo does n
 
 `task doctor` runs last and is advisory — it never fails the build and never deletes anything. It reports two things `verify` cannot: `UNMANAGED` entries (a real file, or a symlink pointing outside this repo) that are live and compete with repo skills at selection time, and `EMPTY` leftover directories from an earlier layout of this repo, which are inert but look like installed skills until you look inside. `verify:skills-installed` only checks that expected entries exist, so neither shows up there. Remove anything you no longer want by hand.
 
-The `## Response Style` block is duplicated verbatim across skills that use it (skills load standalone — no include mechanism). Each duplicate is preceded by a `<!-- response-style:v1 -->` marker; `task verify:response-style` reads every tagged block and fails on drift from the canonical first one. When updating the rule, edit every tagged file and bump the marker version.
-
-The PR/MR body template is shared the same way between `/pr` and `/mr`, marked with `<!-- pr-body:v1 -->` and checked by `task verify:pr-body`. The marker sits below the section heading, so `## PR Body Template` and `## MR Body Template` may differ while everything from the intro line through the closing fence stays byte-identical. Review artifacts read the same on both forges; edit both files and bump the marker together.
+The PR/MR body template is duplicated verbatim between `/pr` and `/mr` (skills load standalone — no include mechanism), marked with `<!-- pr-body:v1 -->` and checked by `task verify:pr-body`. The marker sits below the section heading, so `## PR Body Template` and `## MR Body Template` may differ while everything from the intro line through the closing fence stays byte-identical. Review artifacts read the same on both forges; edit both files and bump the marker together.
 
 ## What's included
 
@@ -70,12 +67,6 @@ Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
 | `/restack` | sonnet | Rebase open branches onto the latest main, whether their base was squash-merged or main simply moved ahead |
 | `/prune-branches` | sonnet | Delete local branches whose changes already landed in main, including squash-merged branches `git branch -d` refuses as unmerged |
 | `/gh-issue` | sonnet | Create consistently-formatted GitHub issues with type, priority, and optional context sections |
-
-### Meta
-
-| Command | Model | Description |
-|---|---|---|
-| `/skill-write` | opus | Scaffold a new reusable workflow skill or Claude Code subagent by asking scoping questions and writing the SKILL.md or AGENT.md file |
 
 ### Software Development Workflow
 

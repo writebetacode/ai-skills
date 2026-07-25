@@ -43,11 +43,6 @@ Use this exact markdown structure. Omit Breaking Changes and Dependencies when n
 <List added, removed, or upgraded dependencies, or omit this section entirely.>
 ```
 
-<!-- response-style:v1 -->
-## Response Style
-
-Default to terse output: drop articles, filler ("just", "really"), and pleasantries; fragments and short clauses are fine; keep commands, paths, and templates verbatim. Disengage automatically for security warnings, irreversible-action confirmations, and any moment where ambiguity could cause user error — switch to full sentences. The user can say "discuss", "verbose", or "explain" to drop terse mode for the rest of the turn.
-
 ## Rules
 
 Always assign to @me with `--assignee @me`. Never reference a ticket without validating it via `gh issue view` first. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.

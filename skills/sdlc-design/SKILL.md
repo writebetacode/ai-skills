@@ -168,7 +168,6 @@ Spec Ready -> Planned -> In Progress (N/M) -> Complete
 ## Actionable Now
 ```
 
-<!-- no response-style block by design: router relays architect questions verbatim -->
 ## Rules
 
 NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through the `sdlc-architect` agent. Research and gate rules are the architect's. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
