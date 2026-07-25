@@ -273,6 +273,65 @@ tasks:
       - task: verify:skills-installed
       - task: verify:response-style
       - task: verify:pr-body
+      # doctor last and advisory-only: leftovers are worth surfacing but must not
+      # fail the build, since the user may keep unrelated skills of their own.
+      - task: doctor
+
+  doctor:
+    desc: Report skills/agents installed in ~/.claude and ~/.gemini that this repo does not manage
+    silent: true
+    cmds:
+      - |
+        {{.CONFIG_READER}}
+        repo="$(pwd)"
+        found=0
+        # An entry is repo-managed if it is a symlink pointing into this repo.
+        # Anything else -- a real file, or a link elsewhere -- is reported, never
+        # deleted: it may be hand-written or installed by another tool.
+        report() {
+          local f="$1" kind="$2" name="$3"
+          [ -e "$f" ] || [ -L "$f" ] || return 0
+          if [ -L "$f" ]; then
+            case "$(readlink "$f")" in "$repo"/*) return 0 ;; esac
+            echo "UNMANAGED $f (symlink outside this repo)"
+          else
+            echo "UNMANAGED $f (real file, not a symlink)"
+          fi
+          found=1
+        }
+        # Empty dirs are leftovers from an earlier layout: harmless but confusing,
+        # since they look like installed skills until you look inside.
+        empty_dir() {
+          if [ -z "$(ls -A "$1" 2>/dev/null)" ]; then
+            echo "EMPTY     $1 (leftover directory, no SKILL.md/AGENT.md)"
+            found=1
+            return 0
+          fi
+          return 1
+        }
+        for base in "$HOME/.claude" "$HOME/.gemini"; do
+          [ -d "$base/skills" ] || continue
+          for dir in "$base/skills/"*/; do
+            [ -d "$dir" ] || continue
+            empty_dir "$dir" && continue
+            report "${dir}SKILL.md" skills "$(basename "$dir")"
+          done
+        done
+        for dir in "$HOME/.claude/agents/"*/; do
+          [ -d "$dir" ] || continue
+          empty_dir "$dir" && continue
+          name=$(basename "$dir")
+          for f in "$dir"*.md; do [ -e "$f" ] && report "$f" agents "$name"; done
+        done
+        if [ $found -eq 0 ]; then
+          echo "OK  no unmanaged or leftover skills and agents found"
+        else
+          echo
+          echo "NOTE this repo did not install the entries above. UNMANAGED files are"
+          echo "     live and compete with repo skills at selection time; EMPTY dirs"
+          echo "     are inert leftovers from an earlier layout. Remove any you no"
+          echo "     longer want. Nothing was deleted."
+        fi
 
   verify:skills-installed:
     desc: Verify all skills and agents are installed

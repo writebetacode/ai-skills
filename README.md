@@ -45,9 +45,12 @@ task verify                    # run every check below, in order
 task verify:skills-installed   # check all symlinks
 task verify:response-style     # check the shared Response Style block has not drifted
 task verify:pr-body            # check the shared PR/MR body template has not drifted
+task doctor                    # report installed skills/agents this repo does not manage
 ```
 
-`task verify` runs the three checks sequentially and stops at the first failure, so fix an early failure to see the later checks run.
+`task verify` runs the checks sequentially and stops at the first failure, so fix an early failure to see the later checks run.
+
+`task doctor` runs last and is advisory — it never fails the build and never deletes anything. It reports two things `verify` cannot: `UNMANAGED` entries (a real file, or a symlink pointing outside this repo) that are live and compete with repo skills at selection time, and `EMPTY` leftover directories from an earlier layout of this repo, which are inert but look like installed skills until you look inside. `verify:skills-installed` only checks that expected entries exist, so neither shows up there. Remove anything you no longer want by hand.
 
 The `## Response Style` block is duplicated verbatim across skills that use it (skills load standalone — no include mechanism). Each duplicate is preceded by a `<!-- response-style:v1 -->` marker; `task verify:response-style` reads every tagged block and fails on drift from the canonical first one. When updating the rule, edit every tagged file and bump the marker version.
 
@@ -114,10 +117,12 @@ Project-level ADRs live in `adr.md`; decisions strong enough to outlive the proj
 | Agent | Model | Effort | Description |
 |---|---|---|---|
 | `sdlc-architect` | opus | xhigh | Design-phase architecture, intake, research, and document authoring for the SDLC flow; owns specs, plans, tasks, MANIFEST and enforces stack-linearity and NN-ordering. SDLC-only |
-| `sdlc-tester` | opus | high | TDD discipline — red-first batches and full-suite reruns — for the SDLC flow; reworks drift reported by the coordinator's third-party validator. SDLC-only |
-| `sdlc-coder` | opus | high | Smallest-diff implementation specialist for the SDLC flow. SDLC-only |
+| `sdlc-tester` | sonnet | high | TDD discipline — red-first batches and full-suite reruns — for the SDLC flow; reworks drift reported by the coordinator's third-party validator. SDLC-only |
+| `sdlc-coder` | sonnet | high | Smallest-diff implementation specialist for the SDLC flow. SDLC-only |
 
-`sdlc-architect` is spawned via TeamCreate by `/sdlc-design`; `sdlc-tester` and `sdlc-coder` by `/sdlc-implement`. The architect owns research and document authoring inline. Each SDLC agent carries a one-line signature phrase that restates its hardest rule.
+`sdlc-architect` is spawned by `/sdlc-design`; `sdlc-tester` and `sdlc-coder` by `/sdlc-implement`. Each is launched once via the `Agent` tool (`subagent_type` set to the agent's name) and resumed thereafter with `SendMessage` addressed to that same name, which restores its full transcript — that persistence is what lets the tester write batch 2 knowing what batch 1 revealed. The architect owns research and document authoring inline. Each SDLC agent carries a one-line signature phrase that restates its hardest rule.
+
+Tester and coder run on `sonnet`: writing table-driven tests against a written spec and greening them with the smallest diff is routine coding, and the batched TDD loop is the flow's dominant token cost. Judgment-heavy roles stay on `opus` — the architect, and the one-shot spec-vs-code validator `/sdlc-implement` spawns.
 
 ## File Layout
 

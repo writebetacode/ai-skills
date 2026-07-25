@@ -23,7 +23,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Never archive without explicit confirmation. Warn for incomplete tasks rather than skipping silently. Delete a branch only after its diff against main is verified empty; warn and skip otherwise. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
+Never archive without explicit confirmation. Warn for incomplete tasks rather than skipping silently. Delete a branch only after its diff against main is verified empty; warn and skip otherwise. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

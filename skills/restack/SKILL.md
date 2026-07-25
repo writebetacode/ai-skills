@@ -22,7 +22,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Always push with `--force-with-lease`, never without per-branch confirmation. Never rebase branches already merged into main. Rebase in stack order; stop immediately on conflict without skipping ahead. Delete an old base only after its diff against origin/main is verified empty — never on ancestry alone. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
+Always push with `--force-with-lease`, never without per-branch confirmation. Never rebase branches already merged into main. Rebase in stack order; stop immediately on conflict without skipping ahead. Delete an old base only after its diff against origin/main is verified empty — never on ancestry alone. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

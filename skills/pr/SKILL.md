@@ -20,7 +20,7 @@ Use this exact markdown structure. Omit Breaking Changes and Dependencies when n
 [#<number>](<url>) — <title>, or N/A
 
 ## Summary
-<2–4 sentences: what changed and why.>
+<2-4 sentences: what changed and why.>
 
 ## Why
 <The value this delivers and the intent behind it, without detailing implementation mechanics.>
@@ -50,7 +50,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Always assign to @me with `--assignee @me`. Never reference a ticket without validating it via `gh issue view` first. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
+Always assign to @me with `--assignee @me`. Never reference a ticket without validating it via `gh issue view` first. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 **Title violation:** any title that is not a plain-English, human-readable sentence — raw branch names, ticket slugs, kebab-case, or machine-style identifiers must be rewritten before create/update. `fix/auth-token-refresh` or `PROJ-123` are violations; "Fix authentication token refresh on expired sessions" is acceptable.
 

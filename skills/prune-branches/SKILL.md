@@ -17,7 +17,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Never delete `main`, `master`, or the current branch. Never delete a branch without explicit per-branch confirmation, and never before its diff against main is verified empty — never on ancestry alone. Always fetch from remote first. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
+Never delete `main`, `master`, or the current branch. Never delete a branch without explicit per-branch confirmation, and never before its diff against main is verified empty — never on ancestry alone. Always fetch from remote first. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

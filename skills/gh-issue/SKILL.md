@@ -52,7 +52,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Follow the body template exactly — no header or order changes. Title format: `<type>: <title>`. Never create without explicit confirmation. Assign every issue to the current user with `--assignee @me`. Always pass `--title` and `--body-file -`; without them `gh` discards the composed body and prompts interactively. Stop if `gh` is missing or unauthenticated. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
+Follow the body template exactly — no header or order changes. Title format: `<type>: <title>`. Never create without explicit confirmation. Assign every issue to the current user with `--assignee @me`. Always pass `--title` and `--body-file -`; without them `gh` discards the composed body and prompts interactively. Stop if `gh` is missing or unauthenticated. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

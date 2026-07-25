@@ -10,7 +10,7 @@ Use any provided name or description as a starting point; otherwise ask what the
 
 ## Workflow
 
-Ask scoping questions one at a time for name, description, model tier, workflow steps, and rules. Pick a tier by task weight — `haiku` for read-only lookups and scans, `sonnet` for routine coding, commits, PRs, and mechanical edits, `opus` for design, architecture, scaffolding, spec authoring, and code review; use the bare aliases, which resolve to the latest in each family. Omit `model` only when inheriting the caller's tier is genuinely appropriate. If the workflow delegates to sub-agents via `Agent` or `TeamCreate`, ask the same tier question per role. Present a full draft, get explicit confirmation, incorporate edits, create the directory and file, confirm the path.
+Ask scoping questions one at a time for name, description, model tier, workflow steps, and rules. Pick a tier by task weight — `haiku` for read-only lookups and scans, `sonnet` for routine coding, commits, PRs, and mechanical edits, `opus` for design, architecture, scaffolding, spec authoring, and code review; use the bare aliases, which resolve to the latest in each family. Omit `model` only when inheriting the caller's tier is genuinely appropriate. If the workflow delegates to sub-agents via `Agent`, ask the same tier question per role. Present a full draft, get explicit confirmation, incorporate edits, create the directory and file, confirm the path.
 
 ## File Format
 
@@ -41,7 +41,7 @@ effort: <low | medium | high | xhigh | max>
 
 Omit `model` and `effort` unless a specific tier is required, in which case set both. Pick `effort` by reasoning load: `high` for most work, `xhigh` or `max` for subtle correctness or novel territory, `low`/`medium` for shallow scans; one fixed effort suffices, as there is no per-invocation override. Omit `tools` only when inheriting all session tools; otherwise scope narrowly. Set `memory: none` unless persistent state across conversations is needed. The `description` drives invocation — state concrete triggers and any "do not invoke" constraint; include "PROACTIVELY" to opt into proactive invocation, otherwise the agent stays on-demand. An agent's Identity line sets the disposition it argues from when a judgment call is close.
 
-An agent that participates in a coordinator-run team must answer `{type: "shutdown_request"}` with `{type: "shutdown_approved"}` via `SendMessage`, and must declare `SendMessage` in `tools` to do so — the coordinator blocks on that reply before `TeamDelete`.
+An agent a coordinator messages must declare `SendMessage` in `tools` and report with it addressed to `main` — a background agent's plain output is not visible to the coordinator. Coordinators spawn such agents via `Agent` (background is the default) and resume them with `SendMessage` addressed to the agent's `name` from its frontmatter, which restores its full transcript; no team-creation or shutdown-handshake step exists, and re-spawning mid-run restarts the agent cold.
 
 ## Writing Style
 
@@ -68,7 +68,7 @@ Default to terse output: drop articles, filler ("just", "really"), and pleasantr
 
 ## Rules
 
-Always ask scoping questions one at a time; never write files without explicit confirmation. Place each skill in its own subdirectory under `skills/` at the repo root, each agent under `agents/`. After writing, update README.md to include the new skill or agent in the appropriate table, then run `task install && task verify` and confirm both exit 0. Keep skills and agents under 100 lines; the only exception is an orchestration skill whose embedded document templates are load-bearing (e.g. sdlc-design). Use only ASCII; never include AI attribution or "Co-Authored-By" lines. Prefer dedicated tools over shell commands in generated workflow text (Read/Edit/Write/Glob/Grep over `cat`/`sed`/`find`/`rg`) so skills read the same way the host CLIs execute them.
+Always ask scoping questions one at a time; never write files without explicit confirmation. Place each skill in its own subdirectory under `skills/` at the repo root, each agent under `agents/`. After writing, update README.md to include the new skill or agent in the appropriate table, then run `task install && task verify` and confirm both exit 0. Keep skills and agents under 100 lines; the only exception is an orchestration skill whose embedded document templates are load-bearing (e.g. sdlc-design). Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines. Prefer dedicated tools over shell commands in generated workflow text (Read/Edit/Write/Glob/Grep over `cat`/`sed`/`find`/`rg`) so skills read the same way the host CLIs execute them.
 
 ## User Input
 
