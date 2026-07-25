@@ -67,6 +67,7 @@ vars:
 tasks:
   install:
     desc: Install skills, agents, and settings per config.yml (uninstalls first)
+    silent: true
     cmds:
       - task: config:check
       - task: config:show
@@ -78,6 +79,7 @@ tasks:
 
   config:check:
     internal: true
+    silent: true
     desc: Fail fast on config.yml syntax the block-form reader cannot parse
     cmds:
       - |
@@ -93,6 +95,7 @@ tasks:
 
   config:show:
     internal: true
+    silent: true
     desc: Print the active exclusion config
     cmds:
       - |
@@ -113,24 +116,47 @@ tasks:
 
   clean:stale:
     internal: true
+    silent: true
     desc: Remove stale symlinks in ~/.claude and ~/.gemini pointing to this repo
     cmds:
       - |
+        {{.CONFIG_READER}}
         repo="$(pwd)"
+        # Only ever removes symlinks whose target is inside this repo -- a real file or a
+        # link pointing elsewhere belongs to someone else and is left for `task doctor`.
+        # Two cases qualify: the link is broken (source deleted or renamed), or it still
+        # resolves but the repo no longer ships that name -- either dropped from the repo
+        # or newly excluded in config.yml. Without the second case an excluded skill stays
+        # live and competes at selection time despite `verify` reporting it as absent.
         remove_stale() {
-          local f="$1"
-          if [ -L "$f" ] && [ ! -e "$f" ]; then
-            target="$(readlink "$f")"
-            case "$target" in "$repo"/*) rm -f "$f"; rmdir "$(dirname "$f")" 2>/dev/null || true; echo "REMOVED $f" ;; esac
+          local f="$1" name="$2" kind="$3" reason
+          [ -L "$f" ] || return 0
+          case "$(readlink "$f")" in "$repo"/*) ;; *) return 0 ;; esac
+          if [ ! -e "$f" ]; then
+            reason="broken link"
+          elif [ ! -d "$repo/$kind/$name" ]; then
+            reason="no longer in repo"
+          elif is_excluded "$name" "$kind"; then
+            reason="excluded in config.yml"
+          else
+            return 0
           fi
+          rm -f "$f"
+          rmdir "$(dirname "$f")" 2>/dev/null || true
+          echo "REMOVED $f ($reason)"
         }
-        for dir in "$HOME/.claude/skills/"*/ "$HOME/.gemini/skills/"*/; do remove_stale "${dir}SKILL.md"; done
+        for dir in "$HOME/.claude/skills/"*/ "$HOME/.gemini/skills/"*/; do
+          [ -d "$dir" ] || continue
+          remove_stale "${dir}SKILL.md" "$(basename "$dir")" skills
+        done
         for dir in "$HOME/.claude/agents/"*/ "$HOME/.gemini/agents/"*/; do
-          for f in "$dir"*.md; do remove_stale "$f"; done
+          [ -d "$dir" ] || continue
+          for f in "$dir"*.md; do remove_stale "$f" "$(basename "$dir")" agents; done
         done
 
   install:claude:
     internal: true
+    silent: true
     desc: Symlink skills and agents, merge settings into ~/.claude
     deps: [clean:stale]
     cmds:
@@ -171,6 +197,7 @@ tasks:
 
   install:gemini:
     internal: true
+    silent: true
     desc: Symlink skills into ~/.gemini (agents are Claude Code only)
     deps: [clean:stale]
     cmds:
@@ -185,6 +212,7 @@ tasks:
         done
 
   uninstall:
+    silent: true
     desc: Remove all symlinks pointing to this repo and subtract repo-defined settings from ~/.claude/settings.json
     cmds:
       - |
@@ -193,10 +221,15 @@ tasks:
           command -v jq >/dev/null 2>&1 || { echo "ERR jq is required to subtract settings.json (brew install jq)"; exit 1; }
           jq -s '
             .[0] as $host | .[1] as $repo |
+            # Subtract every repo-defined permission string from all three lists, not
+            # just its matching one. An entry the repo moves between lists (deny -> ask)
+            # would otherwise be subtracted from its new list only, stranding the stale
+            # copy in the old one -- and since deny beats ask, the move silently no-ops.
+            (($repo.permissions.allow // []) + ($repo.permissions.ask // []) + ($repo.permissions.deny // []) | unique) as $defined |
             $host
-            | .permissions.allow = ((.permissions.allow // []) - ($repo.permissions.allow // []))
-            | .permissions.ask = ((.permissions.ask // []) - ($repo.permissions.ask // []))
-            | .permissions.deny = ((.permissions.deny // []) - ($repo.permissions.deny // []))
+            | .permissions.allow = ((.permissions.allow // []) - $defined)
+            | .permissions.ask = ((.permissions.ask // []) - $defined)
+            | .permissions.deny = ((.permissions.deny // []) - $defined)
             | if ($repo.permissions.defaultMode != null) and (.permissions.defaultMode == $repo.permissions.defaultMode) then del(.permissions.defaultMode) else . end
             | .env = ((.env // {}) | with_entries(select(.key as $k | ($repo.env // {}) | has($k) | not)))
             | .enabledPlugins = ((.enabledPlugins // {}) | with_entries(select(.key as $k | ($repo.enabledPlugins // {}) | has($k) | not)))
@@ -220,28 +253,8 @@ tasks:
           for f in "$dir"*.md; do remove_link "$f"; done
         done
 
-  verify:response-style:
-    desc: Verify the shared Response Style block is byte-identical across all skills tagged with response-style:v1
-    cmds:
-      - |
-        canonical=""
-        failed=0
-        for f in skills/*/SKILL.md; do
-          if grep -q "response-style:v1" "$f"; then
-            block=$(awk '/<!-- response-style:v1/{flag=1; lines=0; next} flag && lines>0 && /^## /{flag=0} flag{print; lines++}' "$f")
-            if [ -z "$canonical" ]; then
-              canonical="$block"
-              ref="$f"
-            elif [ "$block" != "$canonical" ]; then
-              echo "DRIFT $f differs from $ref"
-              failed=1
-            fi
-          fi
-        done
-        if [ $failed -eq 0 ]; then echo "OK response-style block consistent across all tagged skills"; fi
-        exit $failed
-
   verify:pr-body:
+    silent: true
     desc: Verify the shared PR/MR body template is byte-identical across all skills tagged with pr-body:v1
     cmds:
       - |
@@ -268,13 +281,72 @@ tasks:
         exit $failed
 
   verify:
-    desc: Run all verification steps (install, response-style, pr-body)
+    desc: Run all verification steps (install, pr-body, doctor)
     cmds:
       - task: verify:skills-installed
-      - task: verify:response-style
       - task: verify:pr-body
+      # doctor last and advisory-only: leftovers are worth surfacing but must not
+      # fail the build, since the user may keep unrelated skills of their own.
+      - task: doctor
+
+  doctor:
+    desc: Report skills/agents installed in ~/.claude and ~/.gemini that this repo does not manage
+    silent: true
+    cmds:
+      - |
+        {{.CONFIG_READER}}
+        repo="$(pwd)"
+        found=0
+        # An entry is repo-managed if it is a symlink pointing into this repo.
+        # Anything else -- a real file, or a link elsewhere -- is reported, never
+        # deleted: it may be hand-written or installed by another tool.
+        report() {
+          local f="$1" kind="$2" name="$3"
+          [ -e "$f" ] || [ -L "$f" ] || return 0
+          if [ -L "$f" ]; then
+            case "$(readlink "$f")" in "$repo"/*) return 0 ;; esac
+            echo "UNMANAGED $f (symlink outside this repo)"
+          else
+            echo "UNMANAGED $f (real file, not a symlink)"
+          fi
+          found=1
+        }
+        # Empty dirs are leftovers from an earlier layout: harmless but confusing,
+        # since they look like installed skills until you look inside.
+        empty_dir() {
+          if [ -z "$(ls -A "$1" 2>/dev/null)" ]; then
+            echo "EMPTY     $1 (leftover directory, no SKILL.md/AGENT.md)"
+            found=1
+            return 0
+          fi
+          return 1
+        }
+        for base in "$HOME/.claude" "$HOME/.gemini"; do
+          [ -d "$base/skills" ] || continue
+          for dir in "$base/skills/"*/; do
+            [ -d "$dir" ] || continue
+            empty_dir "$dir" && continue
+            report "${dir}SKILL.md" skills "$(basename "$dir")"
+          done
+        done
+        for dir in "$HOME/.claude/agents/"*/; do
+          [ -d "$dir" ] || continue
+          empty_dir "$dir" && continue
+          name=$(basename "$dir")
+          for f in "$dir"*.md; do [ -e "$f" ] && report "$f" agents "$name"; done
+        done
+        if [ $found -eq 0 ]; then
+          echo "OK  no unmanaged or leftover skills and agents found"
+        else
+          echo
+          echo "NOTE this repo did not install the entries above. UNMANAGED files are"
+          echo "     live and compete with repo skills at selection time; EMPTY dirs"
+          echo "     are inert leftovers from an earlier layout. Remove any you no"
+          echo "     longer want. Nothing was deleted."
+        fi
 
   verify:skills-installed:
+    silent: true
     desc: Verify all skills and agents are installed
     cmds:
       - |

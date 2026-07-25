@@ -200,15 +200,21 @@
       "Bash(git checkout -- *)",
       "Bash(git checkout .)",
       "Bash(git clean -f *)",
-      "Bash(git push --force)",
       "Bash(git push --force *)",
-      "Bash(git push -f)",
+      "Bash(git push --force)",
       "Bash(git push -f *)",
+      "Bash(git push -f)",
       "Bash(git reset --hard *)",
       "Bash(git restore *)",
-      "Bash(rm -rf *)",
+      "Bash(rm -Rf *)",
       "Bash(rm -fr *)",
-      "Bash(rm -Rf *)"
+      "Bash(rm -rf *)"
+    ],
+    "ask": [
+      "Bash(git branch -D *)",
+      "Bash(git branch -D)",
+      "Bash(git branch -d *)",
+      "Bash(git branch -d)"
     ]
   },
   "skipAutoPermissionPrompt": true,

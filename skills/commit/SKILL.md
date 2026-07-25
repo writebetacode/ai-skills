@@ -1,7 +1,6 @@
 ---
 name: commit
 description: Create a conventional commit from staged changes. Use when the user wants to commit staged changes with a properly formatted commit message.
-model: sonnet
 ---
 
 # Commit
@@ -28,14 +27,9 @@ git commit -F - <<'EOF'
 EOF
 ```
 
-<!-- response-style:v1 -->
-## Response Style
-
-Default to terse output: drop articles, filler ("just", "really"), and pleasantries; fragments and short clauses are fine; keep commands, paths, and templates verbatim. Disengage automatically for security warnings, irreversible-action confirmations, and any moment where ambiguity could cause user error — switch to full sentences. The user can say "discuss", "verbose", or "explain" to drop terse mode for the rest of the turn.
-
 ## Rules
 
-Commit every file in the index exactly as staged — user staging is authoritative and may include files staged externally. Never run `git reset`, `git restore --staged`, `git rm --cached`, or anything that alters index entries; never suggest excluding a staged file. Never stage automatically. Use HEREDOC for all commit messages to preserve formatting. Trailer lines (`Refs: #123`, `Closes: #456`) may follow a blank line when useful. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
+Commit immediately without a confirmation step; that immediacy is the point of this skill, and a misjudged type or wording is corrected with `git commit --amend` rather than prevented by a prompt. Commit every file in the index exactly as staged — user staging is authoritative and may include files staged externally. Never run `git reset`, `git restore --staged`, `git rm --cached`, or anything that alters index entries; never suggest excluding a staged file. Never stage automatically. Use HEREDOC for all commit messages to preserve formatting. Trailer lines (`Refs: #123`, `Closes: #456`) may follow a blank line when useful. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

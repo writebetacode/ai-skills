@@ -1,32 +1,35 @@
 ---
 name: sdlc-design
-description: Turn an idea into specs, plans, tasks, and ADRs through strict one-at-a-time questioning and an architect-led agent team. Use when starting a new feature that needs a written plan before implementation, or when a mid-flight revision forces the plan back onto the table.
-model: opus
+description: Turn an idea into specs, plans, tasks, and ADRs through strict one-at-a-time questioning routed to a persistent architect agent. Use when starting a new feature that needs a written plan before implementation, or when a mid-flight revision forces the plan back onto the table.
 ---
 
 # Design
 
 Flow: **[design]** -> implement -> complete
 
-## Agent Team
+## Design Agent
 
-Spec/plan authoring and all intake MUST happen through a team via TeamCreate named `sdlc-design-<project-slug>`, created at the very start before any questioning. Spawn one permanent agent via `Agent` with matching `team_name` and `name` set to `sdlc-architect` (opus); its AGENT.md carries the workflow and identity — do not re-specify here. The architect stays live throughout design and owns intake, research, signoff, and every artifact: it proposes a multi-epic split for the user to confirm when scope decomposes into independent streams, then authors `spec.md`, `plan.md`, `tasks/NN-<name>.md` (in run order), runs the gates, and writes `MANIFEST.md`.
+Spec/plan authoring and all intake MUST happen through one long-lived agent, spawned at the very start before any questioning via the `Agent` tool with `subagent_type` `sdlc-architect`. Subagents run in the background by default, which is what this flow needs — do not pass `run_in_background: false`. Its AGENT.md carries the workflow, identity, and model tier — do not re-specify here.
+
+Reach it thereafter with `SendMessage` addressed to `sdlc-architect` — the name comes from the agent definition, not from the spawn call — which resumes it from its own transcript with the whole intake history intact. If a send by name fails to route, fall back to the `agentId` returned by the spawn call. Never re-spawn it mid-design with a fresh `Agent` call; that restarts it cold and loses every answer collected so far. The architect owns intake, research, signoff, and every artifact: it proposes a multi-epic split for the user to confirm when scope decomposes into independent streams, then authors `spec.md`, `plan.md`, `tasks/NN-<name>.md` (in run order), runs the gates, and writes `MANIFEST.md`.
 
 ## Orchestrator Role
 
 The main thread is a pure router: forward every user reply to `sdlc-architect` via `SendMessage` and relay the architect's next question back verbatim — never batching, rephrasing, or supplementing; no own questions, pre-review, commentary, or deciding when intake is complete. Question discipline is the architect's — its AGENT.md "Intake loop" is authoritative. If `$ARGUMENTS` is empty, tell the architect on spawn so it opens by asking what to build.
 
+Relay each question as your turn's final output and stop there, so the user can answer. Do not poll the architect, fill the wait with other work, or answer on the user's behalf.
+
 ## Gates
 
-The architect runs all six signoff gates per its AGENT.md "Gates before signoff" — they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (`main` or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
+The architect runs all six signoff gates per its AGENT.md "Gates before signoff" — they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (the repo's default branch or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
 
 ## Concurrency Model
 
-Within an epic, tasks are strictly linear: NN order is run order, every task stacks on one parent, the implement skill walks them in sequence. Across epics, parallelism is allowed: two epics in `epics.md` with disjoint dependency sets run concurrently via two `/sdlc-implement` sessions in separate checkouts, since each epic's first task branches from `main`. Build Order is the recommended single-operator sequence; the dependency graph is the source of truth for fan-out.
+Within an epic, tasks are strictly linear: NN order is run order, every task stacks on one parent, the implement skill walks them in sequence. Across epics, parallelism is allowed: two epics in `epics.md` with disjoint dependency sets run concurrently via two `/sdlc-implement` sessions in separate checkouts, since each epic's first task branches from the default branch. Build Order is the recommended single-operator sequence; the dependency graph is the source of truth for fan-out.
 
 ## Mid-Flight Revision
 
-When `$ARGUMENTS` names an existing project and the user requests a revision (architecture shift, scope change, reshape), enter revision mode. Never touch in-flight partial work — tell the user to stash or leave the tree alone. Re-spawn the design team (same TeamCreate name is fine) and route all revision intake through it under the orchestrator-as-router rule. The architect reads the manifest, completed task files, and in-progress work, then decides per remaining task: **keep** (unchanged), **revise** (updated spec — mark `[revised: vN]` in MANIFEST and overwrite the task file), or **void** (no longer needed — mark `[voided: <reason>]` in MANIFEST, leave the file in place for history). Append any new tasks with fresh NN-prefixes continuing the sequence. Update `adr.md` with the triggering decision. Confirm the updated plan with the user before returning them to `/sdlc-implement`.
+When `$ARGUMENTS` names an existing project and the user requests a revision (architecture shift, scope change, reshape), enter revision mode. Never touch in-flight partial work — tell the user to stash or leave the tree alone. Spawn a fresh `sdlc-architect` and route all revision intake through it under the orchestrator-as-router rule. The architect reads the manifest, completed task files, and in-progress work, then decides per remaining task: **keep** (unchanged), **revise** (updated spec — mark `[revised: vN]` in MANIFEST and overwrite the task file), or **void** (no longer needed — mark `[voided: <reason>]` in MANIFEST, leave the file in place for history). Append any new tasks with fresh NN-prefixes continuing the sequence. Update `adr.md` with the triggering decision. Confirm the updated plan with the user before returning them to `/sdlc-implement`.
 
 ## Project Structure
 
@@ -51,9 +54,9 @@ Neither project nor epic slug carries a date prefix; date appends only on archiv
 
 `prd.md` is optional — write it only for user-facing product requirements worth separating from the technical spec (the WHAT, not the HOW). When it exists, every epic's `spec.md` MUST cite it under `## Dependencies` ("PRD: prd.md") and trace each FR to a PRD section by quoted phrase or heading; an unreferenced PRD is wired in or deleted. `adr.md` is a required running log, one heading per project-level decision with context, decision, consequences. A decision strong enough to outlive the project (naming conventions, cross-cutting framework choice, data contract family) promotes to `docs/adrs/<YYYYMMDD>-<slug>.md` in the host repo, noted back in `adr.md`. Every session starts with the architect reading all existing `docs/adrs/**/*.md`.
 
-## Team Teardown
+## Agent Teardown
 
-After signoff and `MANIFEST.md` write, shut down: `SendMessage {type: "shutdown_request", reason: "Design complete."}`, await `shutdown_approved`, then `TeamDelete`. Never skip it. If the session pauses mid-design, leave the team running; teardown happens only at signoff or when a mid-flight revision hands control to `/sdlc-implement`.
+The architect idles after each reply and costs nothing while idle, so no shutdown handshake is needed — after signoff and the `MANIFEST.md` write, simply stop messaging it. If it is stuck mid-run and must be terminated, `TaskStop` accepts its name.
 
 ## Completion
 
@@ -106,12 +109,12 @@ Date: <YYYY-MM-DD>
 <2-4 sentences on overall strategy.>
 
 ## Dependency Graph
-main -> feat/<slug>/01-name -> feat/<slug>/02-name
+<default-branch> -> feat/<slug>/01-name -> feat/<slug>/02-name
 
 ## Tasks
 | Task | Branch | Base | Spec Requirements | Summary | Status |
 |------|--------|------|-------------------|---------|--------|
-| 01-<name> | <type>/<slug>/01-<name> | main | FR-1, FR-2 | <one-line> | Todo |
+| 01-<name> | <type>/<slug>/01-<name> | <default-branch> | FR-1, FR-2 | <one-line> | Todo |
 ```
 
 Task Status values: `Todo`, `In Progress`, `Done` (no counts -- counts apply only to epic Status in the manifest).
@@ -124,7 +127,7 @@ File: `epics/NN-<epic-slug>/tasks/NN-<name>.md`
 # Task NN: <Title>
 
 Branch: <type>/<spec-slug>/NN-<task-name>
-Base: main OR exactly one prior task branch
+Base: <default-branch> OR exactly one prior task branch
 
 ## Spec Requirements
 - FR-<N>: <quoted requirement text>
@@ -140,7 +143,7 @@ Base: main OR exactly one prior task branch
 1. <Testable outcome>
 
 ## Dependencies
-<Prior task, or "None (branches from main).">
+<Prior task, or "None (branches from <default-branch>).">
 ```
 
 ## Manifest Format
@@ -164,10 +167,9 @@ Spec Ready -> Planned -> In Progress (N/M) -> Complete
 ## Actionable Now
 ```
 
-<!-- no response-style block by design: router relays architect questions verbatim -->
 ## Rules
 
-NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through `sdlc-architect` via TeamCreate. Research and gate rules are the architect's. Use only ASCII; never include AI attribution or "Co-Authored-By" lines.
+NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through the `sdlc-architect` agent. Research and gate rules are the architect's. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 
