@@ -21,11 +21,11 @@ Relay each question as your turn's final output and stop there, so the user can 
 
 ## Gates
 
-The architect runs all six signoff gates per its AGENT.md "Gates before signoff" — they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (`main` or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
+The architect runs all six signoff gates per its AGENT.md "Gates before signoff" — they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (the repo's default branch or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
 
 ## Concurrency Model
 
-Within an epic, tasks are strictly linear: NN order is run order, every task stacks on one parent, the implement skill walks them in sequence. Across epics, parallelism is allowed: two epics in `epics.md` with disjoint dependency sets run concurrently via two `/sdlc-implement` sessions in separate checkouts, since each epic's first task branches from `main`. Build Order is the recommended single-operator sequence; the dependency graph is the source of truth for fan-out.
+Within an epic, tasks are strictly linear: NN order is run order, every task stacks on one parent, the implement skill walks them in sequence. Across epics, parallelism is allowed: two epics in `epics.md` with disjoint dependency sets run concurrently via two `/sdlc-implement` sessions in separate checkouts, since each epic's first task branches from the default branch. Build Order is the recommended single-operator sequence; the dependency graph is the source of truth for fan-out.
 
 ## Mid-Flight Revision
 
@@ -109,12 +109,12 @@ Date: <YYYY-MM-DD>
 <2-4 sentences on overall strategy.>
 
 ## Dependency Graph
-main -> feat/<slug>/01-name -> feat/<slug>/02-name
+<default-branch> -> feat/<slug>/01-name -> feat/<slug>/02-name
 
 ## Tasks
 | Task | Branch | Base | Spec Requirements | Summary | Status |
 |------|--------|------|-------------------|---------|--------|
-| 01-<name> | <type>/<slug>/01-<name> | main | FR-1, FR-2 | <one-line> | Todo |
+| 01-<name> | <type>/<slug>/01-<name> | <default-branch> | FR-1, FR-2 | <one-line> | Todo |
 ```
 
 Task Status values: `Todo`, `In Progress`, `Done` (no counts -- counts apply only to epic Status in the manifest).
@@ -127,7 +127,7 @@ File: `epics/NN-<epic-slug>/tasks/NN-<name>.md`
 # Task NN: <Title>
 
 Branch: <type>/<spec-slug>/NN-<task-name>
-Base: main OR exactly one prior task branch
+Base: <default-branch> OR exactly one prior task branch
 
 ## Spec Requirements
 - FR-<N>: <quoted requirement text>
@@ -143,7 +143,7 @@ Base: main OR exactly one prior task branch
 1. <Testable outcome>
 
 ## Dependencies
-<Prior task, or "None (branches from main).">
+<Prior task, or "None (branches from <default-branch>).">
 ```
 
 ## Manifest Format

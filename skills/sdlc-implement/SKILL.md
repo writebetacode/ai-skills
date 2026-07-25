@@ -23,7 +23,7 @@ Reach an already-spawned agent with `SendMessage` addressed to `sdlc-tester` or 
 
 **Coordinator reads.** Only `MANIFEST.md` and the task file. Do not read spec, plan, ADRs, architecture docs, CLAUDE.md, .cursorrules, AGENTS.md, upstream epic specs, or predecessor tasks in the main thread — the tester and coder own that reading list, and the coordinator stays a thin dispatcher to keep compaction at bay.
 
-**Branch setup.** Check out the existing local branch (and `git pull`) or create a new one from the task's `Base` field, falling back to `main` for squash-merged stacks. Assess progress via `[x]` markers and report: fresh start, resuming, or complete.
+**Branch setup.** Check out the existing local branch (and `git pull`) or create a new one from the task's `Base` field, falling back for squash-merged stacks to the repo's default branch — resolve it via `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), not by assuming `main`. Assess progress via `[x]` markers and report: fresh start, resuming, or complete.
 
 **Handoff.** Hand each agent the task path plus the project root in its spawn prompt; they load their own context from there.
 

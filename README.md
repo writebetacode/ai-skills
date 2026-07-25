@@ -55,7 +55,7 @@ The PR/MR body template is duplicated verbatim between `/pr` and `/mr` (skills l
 
 ## What's included
 
-Skills live in `skills/` and are shared by both Claude Code and Gemini CLI. None of them pin a model — each runs on whatever model your session is already using, so invoking a skill never silently changes tiers or costs. Agents are the opposite case and do pin one; see [Agents](#agents).
+Skills live in `skills/` and are shared by both Claude Code and Gemini CLI. Every git-facing skill resolves the repo's default branch from `origin/HEAD` rather than assuming `main`, so they behave correctly on repos that default to `develop`, `master`, or `trunk`. None of them pin a model — each runs on whatever model your session is already using, so invoking a skill never silently changes tiers or costs. Agents are the opposite case and do pin one; see [Agents](#agents).
 
 ### Git, GitHub & GitLab
 
@@ -64,8 +64,8 @@ Skills live in `skills/` and are shared by both Claude Code and Gemini CLI. None
 | `/commit` | Stage-aware conventional commits — commits exactly what is staged, immediately |
 | `/pr` | Create or update GitHub pull requests with structured descriptions |
 | `/mr` | Create or update GitLab merge requests with the same structured description, via `glab` |
-| `/restack` | Rebase open branches onto the latest main, whether their base was squash-merged or main simply moved ahead |
-| `/prune-branches` | Delete local branches whose changes already landed in main, including squash-merged branches `git branch -d` refuses as unmerged |
+| `/restack` | Rebase open branches onto the latest default branch, whether their base was squash-merged or the default branch simply moved ahead |
+| `/prune-branches` | Delete local branches whose changes already landed in the default branch, including squash-merged branches `git branch -d` refuses as unmerged |
 | `/gh-issue` | Create consistently-formatted GitHub issues with type, priority, and optional context sections |
 
 ### Software Development Workflow

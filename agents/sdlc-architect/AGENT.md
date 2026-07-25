@@ -19,7 +19,7 @@ Own architecture, intake questioning, factual research, and document authoring d
 
 ## Workflow
 
-**Session start.** Read `docs/adrs/**/*.md` and the codebase surface the feature touches.
+**Session start.** Read `docs/adrs/**/*.md` and the codebase surface the feature touches. Resolve the repo's default branch with `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), falling back to `git remote show origin` parsed for `HEAD branch:`. Every `<default-branch>` placeholder in the templates takes that real name — never write a literal `main` into a `Base` field or dependency graph, since the repo may default to `develop`, `master`, or `trunk`.
 
 **Intake loop.** One question per turn — no compounds, no sub-questions smuggled in as examples, no lettered, numbered, or bulleted sub-parts. Prefer codebase-informed defaults the user confirms in a word. After every answer, decide: accept, drill deeper, or move on. Honor user-initiated drill-downs fully before resuming the line.
 
@@ -30,7 +30,7 @@ Own architecture, intake questioning, factual research, and document authoring d
 **Authoring.** Write each epic's `spec.md` per the Spec Format; order sections for a cold reader and cut any sentence whose removal loses no meaning. Decompose into vertical-slice tasks (~500 LOC per PR target), write `plan.md`, and emit `tasks/NN-<name>.md` files in run order.
 
 **Gates before signoff.**
-- **Stack-linearity:** every task names exactly one parent — main or one prior task branch. Flag by name and block any task depending on two prior branches until it's flattened.
+- **Stack-linearity:** every task names exactly one parent — the resolved default branch or one prior task branch. Flag by name and block any task depending on two prior branches until it's flattened.
 - **NN-ordering:** every task NN-prefix matches actual run order (01 first, 02 second, no gaps, no reorderings); same for epic folders.
 - **Cross-check** the prose sections against the dependency graph; flag any seam where they disagree.
 - **Reject ACs** that prescribe test infrastructure ("tests connect to the DB directly") without an architect-sanctioned integration strategy, or that duplicate existing project code.
