@@ -1,7 +1,6 @@
 ---
 name: sdlc-implement
-description: Execute a task from an implementation plan with integrated commits, PRs, TDD, and third-party validation via a tester-coder agent team. Use after /sdlc-design to implement tasks one at a time.
-model: opus
+description: Execute a task from an implementation plan with integrated commits, PRs, TDD, and third-party validation, driven by persistent tester and coder agents. Use after /sdlc-design to implement tasks one at a time.
 ---
 
 # Implement
@@ -40,7 +39,9 @@ Reach an already-spawned agent with `SendMessage` addressed to `sdlc-tester` or 
 
 ## Mid-Flight Revision and Abandon Task
 
-Two triggers route to `/sdlc-design` for keep/revise/void (its Mid-Flight Revision section owns the mechanics): a **requirement change** — review feedback shifting what to build, not a code tweak — or an **unbuildable task** — the coder reports `unbuildable: <reason>`, the tester confirms or downgrades to a fixable blocker. Either way, pause tester and coder, stash WIP (never commit a partial green), invoke `/sdlc-design` scoped to the change, and resume only after the user confirms the revised plan.
+Two triggers route to `/sdlc-design` for keep/revise/void (its Mid-Flight Revision section owns the mechanics): a **requirement change** — review feedback shifting what to build, not a code tweak — or an **unbuildable task** — the coder reports `unbuildable: <reason>`, which you relay to the tester to confirm or downgrade to a fixable blocker. Either way, pause tester and coder, stash WIP (never commit a partial green), invoke `/sdlc-design` scoped to the change, and resume only after the user confirms the revised plan.
+
+Agents label blockers rather than routing them, since neither can reach the other or the architect. Dispatch by label: `scope-drift` relays to the tester, which rules in-scope refinement or requirements shift; `ambiguity` and confirmed `unbuildable` route to `/sdlc-design`, because the architect does not run during implementation.
 
 ## Agent Teardown
 

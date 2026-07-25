@@ -1,7 +1,6 @@
 ---
 name: mr
 description: Create or update a GitLab merge request with a human-readable title and structured description. Use when the user wants to open or update an MR for the current branch on GitLab.
-model: sonnet
 ---
 
 # MR

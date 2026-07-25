@@ -55,30 +55,30 @@ The PR/MR body template is duplicated verbatim between `/pr` and `/mr` (skills l
 
 ## What's included
 
-Skills live in `skills/` and are shared by both Claude Code and Gemini CLI.
+Skills live in `skills/` and are shared by both Claude Code and Gemini CLI. None of them pin a model — each runs on whatever model your session is already using, so invoking a skill never silently changes tiers or costs. Agents are the opposite case and do pin one; see [Agents](#agents).
 
 ### Git, GitHub & GitLab
 
-| Command | Model | Description |
-|---|---|---|
-| `/commit` | sonnet | Stage-aware conventional commits — commits exactly what is staged, immediately |
-| `/pr` | sonnet | Create or update GitHub pull requests with structured descriptions |
-| `/mr` | sonnet | Create or update GitLab merge requests with the same structured description, via `glab` |
-| `/restack` | sonnet | Rebase open branches onto the latest main, whether their base was squash-merged or main simply moved ahead |
-| `/prune-branches` | sonnet | Delete local branches whose changes already landed in main, including squash-merged branches `git branch -d` refuses as unmerged |
-| `/gh-issue` | sonnet | Create consistently-formatted GitHub issues with type, priority, and optional context sections |
+| Command | Description |
+|---|---|
+| `/commit` | Stage-aware conventional commits — commits exactly what is staged, immediately |
+| `/pr` | Create or update GitHub pull requests with structured descriptions |
+| `/mr` | Create or update GitLab merge requests with the same structured description, via `glab` |
+| `/restack` | Rebase open branches onto the latest main, whether their base was squash-merged or main simply moved ahead |
+| `/prune-branches` | Delete local branches whose changes already landed in main, including squash-merged branches `git branch -d` refuses as unmerged |
+| `/gh-issue` | Create consistently-formatted GitHub issues with type, priority, and optional context sections |
 
 ### Software Development Workflow
 
 A manifest-driven process from feature idea to merged code. `/sdlc-design` is the single entry point: a persistent architect agent runs strict one-question-at-a-time intake and context7-backed research, authors all artifacts (spec, plan, tasks, MANIFEST), enforces stack-linearity (every task has exactly one parent branch) and NN-prefix ordering, and handles mid-flight revisions via per-task keep/revise/void triage. Within an epic, tasks run linearly; across epics, disjoint dependency sets may run in parallel via two `/sdlc-implement` sessions in two checkouts.
 
-`/sdlc-implement` runs a tester-coder team through a batched TDD loop — tester writes an AC group's red tests, coder greens them, later batches learn from earlier ones — and gates each task on its epic's dependencies being `Complete` in the manifest. After lint and a full-suite pass, the coordinator (not the tester) spawns a fresh sub-agent as an unbiased third-party spec-vs-code validator; the task approves only when the validator reports no drift. Full mechanics live in the two SKILL.md files and the tester/coder AGENT.md files.
+`/sdlc-implement` runs a persistent tester and coder through a batched TDD loop — tester writes an AC group's red tests, coder greens them, later batches learn from earlier ones — with the coordinator relaying every handoff, since subagents can only message `main`. It gates each task on its epic's dependencies being `Complete` in the manifest. After lint and a full-suite pass, the coordinator (not the tester) spawns a fresh sub-agent as an unbiased third-party spec-vs-code validator; the task approves only when the validator reports no drift. Full mechanics live in the two SKILL.md files and the tester/coder AGENT.md files.
 
-| Command | Phase | Model | Description |
-|---|---|---|---|
-| `/sdlc-design` | 1 -- Design | opus | Turn an idea into specs, plans, tasks, and ADRs through strict one-at-a-time questioning and an architect-led agent team; also handles mid-flight revisions via per-task keep/revise/void triage |
-| `/sdlc-implement` | 2 -- Implement | opus | Execute tasks with a tester-coder team, batched TDD loop, epic-precondition gate, and third-party spec-vs-code validation via a fresh sub-agent; auto-picks the next task from the manifest when called without arguments |
-| `/sdlc-complete` | 3 -- Complete | sonnet | Archive a finished project to `plans/complete/YYYYMMDD-<slug>/` and clean up its local branches |
+| Command | Phase | Description |
+|---|---|---|
+| `/sdlc-design` | 1 -- Design | Turn an idea into specs, plans, tasks, and ADRs through strict one-at-a-time questioning routed to a persistent architect agent; also handles mid-flight revisions via per-task keep/revise/void triage |
+| `/sdlc-implement` | 2 -- Implement | Execute tasks with persistent tester and coder agents, batched TDD loop, epic-precondition gate, and third-party spec-vs-code validation via a fresh sub-agent; auto-picks the next task from the manifest when called without arguments |
+| `/sdlc-complete` | 3 -- Complete | Archive a finished project to `plans/complete/YYYYMMDD-<slug>/` and clean up its local branches |
 
 The commands share a common file layout under `plans/` (keep this directory out of version control in your global gitignore):
 
@@ -111,9 +111,9 @@ Project-level ADRs live in `adr.md`; decisions strong enough to outlive the proj
 | `sdlc-tester` | sonnet | high | TDD discipline — red-first batches and full-suite reruns — for the SDLC flow; reworks drift reported by the coordinator's third-party validator. SDLC-only |
 | `sdlc-coder` | sonnet | high | Smallest-diff implementation specialist for the SDLC flow. SDLC-only |
 
-`sdlc-architect` is spawned by `/sdlc-design`; `sdlc-tester` and `sdlc-coder` by `/sdlc-implement`. Each is launched once via the `Agent` tool (`subagent_type` set to the agent's name) and resumed thereafter with `SendMessage` addressed to that same name, which restores its full transcript — that persistence is what lets the tester write batch 2 knowing what batch 1 revealed. The architect owns research and document authoring inline. Each SDLC agent carries a one-line signature phrase that restates its hardest rule.
+`sdlc-architect` is spawned by `/sdlc-design` once per design session; `sdlc-tester` and `sdlc-coder` by `/sdlc-implement` once per task. Each is launched via the `Agent` tool (`subagent_type` set to the agent's name) and resumed thereafter with `SendMessage` addressed to that same name, which restores its full transcript — that persistence is what lets the tester write batch 2 knowing what batch 1 revealed. The architect owns research and document authoring inline. Each SDLC agent carries a one-line signature phrase that restates its hardest rule.
 
-Tester and coder run on `sonnet`: writing table-driven tests against a written spec and greening them with the smallest diff is routine coding, and the batched TDD loop is the flow's dominant token cost. Judgment-heavy roles stay on `opus` — the architect, and the one-shot spec-vs-code validator `/sdlc-implement` spawns.
+Unlike skills, agents pin `model` and `effort`: they spawn as fresh processes with no session to inherit from, so the tier is part of the role definition. Tester and coder run on `sonnet` — writing table-driven tests against a written spec and greening them with the smallest diff is routine coding, and the batched TDD loop is the flow's dominant token cost. Judgment-heavy roles stay on `opus`: the architect, and the one-shot spec-vs-code validator `/sdlc-implement` spawns.
 
 ## File Layout
 

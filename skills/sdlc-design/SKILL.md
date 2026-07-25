@@ -1,7 +1,6 @@
 ---
 name: sdlc-design
-description: Turn an idea into specs, plans, tasks, and ADRs through strict one-at-a-time questioning and an architect-led agent team. Use when starting a new feature that needs a written plan before implementation, or when a mid-flight revision forces the plan back onto the table.
-model: opus
+description: Turn an idea into specs, plans, tasks, and ADRs through strict one-at-a-time questioning routed to a persistent architect agent. Use when starting a new feature that needs a written plan before implementation, or when a mid-flight revision forces the plan back onto the table.
 ---
 
 # Design
