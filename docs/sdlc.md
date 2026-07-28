@@ -46,3 +46,15 @@ plans/
 ```
 
 Project-level ADRs live in `adr.md`; decisions strong enough to outlive the project promote to the host repo under `docs/adrs/<YYYYMMDD>-<slug>.md` and load at the start of every future design session. `prd.md` is optional, but when present every epic's `spec.md` MUST cite it under `## Dependencies` and trace each FR to a PRD section — unreferenced PRDs drop at signoff. Each task drives one branch and one PR, stacked on the previous task's branch.
+
+## Agents
+
+| Agent | Model | Effort | Description |
+|---|---|---|---|
+| `sdlc-architect` | opus | xhigh | Design-phase architecture, intake, research, and document authoring; owns specs, plans, tasks, MANIFEST and enforces stack-linearity and NN-ordering |
+| `sdlc-tester` | sonnet | high | TDD discipline — red-first batches and full-suite reruns — and rework of drift reported by the validator |
+| `sdlc-coder` | sonnet | high | Smallest-diff implementation specialist |
+
+`sdlc-architect` is spawned by `/sdlc-design` once per design session; `sdlc-tester` and `sdlc-coder` by `/sdlc-implement` once per task. Each is launched via the `Agent` tool (`subagent_type` set to the agent's name) and resumed thereafter with `SendMessage` addressed to that same name, which restores its full transcript — that persistence is what lets the tester write batch 2 knowing what batch 1 revealed. Each carries a one-line signature phrase that restates its hardest rule.
+
+Unlike skills, agents pin `model` and `effort`: they spawn as fresh processes with no session to inherit from, so the tier is part of the role definition. Tester and coder run on `sonnet` — writing table-driven tests against a written spec and greening them with the smallest diff is routine coding, and the batched TDD loop is the flow's dominant token cost. Judgment-heavy roles stay on `opus`: the architect, and the one-shot spec-vs-code validator `/sdlc-implement` spawns.

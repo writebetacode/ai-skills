@@ -1,6 +1,6 @@
 # ai-skills
 
-A collection of skills and agents for [Claude Code](https://claude.ai/code) and [Gemini CLI](https://github.com/google-gemini/gemini-cli) that bring structured, opinionated workflows to everyday software development tasks.
+A collection of skills and agents for AI coding assistants that bring structured, opinionated workflows to everyday software development tasks.
 
 ## Quick start
 
@@ -12,44 +12,51 @@ cd ai-skills
 task install
 ```
 
-Everything installs by default, symlinked into `~/.claude` and `~/.gemini` so repo updates apply immediately. To opt out of specific skills or agents, or to skip a platform, see [Installation](docs/installation.md).
+Everything installs by default. To opt out of specific skills or agents, or to skip a platform, see [Installation and configuration](docs/installation.md).
 
-## What's included
+## Skills
 
-Skills are shared by Claude Code and Gemini CLI; agents are Claude Code only.
+Every git-facing skill resolves the repo's default branch from `origin/HEAD` rather than assuming `main`, so they behave correctly on repos that default to `develop`, `master`, or `trunk`. None pin a model — each runs on whatever model your session is already using, so invoking a skill never silently changes tiers or costs.
 
-| | |
+| Command | Description |
 |---|---|
-| **Git & forges** | `/commit` `/pr` `/mr` `/restack` `/prune-branches` `/gh-issue` `/gh-release` |
-| **SDLC workflow** | `/sdlc-design` `/sdlc-implement` `/sdlc-complete` |
-| **Agents** | `sdlc-architect` `sdlc-tester` `sdlc-coder` |
+| `/commit` | Stage-aware conventional commits — commits exactly what is staged, immediately |
+| `/pr` | Create or update GitHub pull requests with structured descriptions |
+| `/mr` | Create or update GitLab merge requests with the same structured description, via `glab` |
+| `/restack` | Rebase open branches onto the latest default branch, whether their base was squash-merged or the default branch simply moved ahead |
+| `/prune-branches` | Delete local branches whose changes already landed in the default branch, including squash-merged branches `git branch -d` refuses as unmerged |
+| `/gh-issue` | Create consistently-formatted GitHub issues with type, priority, and optional context sections |
+| `/gh-release` | Tag the default branch and publish a GitHub release, inferring the version from commit history and drafting notes in the repo's established voice |
 
-Full descriptions: [Skills](docs/skills.md) · [SDLC workflow](docs/sdlc.md) · [Agents](docs/agents.md)
+`/pr` and `/mr` share a body template with rules of its own — see [the template section](docs/installation.md#prmr-body-template).
+
+## SDLC workflow
+
+A manifest-driven process from feature idea to merged code, run by three persistent agents. Full mechanics in [SDLC workflow](docs/sdlc.md).
+
+| Command | Phase | Description |
+|---|---|---|
+| `/sdlc-design` | 1 — Design | Turn an idea into specs, plans, tasks, and ADRs through strict one-at-a-time questioning routed to a persistent architect agent |
+| `/sdlc-implement` | 2 — Implement | Execute tasks with persistent tester and coder agents, batched TDD loop, and third-party spec-vs-code validation |
+| `/sdlc-complete` | 3 — Complete | Archive a finished project and clean up its local branches |
 
 ## Documentation
 
-| Document | Covers |
-|---|---|
-| [Installation](docs/installation.md) | Install, `config.yml` opt-outs, git safety rules, verification and teardown |
-| [Settings keys](docs/settings.md) | Every key `claude/settings.json` defines, and why |
-| [Status line](docs/statusline.md) | What `claude/statusline.sh` renders and how it degrades |
-| [Skills](docs/skills.md) | The git and forge commands, in detail |
-| [SDLC workflow](docs/sdlc.md) | Design, implement, complete — and the `plans/` layout |
-| [Agents](docs/agents.md) | The three SDLC agents, their lifecycle, and why they pin models |
-| [PR/MR body template](docs/pr-mr-template.md) | The shared template, its fence markers, and migration behaviour |
+- [Installation and configuration](docs/installation.md) — install, opt-outs, settings keys, status line, verification
+- [SDLC workflow](docs/sdlc.md) — the three phases, the `plans/` layout, and the agents
 
 ## File layout
 
 ```
-skills/                             # shared by Claude Code and Gemini CLI
+skills/                             # one SKILL.md per skill
   <name>/SKILL.md
-agents/                             # Claude Code agents
+agents/                             # SDLC agents
   sdlc-architect/AGENT.md
   sdlc-tester/AGENT.md
   sdlc-coder/AGENT.md
-claude/                             # Claude Code project settings
+claude/                             # settings and status line
   settings.json
-  statusline.sh                     # symlinked to ~/.claude/statusline.sh
+  statusline.sh
 docs/                               # documentation
 ```
 
