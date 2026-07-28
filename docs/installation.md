@@ -93,6 +93,8 @@ The template body is wrapped in `<!-- mr-body:start -->` / `<!-- mr-body:end -->
 
 Descriptions predating the markers are migrated in place on the next update: the skill locates the contiguous run of template sections, replaces that run with the fenced body, and leaves surrounding content where it sits. An unpaired opener is treated as unfenced rather than as a boundary, so a hand-deleted closer cannot swallow the rest of the body.
 
+Markers are recognized on the token alone, ignoring whitespace inside the comment: `<!--mr-body:start-->` and `<!-- mr-body:start -->` are the same marker. Editors and API clients normalize HTML comments, and a body whose spacing was altered in transit would otherwise be read as unfenced — migration would then add a second fenced body while leaving the original markers orphaned. Recognition is tolerant; what the skills write back is always the canonical spacing.
+
 ## Verification and teardown
 
 ```bash
