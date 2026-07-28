@@ -5,7 +5,14 @@ set -uo pipefail
 input=$(cat)
 
 # Single jq pass: emit shell-quoted assignments so values with spaces survive.
-eval "$(printf '%s' "$input" | jq -r '
+# @sh quoting is what makes the eval safe -- a display name or branch containing
+# shell metacharacters is passed through as a literal, never interpreted.
+#
+# A jq failure (malformed stdin, or jq missing) would otherwise eval to nothing
+# and leave every variable unset, which under `set -u` aborts with an "unbound
+# variable" message rendered into the status line. Fail quiet instead: a status
+# line is decoration, and a blank one beats an error smeared across the prompt.
+if ! vars=$(printf '%s' "$input" | jq -r '
   def q: tostring | @sh;
   @text "
     MODEL=\(.model.display_name // "?" | q)
@@ -20,7 +27,12 @@ eval "$(printf '%s' "$input" | jq -r '
     FIVEH=\(.rate_limits.five_hour.used_percentage // "" | q)
     FIVEH_AT=\(.rate_limits.five_hour.resets_at // "" | q)
     EFFORT=\(.effort.level // "" | q)
-  "')"
+  "' 2>/dev/null) || [ -z "$vars" ]; then
+  # jq failed, or succeeded with no output -- empty stdin parses cleanly to
+  # nothing, which would leave every variable unset and abort under `set -u`.
+  exit 0
+fi
+eval "$vars"
 
 NOW=$(date +%s)
 
@@ -84,16 +96,38 @@ tenths() {
 
 # Target width. The line is built to fit COLUMNS (or 80), counting only visible
 # characters -- colour escapes are zero-width on screen but bytes in the string.
+#
+# COLUMNS is validated rather than trusted: `${COLUMNS:-80}` substitutes only when
+# unset or empty, so an exported COLUMNS=0 -- which some non-interactive shells
+# set -- would make WIDTH 0 and put every line permanently over budget, silently
+# dropping the branch on even the widest terminal.
 WIDTH=${COLUMNS:-80}
+case "$WIDTH" in
+  ''|*[!0-9]*) WIDTH=80 ;;
+  *) [ "$WIDTH" -ge 20 ] || WIDTH=80 ;;
+esac
 
 # Visible length: strip ANSI SGR sequences, then count characters (not bytes, so
-# the multi-byte ⎇ ↻ · … glyphs each count as the single column they occupy).
-# The locale is forced because the harness may invoke this with LC_CTYPE unset,
-# and under the C locale `wc -m` counts bytes -- every glyph would score 3 and the
-# trim below would work from a width ~10 too large.
+# the multi-byte glyphs each count as the single column they occupy). The locale
+# is forced because the harness may invoke this with LC_CTYPE unset, and under
+# the C locale `wc -m` counts bytes -- every glyph would score 3 and the trim
+# below would work from a width ~10 too large.
+#
+# Characters, not display columns: a CJK or emoji character occupies two columns
+# but counts as one here, so a branch name in such a script can still overflow by
+# a few columns. Accepted deliberately -- portable column measurement needs a
+# wcwidth table no POSIX tool exposes, and the failure mode is a slightly long
+# line rather than a wrong one. The non-numeric guard keeps an empty measurement
+# (wc prints nothing for empty input) out of the -gt tests below, where it would
+# make the comparison error instead of returning a usable width.
 vlen() {
-  printf '%s' "$1" | sed $'s/\033\\[[0-9;]*m//g' \
-    | LC_ALL=${UTF8_LOCALE} wc -m | tr -d ' '
+  local n
+  n=$(printf '%s' "$1" | sed $'s/\033\\[[0-9;]*m//g' \
+      | LC_ALL=${UTF8_LOCALE} wc -m | tr -d ' ')
+  case "$n" in
+    ''|*[!0-9]*) printf 0 ;;
+    *) printf '%s' "$n" ;;
+  esac
 }
 
 parts=()
