@@ -66,7 +66,7 @@ Only the two keys above carry a documented version floor; the rest are long-stan
 `claude/statusline.sh` is symlinked to `~/.claude/statusline.sh` and registered via the `statusLine` key, so edits in the repo take effect immediately with no reinstall. It renders:
 
 ```
-storemenu-services · ⎇ ABC-1 · Opus5·hi · ctx 33% 65k · 5h12%↻1.3h
+storemenu-services · ⎇ ABC-1 · Opus5·hi · ctx 33% 65k · 5h 12% ↻1.3h
 ```
 
 Directory and git worktree, model and reasoning effort (`lo`/`md`/`hi`/`xh`), context window (percentage plus absolute tokens), and the 5-hour rate-limit window with a countdown to its reset. Percentages turn yellow at 50% and red at 80%, rounded so the colour never disagrees with the number beside it.

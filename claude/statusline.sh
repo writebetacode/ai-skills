@@ -177,9 +177,9 @@ fi
 limit_seg() {
   local label=$1 pct=$2 at=$3 seg left
   [ -n "$pct" ] || return 0
-  seg="$(heat "$pct")$(printf '%s%.0f%%' "$label" "$pct")${RESET}"
+  seg="$(heat "$pct")$(printf '%s %.0f%%' "$label" "$pct")${RESET}"
   left=$(countdown "$at")
-  [ -n "$left" ] && seg+="${DIM}↻${left}${RESET}"
+  [ -n "$left" ] && seg+="${DIM} ↻${left}${RESET}"
   parts+=("$seg")
 }
 
