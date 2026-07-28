@@ -50,13 +50,9 @@ A manifest-driven process from feature idea to merged code, run by three persist
 ```
 skills/                             # one SKILL.md per skill
   <name>/SKILL.md
-agents/                             # SDLC agents
-  sdlc-architect/AGENT.md
-  sdlc-tester/AGENT.md
-  sdlc-coder/AGENT.md
-claude/                             # settings and status line
-  settings.json
-  statusline.sh
+agents/                             # one AGENT.md per agent
+  <name>/AGENT.md
+claude/                             # global claude code specific settings
 docs/                               # documentation
 ```
 

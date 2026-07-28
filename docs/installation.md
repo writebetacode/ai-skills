@@ -25,9 +25,13 @@ exclude:
 platforms:
   claude: true
   gemini: false      # skip a whole platform
+
+statusline: false    # skip the status line
 ```
 
 Because it's an exclude list, a skill added to the repo later installs automatically unless you name it. Use block form for the lists — inline form (`skills: [mr]`) is rejected with an error rather than silently ignored.
+
+`statusline: false` skips the status line specifically: `statusline.sh` is not linked and the `statusLine` key is dropped from the settings merge, so your existing `~/.claude/settings.json` keeps whatever it already had. The two go together deliberately — linking without the key would leave a script nothing invokes, and merging the key without the script would point `statusLine` at a path that does not exist. `task verify` then checks the symlink is *absent*, the same way it treats an excluded skill.
 
 `task verify` follows the same config: excluded items are checked to be *absent*, so a stale symlink from a previous install is reported as an error. `task install` removes those itself before linking — it deletes any symlink pointing into this repo whose name the repo no longer ships or that `config.yml` now excludes, so excluding a skill takes effect on the next install rather than leaving it live and competing at selection time. Symlinks pointing elsewhere and real files are never touched; those belong to someone else and are only reported, by `task doctor`.
 
@@ -65,7 +69,7 @@ Only `askUserQuestionTimeout` and `fileCheckpointingEnabled` carry a documented 
 
 ## Status line
 
-`claude/statusline.sh` is symlinked to `~/.claude/statusline.sh` and registered via the `statusLine` key, so edits in the repo take effect immediately with no reinstall. It renders:
+`claude/statusline.sh` is symlinked to `~/.claude/statusline.sh` and registered via the `statusLine` key, so edits in the repo take effect immediately with no reinstall. Set `statusline: false` in `config.yml` to skip it entirely. It renders:
 
 ```
 ai-skills · ⎇ ABC-1 · Opus5·hi · ctx 33% 65k · 5h 12% ↻1.3h

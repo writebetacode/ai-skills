@@ -18,3 +18,8 @@ exclude:
 platforms:
   claude: true
   gemini: true
+
+# Set to false to skip the status line: statusline.sh is not linked and the
+# statusLine key is dropped from the settings merge, leaving whatever your
+# ~/.claude/settings.json already had.
+statusline: true
