@@ -188,8 +188,22 @@ tasks:
             rm -f "$target"
             cp "claude/settings.json" "$target"
           else
-            jq -s '.[0] as $host | .[1] as $repo | ($host * $repo) | .permissions.allow = ((($host.permissions.allow // []) + ($repo.permissions.allow // [])) | unique) | .permissions.ask = ((($host.permissions.ask // []) + ($repo.permissions.ask // [])) | unique) | .permissions.deny = ((($host.permissions.deny // []) + ($repo.permissions.deny // [])) | unique)' \
-              "$target" "claude/settings.json" > "$target.tmp" && mv "$target.tmp" "$target"
+            # jq writes .tmp via redirect before it can fail, so a malformed target
+            # leaves an empty .tmp behind while `&&` skips the mv -- the merge is
+            # silently dropped and the raw parse error is all the user sees. Check
+            # the file first and clean up on failure.
+            if ! jq -e . "$target" >/dev/null 2>&1; then
+              echo "ERR $target is not valid JSON -- fix or remove it, then re-run"
+              exit 1
+            fi
+            if jq -s '.[0] as $host | .[1] as $repo | ($host * $repo) | .permissions.allow = ((($host.permissions.allow // []) + ($repo.permissions.allow // [])) | unique) | .permissions.ask = ((($host.permissions.ask // []) + ($repo.permissions.ask // [])) | unique) | .permissions.deny = ((($host.permissions.deny // []) + ($repo.permissions.deny // [])) | unique)' \
+              "$target" "claude/settings.json" > "$target.tmp" 2>/dev/null; then
+              mv "$target.tmp" "$target"
+            else
+              rm -f "$target.tmp"
+              echo "ERR failed to merge settings into $target -- left unchanged"
+              exit 1
+            fi
           fi
           echo "MERGED settings.json"
         fi
@@ -228,7 +242,14 @@ tasks:
         target="$HOME/.claude/settings.json"
         if [ -f "claude/settings.json" ] && [ -f "$target" ] && [ ! -L "$target" ]; then
           command -v jq >/dev/null 2>&1 || { echo "ERR jq is required to subtract settings.json (brew install jq)"; exit 1; }
-          jq -s '
+          # A malformed target would otherwise print a raw parse error, skip the mv,
+          # and strand an empty .tmp -- and since `task install` runs uninstall first,
+          # that failure would be the user's first confusing sight on every install.
+          if ! jq -e . "$target" >/dev/null 2>&1; then
+            echo "ERR $target is not valid JSON -- fix or remove it, then re-run"
+            exit 1
+          fi
+          if ! jq -s '
             .[0] as $host | .[1] as $repo |
             # Subtract every repo-defined permission string from all three lists, not
             # just its matching one. An entry the repo moves between lists (deny -> ask)
@@ -245,7 +266,12 @@ tasks:
             | reduce (($repo | keys) - ["permissions", "env", "enabledPlugins"])[] as $k (.; del(.[$k]))
             | .permissions |= with_entries(select(.value != []))
             | reduce ["permissions", "env", "enabledPlugins"][] as $k (.; if .[$k] == {} then del(.[$k]) else . end)
-          ' "$target" "claude/settings.json" > "$target.tmp" && mv "$target.tmp" "$target"
+          ' "$target" "claude/settings.json" > "$target.tmp" 2>/dev/null; then
+            rm -f "$target.tmp"
+            echo "ERR failed to subtract settings from $target -- left unchanged"
+            exit 1
+          fi
+          mv "$target.tmp" "$target"
           echo "SUBTRACTED repo-defined settings from $target"
         fi
       - |
