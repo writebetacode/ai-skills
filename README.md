@@ -95,6 +95,8 @@ task doctor                    # report installed skills/agents this repo does n
 
 The PR/MR body template is duplicated verbatim between `/pr` and `/mr` (skills load standalone — no include mechanism), marked with `<!-- pr-body:v1 -->` and checked by `task verify:pr-body`. The marker sits below the section heading, so `## PR Body Template` and `## MR Body Template` may differ while everything from the intro line through the closing fence stays byte-identical. Review artifacts read the same on both forges; edit both files and bump the marker together.
 
+The template body is wrapped in `<!-- mr-body:start -->` / `<!-- mr-body:end -->` markers that both skills write into the PR or MR description. These delimit the region the skills own: on update they rewrite only what sits between the markers, and everything outside is preserved byte-for-byte in its original position — reviewer-bot summaries such as Cursor Bugbot's, other tooling's generated blocks, and hand-written additions all survive without the skills needing to recognize them. Descriptions predating the markers are migrated in place on the next update. The markers are shared rather than forge-specific so a PR body stays recognizable if the branch moves between forges.
+
 ## What's included
 
 Skills live in `skills/` and are shared by both Claude Code and Gemini CLI. Every git-facing skill resolves the repo's default branch from `origin/HEAD` rather than assuming `main`, so they behave correctly on repos that default to `develop`, `master`, or `trunk`. None of them pin a model — each runs on whatever model your session is already using, so invoking a skill never silently changes tiers or costs. Agents are the opposite case and do pin one; see [Agents](#agents).
