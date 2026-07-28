@@ -63,6 +63,20 @@ vars:
         }
       ' config.yml
     }
+    statusline_enabled() {
+      # true unless config.yml sets `statusline: false` at the top level
+      [ -f config.yml ] || return 0
+      awk '
+        /^[[:space:]]*#/ { next }
+        /^statusline:/ {
+          val=$0
+          sub(/[[:space:]]*#.*$/, "", val)
+          sub(/^statusline:[[:space:]]*/, "", val)
+          gsub(/[[:space:]]/, "", val)
+          if (val == "false") exit 1
+        }
+      ' config.yml
+    }
 
 tasks:
   install:
@@ -113,6 +127,7 @@ tasks:
         fi
         platform_enabled claude || echo "CONFIG platform claude: disabled"
         platform_enabled gemini || echo "CONFIG platform gemini: disabled"
+        statusline_enabled || echo "CONFIG statusline: disabled"
 
   clean:stale:
     internal: true
@@ -174,7 +189,9 @@ tasks:
         platform_enabled claude || exit 0
         # Linked before the settings merge below, so the statusLine command in
         # settings.json never points at a script that isn't there yet.
-        if [ -f "claude/statusline.sh" ]; then
+        if ! statusline_enabled; then
+          echo "SKIP statusline.sh (disabled in config.yml)"
+        elif [ -f "claude/statusline.sh" ]; then
           ln -sf "$(pwd)/claude/statusline.sh" "$HOME/.claude/statusline.sh"
           echo "LINKED statusline.sh"
         fi
@@ -184,9 +201,19 @@ tasks:
         if [ -f "claude/settings.json" ]; then
           command -v jq >/dev/null 2>&1 || { echo "ERR jq is required to merge settings.json (brew install jq)"; exit 1; }
           target="$HOME/.claude/settings.json"
+          # With the status line disabled the script is never linked, so the
+          # statusLine key would point at a path that does not exist. Drop it
+          # from the source before either branch below reads it.
+          source="claude/settings.json"
+          if ! statusline_enabled; then
+            source="$(mktemp)"
+            trap 'rm -f "$source"' EXIT
+            jq 'del(.statusLine)' "claude/settings.json" > "$source" || {
+              echo "ERR failed to filter statusLine out of settings.json"; exit 1; }
+          fi
           if [ ! -f "$target" ] || [ -L "$target" ]; then
             rm -f "$target"
-            cp "claude/settings.json" "$target"
+            cp "$source" "$target"
           else
             # jq writes .tmp via redirect before it can fail, so a malformed target
             # leaves an empty .tmp behind while `&&` skips the mv -- the merge is
@@ -197,7 +224,7 @@ tasks:
               exit 1
             fi
             if jq -s '.[0] as $host | .[1] as $repo | ($host * $repo) | .permissions.allow = ((($host.permissions.allow // []) + ($repo.permissions.allow // [])) | unique) | .permissions.ask = ((($host.permissions.ask // []) + ($repo.permissions.ask // [])) | unique) | .permissions.deny = ((($host.permissions.deny // []) + ($repo.permissions.deny // [])) | unique)' \
-              "$target" "claude/settings.json" > "$target.tmp" 2>/dev/null; then
+              "$target" "$source" > "$target.tmp" 2>/dev/null; then
               mv "$target.tmp" "$target"
             else
               rm -f "$target.tmp"
@@ -424,7 +451,11 @@ tasks:
           fi
         fi
         if platform_enabled claude 2>/dev/null && [ -f "claude/statusline.sh" ]; then
-          check "$HOME/.claude/statusline.sh"
+          if statusline_enabled; then
+            check "$HOME/.claude/statusline.sh"
+          else
+            absent "$HOME/.claude/statusline.sh"
+          fi
         fi
         for dir in agents/*/; do
           name=$(basename "$dir")
