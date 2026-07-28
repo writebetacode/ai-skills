@@ -172,6 +172,15 @@ tasks:
       - |
         {{.CONFIG_READER}}
         platform_enabled claude || exit 0
+        # Linked before the settings merge below, so the statusLine command in
+        # settings.json never points at a script that isn't there yet.
+        if [ -f "claude/statusline.sh" ]; then
+          ln -sf "$(pwd)/claude/statusline.sh" "$HOME/.claude/statusline.sh"
+          echo "LINKED statusline.sh"
+        fi
+      - |
+        {{.CONFIG_READER}}
+        platform_enabled claude || exit 0
         if [ -f "claude/settings.json" ]; then
           command -v jq >/dev/null 2>&1 || { echo "ERR jq is required to merge settings.json (brew install jq)"; exit 1; }
           target="$HOME/.claude/settings.json"
@@ -252,6 +261,7 @@ tasks:
         for dir in "$HOME/.claude/agents/"*/ "$HOME/.gemini/agents/"*/; do
           for f in "$dir"*.md; do remove_link "$f"; done
         done
+        remove_link "$HOME/.claude/statusline.sh"
 
   verify:pr-body:
     silent: true
@@ -386,6 +396,9 @@ tasks:
             echo "ERR $HOME/.claude/settings.json (missing spinnerVerbs)"
             failed=1
           fi
+        fi
+        if platform_enabled claude 2>/dev/null && [ -f "claude/statusline.sh" ]; then
+          check "$HOME/.claude/statusline.sh"
         fi
         for dir in agents/*/; do
           name=$(basename "$dir")

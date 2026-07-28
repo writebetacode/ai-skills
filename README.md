@@ -35,9 +35,49 @@ Because it's an exclude list, a skill added to the repo later installs automatic
 
 `task verify` follows the same config: excluded items are checked to be *absent*, so a stale symlink from a previous install is reported as an error. `task install` removes those itself before linking — it deletes any symlink pointing into this repo whose name the repo no longer ships or that `config.yml` now excludes, so excluding a skill takes effect on the next install rather than leaving it live and competing at selection time. Symlinks pointing elsewhere and real files are never touched; those belong to someone else and are only reported, by `task doctor`.
 
-The `deny` list blocks irreversible git operations outright — `reset --hard`, `clean -f`, `restore`, and force-push. Branch deletion (`git branch -d/-D`) sits in `ask` instead: rules are evaluated deny, then ask, then allow, so it prompts on every deletion even though `Bash(git branch *)` is allowed, and you approve inline rather than being blocked. That is deliberate — `/prune-branches` and `/sdlc-complete` already require per-branch confirmation, and the permission layer is what enforces it when a prompt-level rule is misread.
+The `deny` list blocks irreversible git operations outright — `reset --hard`, `clean -f`, `restore`, and force-push. Branch deletion (`git branch -d/-D`) sits in `ask` instead: rules are evaluated deny, then ask, then allow, so it prompts on every deletion even though `Bash(git branch *)` is allowed, and you approve inline rather than being blocked. That is deliberate — `/prune-branches` and `/sdlc-complete` already require per-branch confirmation, and the permission layer is what enforces it when a prompt-level rule is misread. `git worktree remove` sits in `ask` for the same reason, and `git stash clear`/`git stash drop` in `deny`: both discard work that no commit holds, so neither is recoverable through the reflog the way a bad `checkout` is.
 
-`task install` also merges `claude/settings.json` into `~/.claude/settings.json`: the permission `allow`/`ask`/`deny` lists are unioned, and every other key takes the repo's value — the repo is the source of truth for the settings it defines, so local edits to those keys are overwritten on each install. `task uninstall` removes every symlink pointing into this repo and subtracts the repo-defined settings back out of `~/.claude/settings.json`: permission entries listed in the repo are removed from `allow`, `ask`, and `deny` alike (including any you happened to add independently — re-add those if needed), repo-defined keys are deleted, and everything the repo never defined survives untouched. The subtraction spans all three lists on purpose: an entry the repo moves between them — `deny` to `ask`, say — would otherwise leave its stale copy behind, and since rules evaluate deny before ask, the move would silently do nothing.
+`task install` also symlinks `claude/statusline.sh` into `~/.claude/` — before the merge below, so the `statusLine` command never points at a script that isn't there yet — and merges `claude/settings.json` into `~/.claude/settings.json`: the permission `allow`/`ask`/`deny` lists are unioned, and every other key takes the repo's value — the repo is the source of truth for the settings it defines, so local edits to those keys are overwritten on each install. `task uninstall` removes every symlink pointing into this repo and subtracts the repo-defined settings back out of `~/.claude/settings.json`: permission entries listed in the repo are removed from `allow`, `ask`, and `deny` alike (including any you happened to add independently — re-add those if needed), repo-defined keys are deleted, and everything the repo never defined survives untouched. The subtraction spans all three lists on purpose: an entry the repo moves between them — `deny` to `ask`, say — would otherwise leave its stale copy behind, and since rules evaluate deny before ask, the move would silently do nothing.
+
+### Settings keys
+
+Every key `claude/settings.json` defines, and why. Because the merge makes the repo the source of truth for the keys it names, these are imposed on each install rather than suggested — change them here, not in `~/.claude/settings.json`, or the next install reverts them.
+
+| Key | Value | Min version | Why |
+| --- | --- | --- | --- |
+| `permissions` | see above | — | `defaultMode: auto`, plus the `allow`/`ask`/`deny` lists described earlier. |
+| `effortLevel` | `high` | — | Standing default for multi-step work. `xhigh` exists but is better invoked per-task than left on. |
+| `tui` | `fullscreen` | — | Flicker-free alt-screen renderer with virtualised scrollback; steadier on long runs than the classic main-screen one. |
+| `askUserQuestionTimeout` | `10m` | 2.1.200 | Default is `never`, so an unanswered question blocks indefinitely. Ten minutes lets an unattended `/sdlc-implement` run continue with whatever was already selected. |
+| `autoMemoryEnabled` | `false` | — | Default is `true`. Off here so session state stays out of the auto-memory directory and behaviour depends only on what is checked in. |
+| `fileCheckpointingEnabled` | `true` | 2.1.119 | Already the default — set explicitly because it is the main recovery path in this repo, where `reset --hard`, `restore`, and `checkout --` are all denied. Pinning it means a global opt-out elsewhere cannot silently remove that safety net. |
+| `showTurnDuration` | `true` | — | Per-turn timing, alongside the status line's context and rate-limit readouts. |
+| `spinnerTipsEnabled` | `false` | — | The stock tips compete with the custom `spinnerVerbs` below. |
+| `spinnerVerbs` | `replace` + list | — | Cosmetic. `replace` rather than `append` so only these appear. |
+| `statusLine` | command | — | Registers `~/.claude/statusline.sh`; see below. |
+| `enabledPlugins` | 6 official | — | context7 for library docs, four LSPs, and security-guidance. |
+| `skipAutoPermissionPrompt` | `true` | — | Records that the auto-mode dialog was accepted, so `defaultMode: auto` does not re-prompt on a fresh machine. |
+| `skipWorkflowUsageWarning` | `true` | — | Same idea for the multi-agent workflow usage warning. |
+
+Only the two keys above carry a documented version floor; the rest are long-standing and unannotated in the [settings reference](https://code.claude.com/docs/en/settings). Everything here is verified against Claude Code 2.1.220. Two caveats worth knowing: `askUserQuestionTimeout` is read from user settings only — which is where `task install` writes, so it applies, but copying it into a project `.claude/settings.json` would silently do nothing — and `skipAutoPermissionPrompt` and `skipWorkflowUsageWarning` are acceptance flags rather than documented settings, so treat them as implementation detail.
+
+### Status line
+
+`claude/statusline.sh` is symlinked to `~/.claude/statusline.sh` and registered via the `statusLine` key, so edits in the repo take effect immediately with no reinstall. It renders:
+
+```
+storemenu-services · ⎇ ABC-1 · Opus5·hi · ctx 33% 65k · 5h12%↻1.3h
+```
+
+Directory and git worktree, model and reasoning effort (`lo`/`md`/`hi`/`xh`), context window (percentage plus absolute tokens), and the 5-hour rate-limit window with a countdown to its reset. Percentages turn yellow at 50% and red at 80%, rounded so the colour never disagrees with the number beside it.
+
+The line is built to fit 80 columns — or `$COLUMNS`, if the terminal exports it. Should it overrun — a long branch on a narrow terminal — the branch is truncated with an ellipsis, then dropped entirely if fewer than three characters would survive, and only then is the directory trimmed, to a floor of eight characters. The fixed-width segments are never sacrificed. Model and effort stay abbreviated (`Opus5·hi`) rather than spelled out, which keeps roughly nine columns in reserve for long branch names.
+
+Reset countdowns always round *up*, to one decimal where the unit warrants it — `1.1h`, `1.1d` — because under-reporting time remaining is the costly direction. A trailing `.0` is dropped, so exact values stay compact (`2h`, `7d`), and the unit only changes at a full 1.0, so 23 hours reads `23h` rather than `0.9d`. Anything under a minute renders `<1m` instead of rounding up to `1m`, which would imply headroom that isn't there.
+
+Every value comes from the JSON the harness pipes in on stdin — nothing is scraped or estimated. Segments whose fields are absent drop out silently rather than rendering placeholders: `rate_limits` is missing until the first API response of a session and for non-subscription auth, and `context_window.current_usage` is null immediately after `/compact`. `refreshInterval: 60` is set because the reset countdowns are time-based and the harness otherwise re-renders only on events, which would leave them stale while idle.
+
+One limit worth knowing, a property of the data rather than the script: Fable 5 is metered against dollar-denominated usage credits rather than a percentage window, so no Fable figure can appear here at all. Use `/usage` and `/usage-credits` for that, and for the per-model breakdown the rate-limit fields do not carry.
 
 Verification and teardown:
 
@@ -129,6 +169,7 @@ agents/                             # Claude Code agents
   sdlc-coder/AGENT.md
 claude/                             # Claude Code project settings
   settings.json
+  statusline.sh                     # symlinked to ~/.claude/statusline.sh
 ```
 
 ## License
