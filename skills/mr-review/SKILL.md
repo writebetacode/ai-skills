@@ -71,7 +71,7 @@ Re-reviewing appends a section and continues numbering upward from the highest n
 
 ## Posting
 
-Only on an explicit request naming findings -- "post 2 and 5", "send the should-changes", "post everything". "Review this MR" is never such a request. Ask when the selection is ambiguous. List the findings and show the comment bodies, then post on confirmation.
+Explicit request naming findings only -- "post 2 and 5", "send the should-changes". "Review this MR" is never such a request. Ask when the selection is ambiguous, then show the comment bodies and post on confirmation.
 
 Each finding becomes its own resolvable thread:
 
@@ -84,7 +84,7 @@ glab mr note create <mr> -m <body>                               # no file ancho
 
 `--line` and `--old-line` require `--file` and cannot be combined; `--file` cannot combine with `--reply` or `--unique`. Comments target the latest diff version, so compare the section's SHA against the MR's current `.sha` first: if they differ the author has pushed since, and every anchor must be re-read against the new diff or it lands on the wrong line.
 
-A comment is the finding's own summary line, bolded and numbered, then its discussion:
+The comment is the finding's summary line, bolded, with its number, then the discussion:
 
 ````markdown
 **issue (blocking): the handle is never closed on the error path** (2)
@@ -98,7 +98,7 @@ A comment is the finding's own summary line, bolded and numbered, then its discu
 
 `-0+0` is the anchored line alone; `-1+2` extends one above and two below. The block replaces exactly that range and is one click from being committed, so it must be complete, correctly indented, and valid where it lands. Offer one only where you have read the replaced lines and the fix is unambiguous; use prose for anything needing judgment, touching multiple sites, or inferring intent.
 
-Report each post individually and mark it in the file. Never mark a finding posted unless the command succeeded.
+Report each post individually and mark it in the file, never unless the command succeeded.
 
 ## Voice
 
