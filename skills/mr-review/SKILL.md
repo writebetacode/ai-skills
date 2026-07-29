@@ -21,6 +21,8 @@ glab mr view <mr> --comments
 
 Read the diff in full, then read the surrounding code for every file it touches -- a hunk shows what changed, never whether it is correct against the code it lands in. Where the MR's head SHA differs from the local branch tip, say so: the working tree is not what is being reviewed.
 
+Every question the diff raises is yours to answer first. Chase them as they surface, alongside the findings rather than after them: read the callers, the definition, the tests, the git history, the linked issue. A question survives to the report only once the repository has failed to settle it, and it carries what you looked at, so the author is asked for what only the author knows -- intent, an external system, a decision made off the diff -- and never for what a search would have told you.
+
 Write `docs/mr-reviews/<mr#>.md`, creating directories as needed. Leave it unstaged and never gitignore it. Show the numbered findings and stop.
 
 ## Findings
@@ -31,7 +33,6 @@ Write each summary line in the voice below, once: posting reuses it verbatim. La
 
 | Section | Labels | Decoration |
 | --- | --- | --- |
-| Good | `praise` | none |
 | Should change | `issue`, `todo`, `chore` | `(blocking)` |
 | Could change | `suggestion`, `nitpick`, `polish`, `typo` | `(non-blocking)` |
 | Question | `question`, `thought`, `note` | none |
@@ -48,21 +49,17 @@ Pick the narrowest label that fits -- `todo` over `issue` for the small and mech
 
 <N> files, +<x>/-<y>.
 
-### Good
-1. praise: <subject> -- `<file>:<line>`
-   <what was done well; omit the section rather than pad it>
-
 ### Should change
-2. issue (blocking): <subject> -- `<file>:<line>`
+1. issue (blocking): <subject> -- `<file>:<line>`
    <correctness, security, data loss, or breakage, and its consequence>
 
 ### Could change
-3. suggestion (non-blocking): <subject> -- `<file>:<line>`
+2. suggestion (non-blocking): <subject> -- `<file>:<line>`
    <improvement the author may decline, and what it buys>
 
 ### Question
-4. question: <subject> -- `<file>:<line>`
-   <what the diff and surrounding code could not settle>
+3. question: <subject> -- `<file>:<line>`
+   <what you checked and what it showed, then the part only the author can settle>
 
 ### Verdict
 <approve / changes needed / comment only>, and why in one or two sentences.
@@ -74,7 +71,7 @@ Re-reviewing appends a section and continues numbering upward from the highest n
 
 ## Posting
 
-Only on an explicit request naming findings -- "post 2 and 5", "send the should-changes", "post everything". "Review this MR" is never such a request. Ask when the selection is ambiguous. List the findings and show the comment bodies, then post on confirmation.
+Explicit request naming findings only -- "post 2 and 5", "send the should-changes". "Review this MR" is never such a request. Ask when the selection is ambiguous, then show the comment bodies and post on confirmation.
 
 Each finding becomes its own resolvable thread:
 
@@ -87,7 +84,7 @@ glab mr note create <mr> -m <body>                               # no file ancho
 
 `--line` and `--old-line` require `--file` and cannot be combined; `--file` cannot combine with `--reply` or `--unique`. Comments target the latest diff version, so compare the section's SHA against the MR's current `.sha` first: if they differ the author has pushed since, and every anchor must be re-read against the new diff or it lands on the wrong line.
 
-A comment is the finding's own summary line, bolded and numbered, then its discussion:
+The comment is the finding's summary line, bolded, with its number, then the discussion:
 
 ````markdown
 **issue (blocking): the handle is never closed on the error path** (2)
@@ -101,7 +98,7 @@ A comment is the finding's own summary line, bolded and numbered, then its discu
 
 `-0+0` is the anchored line alone; `-1+2` extends one above and two below. The block replaces exactly that range and is one click from being committed, so it must be complete, correctly indented, and valid where it lands. Offer one only where you have read the replaced lines and the fix is unambiguous; use prose for anything needing judgment, touching multiple sites, or inferring intent.
 
-Report each post individually and mark it in the file. Never mark a finding posted unless the command succeeded.
+Report each post individually and mark it in the file, never unless the command succeeded.
 
 ## Voice
 
@@ -117,7 +114,9 @@ The author reads these without the context that produced them, and they outlive 
 
 Producing the report is the whole of a review run: a verdict is never itself an approval.
 
-Never invent a line number, file path, or consequence. Never claim anything was run or tested; describe inspected code as inspected. Review the diff on its merits, not the author's, and never fabricate Good findings to soften the rest.
+Never invent a line number, file path, or consequence. Never claim anything was run or tested; describe inspected code as inspected -- a question you answered by reading says what you read. Review the diff on its merits, not the author's.
+
+**Question violation:** a question the repository answers. Anything the code, the tests, the history, or the linked issue settles is a finding or nothing at all.
 
 Restrict generated output -- commits, PRs, issues, comments, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
