@@ -21,6 +21,8 @@ glab mr view <mr> --comments
 
 Read the diff in full, then read the surrounding code for every file it touches -- a hunk shows what changed, never whether it is correct against the code it lands in. Where the MR's head SHA differs from the local branch tip, say so: the working tree is not what is being reviewed.
 
+Every question the diff raises is yours to answer first. Chase them as they surface, alongside the findings rather than after them: read the callers, the definition, the tests, the git history, the linked issue. A question survives to the report only once the repository has failed to settle it, and it carries what you looked at, so the author is asked for what only the author knows -- intent, an external system, a decision made off the diff -- and never for what a search would have told you.
+
 Write `docs/mr-reviews/<mr#>.md`, creating directories as needed. Leave it unstaged and never gitignore it. Show the numbered findings and stop.
 
 ## Findings
@@ -31,7 +33,6 @@ Write each summary line in the voice below, once: posting reuses it verbatim. La
 
 | Section | Labels | Decoration |
 | --- | --- | --- |
-| Good | `praise` | none |
 | Should change | `issue`, `todo`, `chore` | `(blocking)` |
 | Could change | `suggestion`, `nitpick`, `polish`, `typo` | `(non-blocking)` |
 | Question | `question`, `thought`, `note` | none |
@@ -48,21 +49,17 @@ Pick the narrowest label that fits -- `todo` over `issue` for the small and mech
 
 <N> files, +<x>/-<y>.
 
-### Good
-1. praise: <subject> -- `<file>:<line>`
-   <what was done well; omit the section rather than pad it>
-
 ### Should change
-2. issue (blocking): <subject> -- `<file>:<line>`
+1. issue (blocking): <subject> -- `<file>:<line>`
    <correctness, security, data loss, or breakage, and its consequence>
 
 ### Could change
-3. suggestion (non-blocking): <subject> -- `<file>:<line>`
+2. suggestion (non-blocking): <subject> -- `<file>:<line>`
    <improvement the author may decline, and what it buys>
 
 ### Question
-4. question: <subject> -- `<file>:<line>`
-   <what the diff and surrounding code could not settle>
+3. question: <subject> -- `<file>:<line>`
+   <what you checked and what it showed, then the part only the author can settle>
 
 ### Verdict
 <approve / changes needed / comment only>, and why in one or two sentences.
@@ -117,7 +114,9 @@ The author reads these without the context that produced them, and they outlive 
 
 Producing the report is the whole of a review run: a verdict is never itself an approval.
 
-Never invent a line number, file path, or consequence. Never claim anything was run or tested; describe inspected code as inspected. Review the diff on its merits, not the author's, and never fabricate Good findings to soften the rest.
+Never invent a line number, file path, or consequence. Never claim anything was run or tested; describe inspected code as inspected -- a question you answered by reading says what you read. Review the diff on its merits, not the author's.
+
+**Question violation:** a question the repository answers. Anything the code, the tests, the history, or the linked issue settles is a finding or nothing at all.
 
 Restrict generated output -- commits, PRs, issues, comments, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
