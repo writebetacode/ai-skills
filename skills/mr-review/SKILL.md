@@ -5,7 +5,7 @@ description: Review a GitLab merge request, write numbered findings to docs/mr-r
 
 # MR Review
 
-Reviewing and posting are separate. A review run writes a local file and posts nothing; comments go up only on a later request naming which findings to send.
+Reviewing and posting are separate. A review run writes a local file and posts nothing.
 
 ## Workflow
 
@@ -25,9 +25,9 @@ Write `docs/mr-reviews/<mr#>.md`, creating directories as needed. Leave it unsta
 
 ## Findings
 
-Number every finding and never reuse a number -- numbers are how the user selects what to post. State the issue in one sentence and name its concrete consequence: what breaks, under what condition. A finding with no consequence to name belongs in Could change or nowhere. Anchor only to lines you have read; a wrong anchor puts the comment on unrelated code, and a finding with no anchor is written without one. Write findings in the voice below, in the summary line each will carry when posted -- report and comment share that text verbatim, so nothing is rewritten between them.
+Number every finding and never reuse a number -- numbers are how the user selects what to post. State the issue in one sentence and name its concrete consequence: what breaks, under what condition. A finding with no consequence to name belongs in Could change or nowhere. Anchor only to lines you have read; a wrong anchor puts the comment on unrelated code, and a finding with no anchor is written without one.
 
-Each finding carries a [Conventional Comments](https://conventionalcomments.org/) label, and the section decides which labels are available and what decoration follows:
+Write each summary line in the voice below, once: posting reuses it verbatim. Labels follow [Conventional Comments](https://conventionalcomments.org/), and the section decides which are available and what decoration follows:
 
 | Section | Labels | Decoration |
 | --- | --- | --- |
@@ -36,7 +36,7 @@ Each finding carries a [Conventional Comments](https://conventionalcomments.org/
 | Could change | `suggestion`, `nitpick`, `polish`, `typo` | `(non-blocking)` |
 | Question | `question`, `thought`, `note` | none |
 
-Pick the narrowest label that fits: `todo` and `chore` for the small and mechanical, `issue` for a real defect; `typo` and `nitpick` before `suggestion` when that is all it is. Add `(if-minor)` to a Could-change finding the author may resolve at their discretion. Never label a finding more severely than its consequence supports -- `issue (blocking)` on a preference is how a review stops being read.
+Pick the narrowest label that fits -- `todo` over `issue` for the small and mechanical, `typo` or `nitpick` over `suggestion` when that is all it is -- and never one more severe than the consequence supports. Add `(if-minor)` where the author may resolve at their discretion.
 
 ```markdown
 # MR !<iid> -- <title>
@@ -87,10 +87,10 @@ glab mr note create <mr> -m <body>                               # no file ancho
 
 `--line` and `--old-line` require `--file` and cannot be combined; `--file` cannot combine with `--reply` or `--unique`. Comments target the latest diff version, so compare the section's SHA against the MR's current `.sha` first: if they differ the author has pushed since, and every anchor must be re-read against the new diff or it lands on the wrong line.
 
-Comments follow [Conventional Comments](https://conventionalcomments.org/): `<label> [decorations]: <subject>`, then the discussion.
+A comment is the finding's own summary line, bolded and numbered, then its discussion:
 
 ````markdown
-**<label> [(decoration)]: <subject>** (<n>)
+**issue (blocking): the handle is never closed on the error path** (2)
 
 <what you observed, the consequence, and what would resolve it>
 
@@ -105,17 +105,17 @@ Report each post individually and mark it in the file. Never mark a finding post
 
 ## Voice
 
-The author reads these without the context that produced them, and they outlive the exchange. Write to the code, not the person: name the function or line rather than "you" or "your". State what you observed, what follows from it, and what would resolve it; where you are inferring intent, say so ("unless `x` guarantees this is non-empty, ..."). Drop softeners -- "just", "simply", "obviously", "sorry to nitpick" -- and exclamation marks. A short, specific, technically grounded comment is the collegial one.
+The author reads these without the context that produced them, and they outlive the exchange. Write to the code, not the person: name the function or line rather than "you" or "your". State what you observed, what follows from it, and what would resolve it; where you are inferring intent, say so ("unless `x` guarantees this is non-empty, ..."). Drop softeners -- "just", "simply", "obviously" -- and exclamation marks. Short, specific, and technically grounded is the collegial register.
 
 **Voice violation:** any comment addressing the author rather than the code, assigning blame or carelessness, or asking a rhetorical question in place of a statement. "You forgot to close the file handle" and "did you really mean to swallow this error?" are violations; "the handle is never closed on the error path, so the descriptor leaks under repeated failures" and "this discards the error -- was that intended, or should it propagate?" are acceptable.
 
 ## Approval
 
-`glab mr approve <mr>` and `glab mr revoke <mr>` on explicit request only. Pass `--sha <head-sha>` so approval cannot land on a revision you did not read. State that approval is recorded against the user's GitLab account and endorses an AI-produced review. Never approve over unresolved Should-change findings without saying so and getting confirmation.
+`glab mr approve <mr> --sha <head-sha>` and `glab mr revoke <mr>`, on explicit request only. `--sha` keeps approval off a revision you did not read. Say that approval is recorded against the user's GitLab account and endorses an AI-produced review, and never approve over unresolved Should-change findings without confirmation.
 
 ## Rules
 
-Never post, approve, or revoke without an explicit request naming the action -- producing the report is the whole of a review run, and a verdict is never itself an approval.
+Producing the report is the whole of a review run: a verdict is never itself an approval.
 
 Never invent a line number, file path, or consequence. Never claim anything was run or tested; describe inspected code as inspected. Review the diff on its merits, not the author's, and never fabricate Good findings to soften the rest.
 
