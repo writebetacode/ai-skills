@@ -25,9 +25,9 @@ Every git-facing skill resolves the repo's default branch from `origin/HEAD` rat
 | `/pr-review` | Review a PR or MR into a numbered `docs/pr-reviews/<number>.md` report, then post selected findings back as inline comments |
 | `/prune-branches` | Delete local branches whose changes already landed in the default branch, including squash-merged branches `git branch -d` refuses as unmerged |
 | `/remote-issue` | File a consistently-formatted GitHub issue or Jira work item, prompting for the tracker and the fields it requires |
-| `/gh-release` | Tag the default branch and publish a GitHub release, inferring the version from commit history and drafting notes in the repo's established voice |
+| `/remote-release` | Tag the default branch and publish a GitHub or GitLab release, inferring the version from commit history and drafting notes in the repo's established voice |
 
-`/pr`, `/pr-review`, `/remote-issue`, and `/gh-release` each serve every backend they support from one file, delegating every remote command to a per-CLI agent:
+`/pr`, `/pr-review`, `/remote-issue`, and `/remote-release` each serve every backend they support from one file, delegating every remote command to a per-CLI agent:
 
 | Agent | Model | Effort | Description |
 |---|---|---|---|

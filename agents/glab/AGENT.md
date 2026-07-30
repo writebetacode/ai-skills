@@ -31,6 +31,9 @@ The caller sends `op:` plus parameters, one per line. Comment and description bo
 | `diff` | `glab mr diff <id> --raw` |
 | `threads` | `glab mr view <id> --comments` |
 | `issue-view` | `glab issue view <n> --output json --jq '{iid,title,state,web_url}'` |
+| `release-list` | `glab release list --per-page <n> --output json` |
+| `release-view` | `glab release view <tag> --output json` |
+| `release-create` | `glab release create <tag> --name <title> --notes-file <notes-file> --no-update` |
 | `create` | `glab mr create --yes --title <title> --description "$(cat <body-file>)" --target-branch <base> --assignee <username>`, plus `--draft` when asked |
 | `update-description` | `glab mr update <id> --description "$(cat <body-file>)"` |
 | `comment` | `glab mr note create <id> --file <path> --line <n> < <body-file>` |
@@ -49,6 +52,10 @@ glab mr note create <id> < body.md                               # no file ancho
 ## Flags That Bite
 
 `--yes` is mandatory on create; without it `glab` blocks on an interactive confirmation prompt and the run hangs. `--line` and `--old-line` each require `--file` and cannot be combined. `--file`, `--reply`, and `--unique` are mutually exclusive, so anchored comments cannot use `--unique` -- there is no CLI-side double-post guard, and the caller depends on your report to know what landed. `--resolvable=false` cannot combine with `--file`; leave it off, since each finding is meant to be a resolvable thread. `glab` has no `@me`, so an assignee is a username resolved via `whoami`. Neither `--description` nor `note create -m` reads from a file: descriptions go through `"$(cat <path>)"` and comment bodies through stdin redirection, which is what keeps the bytes exact.
+
+On `release-create`, three flags do not mean what their `gh` counterparts do. The title is `--name`, not `--title`. **`--no-update` is mandatory**: without it, creating against a tag that already has a release silently overwrites that release's name and notes instead of failing, so a re-run destroys the published record. And `--ref` *creates* the tag when it does not exist, which would mask a tag push that failed -- omit it when the caller has already pushed the tag, and pass it only when the order explicitly asks for tag-and-release in one step.
+
+Beware `-F`: it is `--notes-file` on `release create` but `--output` on `release list` and `release view`. Use the long forms. List and view take `--output json` with `--jq`, not a `--json` field list.
 
 Comments land on the latest diff version. If the caller's `<head-sha>` is not the MR's current `.sha`, stop and report it rather than posting -- the anchors were read against a diff that is no longer current.
 
