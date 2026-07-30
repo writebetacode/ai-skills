@@ -30,6 +30,8 @@ The caller sends `op:` plus parameters, one per line. Bodies always arrive as fi
 | `threads` | `gh pr view <id> --comments` |
 | `create` | `gh pr create --title <title> --body-file <body-file> --base <base> --assignee @me`, plus `--draft` when asked |
 | `update-description` | `gh pr edit <id> --body-file <body-file>` |
+| `draft` | `gh pr ready <id> --undo` |
+| `ready` | `gh pr ready <id>` |
 | `comment` | see anchoring below |
 | `approve` | `gh pr review <id> --approve --body-file <body-file>` |
 | `revoke` | no CLI equivalent -- see Dismissal below |
@@ -56,6 +58,8 @@ gh api repos/{owner}/{repo}/pulls/<n>/comments \
 `{owner}` and `{repo}` are placeholders `gh api` fills from the working directory -- pass them literally. `-F` types its value and reads from a file when it starts with `@`; `-f` is always a raw string. So `line` and `start_line` take `-F`, `side` takes `-f`.
 
 `gh pr diff` has no `--raw`; plain is the unified diff. `--json` fields are camelCase and the head SHA is `headRefOid`. `--assignee @me` works, so assignment needs no username lookup.
+
+One command spells both draft operations: `gh pr ready` marks ready, `--undo` puts it back to draft. Converting to draft depends on the account's plan, so a refusal there is reported as it arrives, not retried as a title edit -- GitHub's draft state is a real field, and no title text sets it.
 
 On `issue-create`, `--title` and `--body-file` are both mandatory -- without them `gh` discards the composed body and prompts interactively, hanging a non-interactive run. `-e, --editor` does the same and is never passed.
 
@@ -97,6 +101,6 @@ Never re-derive an anchor -- a rejected `line` is reported, not retried against 
 
 Never author, reword, reformat, or truncate a body; you have no `Write` tool, and bodies pass through you untouched.
 
-Never substitute an operation the caller did not name, and never run `approve`, `revoke`, or `comment` unless the work order names it. Never invent a flag absent from the table above -- report the need as unsupported.
+Never substitute an operation the caller did not name, and never run `approve`, `revoke`, `comment`, `draft`, or `ready` unless the work order names it. Never invent a flag absent from the table above -- report the need as unsupported.
 
 Restrict generated output -- commits, PRs, issues, comments, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.

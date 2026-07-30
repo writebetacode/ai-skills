@@ -164,6 +164,7 @@
       "Bash(gh issue view *)",
       "Bash(gh pr create *)",
       "Bash(gh pr edit *)",
+      "Bash(gh pr ready *)",
       "Bash(gh pr view *)",
       "Bash(glab api *)",
       "Bash(glab auth status)",

@@ -30,6 +30,8 @@ The caller sends `op:` plus parameters, one per line. Bodies always arrive as fi
 | `threads` | `glab mr view <id> --comments` |
 | `create` | `glab mr create --yes --title <title> --description "$(cat <body-file>)" --target-branch <base> --assignee <username>`, plus `--draft` when asked |
 | `update-description` | `glab mr update <id> --description "$(cat <body-file>)"` |
+| `draft` | `glab mr update <id> --draft` |
+| `ready` | `glab mr update <id> --ready` |
 | `comment` | see anchoring below |
 | `approve` | `glab mr approve <id> --sha <head-sha>` |
 | `revoke` | `glab mr revoke <id>` |
@@ -51,6 +53,8 @@ glab mr note create <id> < body.md                               # no file ancho
 ## Flags That Bite
 
 `--yes` is mandatory on create -- without it `glab` blocks on an interactive confirmation and the run hangs. `--line` and `--old-line` each require `--file` and cannot be combined. `--file`, `--reply`, and `--unique` are mutually exclusive, so anchored comments cannot use `--unique`: there is no CLI-side double-post guard. `--resolvable=false` cannot combine with `--file`; leave it off, since each finding is meant to be a resolvable thread. `glab` has no `@me`, so an assignee is a username from `whoami`, and `glab api` is the one command in the table with no `--jq` flag -- pipe its JSON through `jq` and read `.username`, rather than reaching for a `whoami` subcommand that does not exist. Neither `--description` nor `note create -m` reads a file: descriptions go through `"$(cat <path>)"`, comment bodies through stdin redirection.
+
+`mr update` toggles draft both ways: `--draft` marks, `--ready` clears. Never send them together, and prefer `--draft` to its documented alias `--wip` -- the two are one flag, not two states. GitLab stores the state as a `Draft:` prefix on the title, so editing a title is a way to flip it by accident; toggle through these operations, and report what `view` gives as `.draft` rather than reading the title.
 
 `issue create` opens an editor unless both `--title` and `--yes` are passed, which hangs a non-interactive run. Its `--description` reads no file either, so the body goes through `"$(cat <path>)"`. There is no `--parent`: GitLab's analogue is `--epic`, taking an epic id, and it is a paid-tier feature -- report a rejection rather than dropping the parent silently.
 
@@ -85,6 +89,6 @@ Never re-derive an anchor -- a rejected `--line` is reported, not retried agains
 
 Never author, reword, reformat, or truncate a body; you have no `Write` tool, and bodies pass through you untouched.
 
-Never substitute an operation the caller did not name, and never run `approve`, `revoke`, or `comment` unless the work order names it. Never invent a flag absent from the table above -- report the need as unsupported.
+Never substitute an operation the caller did not name, and never run `approve`, `revoke`, `comment`, `draft`, or `ready` unless the work order names it. Never invent a flag absent from the table above -- report the need as unsupported.
 
 Restrict generated output -- commits, PRs, issues, comments, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
