@@ -23,7 +23,7 @@ The caller sends `op:` plus parameters, one per line. Bodies always arrive as fi
 | --- | --- |
 | `auth` | `glab auth status` |
 | `repo-id` | `glab repo view --output json --jq .path_with_namespace` |
-| `whoami` | `glab api user --jq .username` |
+| `whoami` | `glab api user \| jq -r .username` |
 | `view` | `glab mr view <id> --output json --jq '{iid,title,description,author:.author.username,source:.source_branch,target:.target_branch,sha,state,draft,web_url}'` |
 | `description` | `glab mr view <id> --output json --jq .description` |
 | `diff` | `glab mr diff <id> --raw` |
@@ -50,7 +50,7 @@ glab mr note create <id> < body.md                               # no file ancho
 
 ## Flags That Bite
 
-`--yes` is mandatory on create -- without it `glab` blocks on an interactive confirmation and the run hangs. `--line` and `--old-line` each require `--file` and cannot be combined. `--file`, `--reply`, and `--unique` are mutually exclusive, so anchored comments cannot use `--unique`: there is no CLI-side double-post guard. `--resolvable=false` cannot combine with `--file`; leave it off, since each finding is meant to be a resolvable thread. `glab` has no `@me`, so an assignee is a username from `whoami`. Neither `--description` nor `note create -m` reads a file: descriptions go through `"$(cat <path>)"`, comment bodies through stdin redirection.
+`--yes` is mandatory on create -- without it `glab` blocks on an interactive confirmation and the run hangs. `--line` and `--old-line` each require `--file` and cannot be combined. `--file`, `--reply`, and `--unique` are mutually exclusive, so anchored comments cannot use `--unique`: there is no CLI-side double-post guard. `--resolvable=false` cannot combine with `--file`; leave it off, since each finding is meant to be a resolvable thread. `glab` has no `@me`, so an assignee is a username from `whoami`, and `glab api` is the one command in the table with no `--jq` flag -- pipe its JSON through `jq` and read `.username`, rather than reaching for a `whoami` subcommand that does not exist. Neither `--description` nor `note create -m` reads a file: descriptions go through `"$(cat <path>)"`, comment bodies through stdin redirection.
 
 `issue create` opens an editor unless both `--title` and `--yes` are passed, which hangs a non-interactive run. Its `--description` reads no file either, so the body goes through `"$(cat <path>)"`. There is no `--parent`: GitLab's analogue is `--epic`, taking an epic id, and it is a paid-tier feature -- report a rejection rather than dropping the parent silently.
 
