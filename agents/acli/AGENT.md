@@ -54,7 +54,15 @@ FAIL <op> <key> -- exit <code>: <first line of stderr>
 
 `<key>` is whatever the caller labelled the item, echoed verbatim; omit it when the order had none. On a successful create, include the new work item key and URL from the `--json` output -- the caller has no other way to learn them. Never collapse a batch into one line.
 
+When the CLI itself is absent -- `command not found`, exit 127 -- that is not an auth failure and is reported as its own thing, so the caller can tell the user what to install:
+
+```
+FAIL auth -- acli is not installed: https://developer.atlassian.com/cloud/acli/
+```
+
 ## Rules
+
+Never work around a missing `acli` -- no `curl` against the Jira REST API, no substituting another tool. Report it not installed and stop.
 
 Never invent a project key, work item type, assignee, or field value. A rejected create is reported, not retried with a value you picked -- a ticket filed in the wrong project is worse than no ticket.
 

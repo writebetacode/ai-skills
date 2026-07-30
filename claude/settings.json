@@ -205,6 +205,7 @@
       "Bash(glab mr list *)",
       "Bash(glab mr diff *)",
       "Bash(glab issue view *)",
+      "Bash(glab issue create *)",
       "Bash(glab repo view *)",
       "Bash(glab release list *)",
       "Bash(glab release view *)",

@@ -1,6 +1,6 @@
 ---
 name: glab
-description: "Executes GitLab merge request, issue, and release operations through the glab CLI on behalf of a calling skill: view, diff, create, update, comment, approve, revoke, publish. Receives a work order naming the operation and its parameters, runs exactly that, and reports per-item results. Invoked by /pr, /pr-review, and /remote-release; never chooses what to post."
+description: "Executes GitLab merge request, issue, and release operations through the glab CLI on behalf of a calling skill: view, diff, create, update, comment, approve, revoke, publish. Receives a work order naming the operation and its parameters, runs exactly that, and reports per-item results. Invoked by /pr, /pr-review, /remote-issue, and /remote-release; never chooses what to post."
 tools: [Bash, Read, SendMessage]
 memory: none
 model: sonnet
@@ -34,6 +34,7 @@ The caller sends `op:` plus parameters, one per line. Bodies always arrive as fi
 | `approve` | `glab mr approve <id> --sha <head-sha>` |
 | `revoke` | `glab mr revoke <id>` |
 | `issue-view` | `glab issue view <n> --output json --jq '{iid,title,state,web_url}'` |
+| `issue-create` | `glab issue create --yes --title <title> --description "$(cat <body-file>)" --assignee <username>`, plus `--label` and `--epic` when asked |
 | `release-list` | `glab release list --per-page <n> --output json` |
 | `release-view` | `glab release view <tag> --output json` |
 | `release-create` | `glab release create <tag> --name <title> --notes-file <notes-file> --no-update` |
@@ -50,6 +51,8 @@ glab mr note create <id> < body.md                               # no file ancho
 ## Flags That Bite
 
 `--yes` is mandatory on create -- without it `glab` blocks on an interactive confirmation and the run hangs. `--line` and `--old-line` each require `--file` and cannot be combined. `--file`, `--reply`, and `--unique` are mutually exclusive, so anchored comments cannot use `--unique`: there is no CLI-side double-post guard. `--resolvable=false` cannot combine with `--file`; leave it off, since each finding is meant to be a resolvable thread. `glab` has no `@me`, so an assignee is a username from `whoami`. Neither `--description` nor `note create -m` reads a file: descriptions go through `"$(cat <path>)"`, comment bodies through stdin redirection.
+
+`issue create` opens an editor unless both `--title` and `--yes` are passed, which hangs a non-interactive run. Its `--description` reads no file either, so the body goes through `"$(cat <path>)"`. There is no `--parent`: GitLab's analogue is `--epic`, taking an epic id, and it is a paid-tier feature -- report a rejection rather than dropping the parent silently.
 
 On `release-create`, three flags differ from their `gh` counterparts. The title is `--name`. **`--no-update` is mandatory** -- without it, creating against a tag that already has a release silently overwrites that release's name and notes instead of failing. And `--ref` *creates* the tag when it does not exist, masking a failed tag push, so omit it unless the order explicitly asks for tag-and-release in one step.
 
@@ -68,7 +71,15 @@ FAIL <op> <key> -- exit <code>: <first line of stderr>
 
 `<key>` is whatever the caller labelled the item, echoed verbatim; omit it when the order had none. Never collapse a batch into one line: the caller writes a local record of what landed from these.
 
+When the CLI itself is absent -- `command not found`, exit 127 -- that is not an auth failure and is reported as its own thing, so the caller can tell the user what to install:
+
+```
+FAIL auth -- glab is not installed: https://gitlab.com/gitlab-org/cli
+```
+
 ## Rules
+
+Never work around a missing `glab` -- no `curl` against the API, no substituting `gh`, no shelling into another tool. Report it not installed and stop.
 
 Never re-derive an anchor -- a rejected `--line` is reported, not retried against a line you picked. Never retry a failed command with different flags; report and stop.
 

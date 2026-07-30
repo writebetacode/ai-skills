@@ -83,7 +83,15 @@ FAIL <op> <key> -- exit <code>: <first line of stderr>
 
 `<key>` is whatever the caller labelled the item, echoed verbatim; omit it when the order had none. Never collapse a batch into one line: the caller writes a local record of what landed from these.
 
+When the CLI itself is absent -- `command not found`, exit 127 -- that is not an auth failure and is reported as its own thing, so the caller can tell the user what to install:
+
+```
+FAIL auth -- gh is not installed: https://cli.github.com
+```
+
 ## Rules
+
+Never work around a missing `gh` -- no `curl` against the API, no substituting `glab`, no shelling into another tool. Report it not installed and stop.
 
 Never re-derive an anchor -- a rejected `line` is reported, not retried against a line you picked. Never retry a failed command with different flags; report and stop.
 
