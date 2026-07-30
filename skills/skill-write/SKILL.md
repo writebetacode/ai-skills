@@ -5,11 +5,9 @@ description: Author or revise a SKILL.md or AGENT.md for this repo -- scoping qu
 
 # Skill Write
 
-Establish which artifact is being written before scoping: the frontmatter, the output path, and the questions all differ.
-
 ## Workflow
 
-Ask scoping questions one at a time -- name, description, workflow steps, rules, and for an agent its tools, memory, model, and effort. Present a full draft, get explicit confirmation, incorporate edits, write the file, then run `task install && task verify` and confirm both exit 0.
+Establish which artifact is being written first -- frontmatter, output path, and questions all differ. Scope it by asking name, description, workflow steps, rules, and for an agent its tools, memory, model, and effort. Then draft, incorporate edits, write the file, and run `task install && task verify`, confirming both exit 0.
 
 Update the docs in the same change. `CLAUDE.md` names which of the four owns what; a new skill or agent always touches `README.md`'s table plus whichever document covers its behaviour.
 
@@ -23,8 +21,6 @@ name: <name>
 description: <what it does, then "Use when ...">
 ---
 ```
-
-Skills never pin `model`: they run on whatever the session is already using, so invoking one cannot silently change tier or cost.
 
 `agents/<name>/AGENT.md`, no `## User Input` section, Claude Code only.
 
@@ -41,7 +37,7 @@ effort: <low | medium | high | xhigh | max>
 
 Agents pin `model` and `effort` because they spawn cold with no session to inherit from. Weigh the model by task -- `opus` for design, architecture, and judgment; `sonnet` for routine coding and mechanical dispatch; `haiku` for read-only lookups -- and `effort` by reasoning load, `high` for most work, `xhigh` or `max` for subtle correctness. Scope `tools` narrowly; omit only to inherit every session tool. Withholding a tool is a real constraint, stronger than an instruction: an agent with no `Write` cannot author the payload it forwards.
 
-Both descriptions are always loaded alongside the body, so never open with a Role section restating one. Give an agent a one-line Identity instead -- the disposition it argues from when a call is close.
+Give an agent a one-line Identity -- the disposition it argues from when a call is close.
 
 ## Token Efficiency
 
@@ -53,7 +49,7 @@ Skills and agents are paid for on every invocation. Classify each sentence befor
 
 Rationale is not automatically derivable. Keep the sentence that resolves a case the rules do not list, or that sets the stake so a reader knows to stop rather than warn; cut the one that only re-explains a rule already given.
 
-Two constraints on the cut. Keep anything genuinely ambiguous between the categories -- losing capability costs more than the tokens save. And where Workflow and Rules would state one constraint twice, state it once, in whichever makes it likelier to be followed; for destructive operations that is the imperative-negative in Rules.
+Keep anything genuinely ambiguous between the categories -- losing capability costs more than the tokens save. Where one constraint could sit in either Workflow or Rules, put it where it is likelier to be followed; for a destructive operation that is the imperative-negative in Rules.
 
 ## What Not To Extract
 
@@ -85,9 +81,9 @@ Target 100 lines, excluding tables and templates. Past that, check whether a sec
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
-**Restatement violation:** a Role section paraphrasing the frontmatter description, or any constraint stated in both Workflow and Rules.
+**Restatement violation:** a Role section paraphrasing the frontmatter description, which loads with the body anyway, or any constraint stated in both Workflow and Rules.
 
-**Model violation:** a `model` key in a SKILL.md, or an AGENT.md pinning `model` without `effort`.
+**Model violation:** a `model` key in a SKILL.md -- skills run on whatever tier the session holds -- or an AGENT.md pinning `model` without `effort`.
 
 ## User Input
 
