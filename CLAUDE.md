@@ -2,7 +2,7 @@
 
 ## Authoring skills and agents
 
-Load the `skill-write` skill before creating or editing any `skills/*/SKILL.md` or `agents/*/AGENT.md`, however small the change looks, and follow it as written -- scoping questions one at a time, and confirmation of the full draft before anything is written. Working from a memory of its rules is not the same as loading it: this instruction exists because that substitution has already happened, and the pass that catches a restatement or a dropped rule-bearing sentence is the pass that gets skipped.
+Load the `skill-write` skill before creating or editing any `skills/*/SKILL.md` or `agents/*/AGENT.md`, however small the change looks, and follow it as written -- scoping questions one at a time until the scope is settled, then the write. Working from a memory of its rules is not the same as loading it: this instruction exists because that substitution has already happened, and the pass that catches a restatement or a dropped rule-bearing sentence is the pass that gets skipped.
 
 The same applies to a file the change only touches in passing. A one-line edit to a command table is an edit to an `AGENT.md`.
 

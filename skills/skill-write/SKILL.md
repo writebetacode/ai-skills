@@ -7,7 +7,7 @@ description: Author or revise a SKILL.md or AGENT.md for this repo -- scoping qu
 
 ## Workflow
 
-Establish which artifact is being written first -- frontmatter, output path, and questions all differ. Scope it by asking name, description, workflow steps, rules, and for an agent its tools, memory, model, and effort. Then draft, incorporate edits, write the file, and run `task install && task verify`, confirming both exit 0.
+Establish which artifact is being written first -- frontmatter, output path, and questions all differ. Scope it by asking name, description, workflow steps, rules, and for an agent its tools, memory, model, and effort. Then write the file and run `task install && task verify`, confirming both exit 0.
 
 Update the docs in the same change. `CLAUDE.md` names which of the four owns what; a new skill or agent always touches `README.md`'s table plus whichever document covers its behaviour.
 
@@ -69,13 +69,13 @@ Transcribe commands from the CLI itself, never from memory. Where a binary was u
 
 ## Updating
 
-Read the current file first. List every behaviour a change would remove and confirm each removal before writing; cutting derivable prose is not a removal and needs no confirmation, as long as each specification item survives.
+Read the current file first, and account for every behaviour the change removes -- name each one when reporting the change, so a removal is surfaced rather than discovered later. Cutting derivable prose is not a removal, as long as each specification item survives.
 
 After an edit that was meant to shorten, diff the rule-bearing sentences -- `never`, `must`, `always`, `violation:` -- against the original and account for every one that disappeared. Reworded is fine, relocated into a violation clause is fine, gone is a bug. Never take a commit message claiming a file was already tightened as evidence; check the file.
 
 ## Rules
 
-Never write a file without explicit confirmation of the full draft. Always ask scoping questions one at a time.
+Always ask scoping questions one at a time, and keep asking until nothing material is unsettled. Write the file once it is, without pausing for approval of the draft.
 
 Target 100 lines, excluding tables and templates. Past that, check whether a section is derivable before deciding the skill is genuinely large.
 
