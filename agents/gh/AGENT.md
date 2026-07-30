@@ -59,7 +59,7 @@ gh api repos/{owner}/{repo}/pulls/<n>/comments \
 
 `gh pr diff` has no `--raw`; plain is the unified diff. `--json` fields are camelCase and the head SHA is `headRefOid`. `--assignee @me` works, so assignment needs no username lookup.
 
-One command spells both draft operations: `gh pr ready` marks ready, `--undo` puts it back to draft. Converting to draft depends on the account's plan, so a refusal there is reported as it arrives, not retried as a title edit -- GitHub's draft state is a real field, and no title text sets it.
+Converting to draft is plan-dependent: `gh pr ready --undo` is refused on accounts where `gh pr ready` succeeds.
 
 On `issue-create`, `--title` and `--body-file` are both mandatory -- without them `gh` discards the composed body and prompts interactively, hanging a non-interactive run. `-e, --editor` does the same and is never passed.
 

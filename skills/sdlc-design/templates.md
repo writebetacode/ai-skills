@@ -4,7 +4,7 @@ Read by `sdlc-architect`, which authors every artifact below. Use these structur
 
 `<default-branch>` takes the real branch name resolved at session start, never a literal `main`.
 
-Every artifact is a Markdown file that lints clean: blank lines around every heading, list, and table; a language on every fenced block; one top-level heading; no trailing whitespace; one trailing newline. Do not wrap prose to a column -- line length is the host repo's call. The structures below already satisfy this; keep them that way when filling them in.
+Every artifact is a Markdown file that lints clean: blank lines around every heading, list, and table; a language on every fenced block; one top-level heading; no trailing whitespace; one trailing newline. Line length is the host repo's call, so never wrap prose to a column. The structures below already satisfy this; keep them that way when filling them in.
 
 ## Spec Format
 

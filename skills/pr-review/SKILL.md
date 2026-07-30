@@ -34,7 +34,7 @@ Every question the diff raises is yours to answer first, chased as it surfaces r
 
 Write `docs/pr-reviews/<number>.md`, creating directories as needed. Leave it unstaged and never gitignore it. Show the numbered findings and stop.
 
-The report is a file in someone's repo, so it lints like one: blank lines around every heading, list, and fenced block; a language on every fence bar the suggestion fences below, whose token is load-bearing; one top-level heading; no trailing whitespace; one trailing newline. Do not wrap prose to a column -- line length is the host repo's call, and rewrapping a summary line breaks the verbatim reuse that posting depends on. The one rule the report cannot satisfy is `MD029`, since a section opening at finding 4 is an id and not a miscounted list, so the template disables that rule alone, in the file, where a reader hitting the numbering can see why.
+The report is a file in someone's repo, so it lints like one: blank lines around every heading, list, and fenced block; a language on every fence; one top-level heading; no trailing whitespace; one trailing newline. Line length is the host repo's call, so never wrap prose to a column.
 
 ## Findings
 
