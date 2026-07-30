@@ -23,7 +23,7 @@ Resolve the target branch from arguments, or auto-detect by matching branch-name
 
 Draft a human-readable title under 70 characters covering the combined changes. Validate any host-native issue reference with `issue-view` before citing it. Compose the description from the template, write it to a temp file, then dispatch `create` with the title, body path, base, and username -- adding draft when "draft" appears in `$ARGUMENTS` -- or `update-description` following the Update Path below. Display the URL from the agent's report.
 
-`draft` and `ready` move an existing PR/MR between the two states, dispatched only when the request asks for the move: "mark it ready", "back to draft". The state `view` already returned says whether the move is real -- report a PR that is already ready rather than dispatching at it. Where the same request also revises the description, update first and toggle after, since marking ready is what puts it in front of reviewers.
+Dispatch `draft` or `ready` only when the request asks for the move: "mark it ready", "back to draft". `view` already reported the current state, so a move that would change nothing is reported instead of dispatched. Where the same request also revises the description, update first and toggle after, since marking ready is what puts the body in front of reviewers.
 
 ## Update Path
 
@@ -82,11 +82,11 @@ Never reference a host-native issue without validating it via `issue-view` first
 
 Never compose a remote command here -- an operation the agent's table does not cover is reported as unsupported, not worked around with a raw CLI call.
 
-Never write the draft state into a title. GitLab stores it as a `Draft:` prefix, but that belongs to the operations, and a refusal -- GitHub's conversion to draft is plan-dependent -- is reported as it stands. A title edited to fake the state outlives the toggle.
+A toggle the forge refuses is reported as it stands, never simulated by other means: converting to draft is plan-dependent on GitHub.
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
-**Title violation:** any title that is not a plain-English, human-readable sentence -- raw branch names, ticket slugs, kebab-case, or machine-style identifiers must be rewritten before create/update. `fix/auth-token-refresh` or `PROJ-123` are violations; "Fix authentication token refresh on expired sessions" is acceptable.
+**Title violation:** any title that is not a plain-English, human-readable sentence -- raw branch names, ticket slugs, kebab-case, or machine-style identifiers must be rewritten before create/update. `fix/auth-token-refresh` or `PROJ-123` are violations, as is a `Draft:` prefix written here to mark state the `draft` operation owns; "Fix authentication token refresh on expired sessions" is acceptable.
 
 **Body violation:** any body off the exact template -- Tickets, Summary, Why, and Changes in that order using the prescribed markdown. Freeform prose, generic layouts, or invented sections like "Test Plan" must be corrected before create/update. This governs the fenced region alone: content outside it is never a violation whatever its shape, and must not be trimmed or template-conformed to satisfy this rule.
 
