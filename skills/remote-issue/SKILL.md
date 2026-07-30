@@ -19,7 +19,7 @@ Ask which tracker unless `$ARGUMENTS` settles it -- a project key like `PROJ-123
 
 Dispatch `auth` to the chosen agent and stop on failure, then resume it with `SendMessage` for the create. Send `op:` and its parameters one per line, and pass the description as a file path -- write the composed body to a temp file outside the repo, so the bytes never travel as prose in a message.
 
-Two failures stop the run rather than routing around it. If the agent cannot be spawned, it is excluded in `config.yml` or not installed: name it and say so. If it reports the CLI missing, tell the user which CLI to install, with the URL it gave. Never fall back to running the command here in either case.
+Two failures stop the run rather than routing around it. If the agent cannot be spawned, it is not installed: name it and say so. If it reports the CLI missing, tell the user which CLI to install, with the URL it gave. Never fall back to running the command here in either case.
 
 ## Workflow
 

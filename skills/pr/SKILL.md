@@ -11,7 +11,7 @@ One skill for both forges. The commands belong to the `gh` and `glab` agents; wh
 
 Resolve the forge from the `origin` remote and dispatch every remote operation to that host's agent -- `gh` for GitHub, `glab` for GitLab -- via the `Agent` tool, resuming it with `SendMessage` within a run. Where a self-hosted URL settles nothing, ask each available agent for `repo-id` and take the one that resolves; if both do or neither does, ask the user rather than guessing. Say "pull request" or "merge request" to match the host once resolved.
 
-Two failures stop the run rather than routing around it. If the agent cannot be spawned, it is excluded in `config.yml` or not installed: name it and say so. If it reports the CLI missing, tell the user which CLI to install, with the URL it gave. Never fall back to running the command here in either case.
+Two failures stop the run rather than routing around it. If the agent cannot be spawned, it is not installed: name it and say so. If it reports the CLI missing, tell the user which CLI to install, with the URL it gave. Never fall back to running the command here in either case.
 
 Send `op:` and its parameters one per line, and pass every description as a file path -- write the composed body to a temp file outside the repo. Bytes must never travel as prose in a message; that is what keeps a description byte-exact through the handoff.
 
