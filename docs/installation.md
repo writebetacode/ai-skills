@@ -17,7 +17,7 @@ Everything installs by default. To opt out of specific skills or agents, copy `c
 ```yaml
 exclude:
   skills:
-    - mr
+    - pr-review
     - gh-issue
   agents:
     - sdlc-tester
@@ -29,7 +29,7 @@ platforms:
 statusline: false    # skip the status line
 ```
 
-Because it's an exclude list, a skill added to the repo later installs automatically unless you name it. Use block form for the lists — inline form (`skills: [mr]`) is rejected with an error rather than silently ignored.
+Because it's an exclude list, a skill added to the repo later installs automatically unless you name it. Use block form for the lists — inline form (`skills: [pr-review]`) is rejected with an error rather than silently ignored.
 
 `statusline: false` skips the status line specifically: `statusline.sh` is not linked and the `statusLine` key is dropped from the settings merge, so your existing `~/.claude/settings.json` keeps whatever it already had. The two go together deliberately — linking without the key would leave a script nothing invokes, and merging the key without the script would point `statusLine` at a path that does not exist. `task verify` then checks the symlink is *absent*, the same way it treats an excluded skill.
 
@@ -91,7 +91,6 @@ One limit worth knowing, a property of the data rather than the script: Fable 5 
 task uninstall                 # remove symlinks and subtract repo-defined settings
 task verify                    # run every check below, in order
 task verify:skills-installed   # check all symlinks
-task verify:pr-body            # check the shared PR/MR body template has not drifted
 task doctor                    # report installed skills/agents this repo does not manage
 ```
 

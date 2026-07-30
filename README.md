@@ -16,20 +16,26 @@ Everything installs by default. To opt out of specific skills or agents, or to s
 
 ## Skills
 
-Every git-facing skill resolves the repo's default branch from `origin/HEAD` rather than assuming `main`, so they behave correctly on repos that default to `develop`, `master`, or `trunk`. None pin a model — each runs on whatever model your session is already using, so invoking a skill never silently changes tiers or costs.
+Every git-facing skill resolves the repo's default branch from `origin/HEAD` rather than assuming `main`, so they behave correctly on repos that default to `develop`, `master`, or `trunk`. No skill pins a model — each runs on whatever model your session is already using, so invoking a skill never silently changes tiers or costs. Agents do pin one, since they spawn fresh with no session to inherit from.
 
 | Command | Description |
 |---|---|
 | `/commit` | Stage-aware conventional commits — commits exactly what is staged, immediately |
-| `/pr` | Create or update GitHub pull requests with structured descriptions |
-| `/mr` | Create or update GitLab merge requests with the same structured description, via `glab` |
-| `/mr-review` | Review a GitLab MR into a numbered `docs/mr-reviews/<mr#>.md` report, then post selected findings back as inline discussions |
+| `/pr` | Create or update pull requests and merge requests with structured descriptions, on GitHub or GitLab |
+| `/pr-review` | Review a PR or MR into a numbered `docs/pr-reviews/<number>.md` report, then post selected findings back as inline comments |
 | `/restack` | Rebase open branches onto the latest default branch, whether their base was squash-merged or the default branch simply moved ahead |
 | `/prune-branches` | Delete local branches whose changes already landed in the default branch, including squash-merged branches `git branch -d` refuses as unmerged |
 | `/gh-issue` | Create consistently-formatted GitHub issues with type, priority, and optional context sections |
 | `/gh-release` | Tag the default branch and publish a GitHub release, inferring the version from commit history and drafting notes in the repo's established voice |
 
-`/pr` and `/mr` share a body template with rules of its own, and `/mr-review` splits reviewing from posting — see [Skill behaviour](docs/skills.md).
+`/pr` and `/pr-review` serve both forges from one file each, delegating every remote command to a per-CLI agent:
+
+| Agent | Model | Effort | Description |
+|---|---|---|---|
+| `gh` | sonnet | medium | Executes GitHub pull request operations through the `gh` CLI on a caller's work order |
+| `glab` | sonnet | medium | Executes GitLab merge request operations through the `glab` CLI on a caller's work order |
+
+The body template has rules of its own, and `/pr-review` splits reviewing from posting — see [Skill behaviour](docs/skills.md).
 
 ## SDLC workflow
 
@@ -44,7 +50,7 @@ A manifest-driven process from feature idea to merged code, run by three persist
 ## Documentation
 
 - [Installation and configuration](docs/installation.md) — install, opt-outs, settings keys, status line, verification
-- [Skill behaviour](docs/skills.md) — the shared PR/MR body template and how `/mr-review` splits reviewing from posting
+- [Skill behaviour](docs/skills.md) — the PR/MR body template, the per-CLI agent boundary, and how `/pr-review` splits reviewing from posting
 - [SDLC workflow](docs/sdlc.md) — the three phases, the `plans/` layout, and the agents
 
 ## File layout

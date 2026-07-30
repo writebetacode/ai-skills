@@ -103,7 +103,7 @@ tasks:
           echo "    Use block form instead:"
           echo "      exclude:"
           echo "        skills:"
-          echo "          - mr"
+          echo "          - pr-review"
           exit 1
         fi
 
@@ -316,38 +316,10 @@ tasks:
         done
         remove_link "$HOME/.claude/statusline.sh"
 
-  verify:pr-body:
-    silent: true
-    desc: Verify the shared PR/MR body template is byte-identical across all skills tagged with pr-body:v1
-    cmds:
-      - |
-        canonical=""
-        failed=0
-        for f in skills/*/SKILL.md; do
-          if grep -q "pr-body:v1" "$f"; then
-            block=$(awk '
-              /<!-- pr-body:v1/{flag=1; next}
-              flag && /^```/{fence=!fence; print; next}
-              flag && !fence && /^(## |<!-- )/{flag=0; next}
-              flag{print}
-            ' "$f")
-            if [ -z "$canonical" ]; then
-              canonical="$block"
-              ref="$f"
-            elif [ "$block" != "$canonical" ]; then
-              echo "DRIFT $f differs from $ref"
-              failed=1
-            fi
-          fi
-        done
-        if [ $failed -eq 0 ]; then echo "OK pr-body block consistent across all tagged skills"; fi
-        exit $failed
-
   verify:
-    desc: Run all verification steps (install, pr-body, doctor)
+    desc: Run all verification steps (install, doctor)
     cmds:
       - task: verify:skills-installed
-      - task: verify:pr-body
       # doctor last and advisory-only: leftovers are worth surfacing but must not
       # fail the build, since the user may keep unrelated skills of their own.
       - task: doctor

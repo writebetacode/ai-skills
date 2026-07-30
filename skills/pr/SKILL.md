@@ -1,39 +1,53 @@
 ---
 name: pr
-description: Create or update a pull request with a human-readable title and structured description. Use when the user wants to open or update a PR for the current branch.
+description: Create or update a pull request or merge request with a human-readable title and structured description, on GitHub or GitLab. Use when the user wants to open or update a PR or MR for the current branch.
 ---
 
 # PR
 
+One skill for both forges. The commands belong to the `gh` and `glab` agents; what follows is host-agnostic.
+
+## Host
+
+Resolve the forge from the `origin` remote, then dispatch every remote operation to that host's agent -- `gh` for GitHub, `glab` for GitLab -- via the `Agent` tool, resuming it with `SendMessage` for later operations in the same run.
+
+| Remote host | Agent | Reads |
+| --- | --- | --- |
+| `github.com` or GitHub Enterprise | `gh` | pull request |
+| `gitlab.com` or self-hosted GitLab | `glab` | merge request |
+
+A self-hosted host is not identifiable by name alone. Where the URL settles nothing, ask each agent for `repo-id` and take the one that resolves; if both do or neither does, ask the user rather than guessing -- the wrong agent means the wrong forge. Say "pull request" or "merge request" to match the host once resolved.
+
+Send `op:` and its parameters, one per line, and pass every description as a file path -- write the composed body to a temp file outside the repo. The bytes must never travel as prose in a message; that is what keeps a description byte-exact through the handoff.
+
 ## Workflow
 
-Verify `gh auth status`; stop on failure. Gather in parallel: current branch, remote URL, user login, PR status. Warn on uncommitted changes. Resolve base from arguments, or auto-detect by matching branch-name prefix against other local branches, falling back to `git merge-base` against the repo's default branch — resolve it via `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), or `git remote show origin` parsed for `HEAD branch:` if that ref is missing; never assume `main`, since the repo may default to `develop`, `master`, or `trunk`. Validate ticket numbers via `gh issue view`. Draft a human-readable title under 70 characters covering combined changes. Compose body from the template, run `gh pr create --assignee @me --base <base>` or, when editing an existing PR, follow the Update Path below. Add `--draft` if "draft" appears in `$ARGUMENTS`. Display the PR URL.
+Dispatch `auth` first; stop on failure. Gather in parallel: current branch, remote URL, `whoami`, and the branch's PR/MR state via `view`. Warn on uncommitted changes.
+
+Resolve the target branch from arguments, or auto-detect by matching branch-name prefix against other local branches, falling back to `git merge-base` against the repo's default branch -- resolve it via `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), or `git remote show origin` parsed for `HEAD branch:` if that ref is missing; never assume `main`, since the repo may default to `develop`, `master`, or `trunk`.
+
+Draft a human-readable title under 70 characters covering the combined changes. Validate any host-native issue reference with `issue` before citing it. Compose the description from the template, write it to a temp file, then dispatch `create` with the title, body path, base, and username -- adding draft when "draft" appears in `$ARGUMENTS` -- or `update-description` following the Update Path below. Display the URL from the agent's report.
 
 ## Update Path
 
-`gh pr edit --body` replaces the body wholesale, and reviewer bots, teammates, and prior manual edits all write into that same field. You own the fenced region and nothing else. Fetch the current body first:
+Updating replaces the description wholesale, and reviewer bots, teammates, and prior manual edits all write into that same field. You own the fenced region and nothing else. Dispatch `description` to fetch the current text first, then locate your region, in this order:
 
-```sh
-gh pr view <number> --json body --jq .body
-```
+1. **Both markers present** -- replace everything between them.
+2. **Markers absent or unpaired** -- find the contiguous run of template sections from the first `## Tickets` heading and replace that run in place. A previous update owned it whether it predates the markers or lost them since. An unpaired opener never acts as a boundary; a hand-deleted closer would otherwise swallow the rest of the description.
+3. **Neither** -- insert at the top. Only here: inserting while a template-shaped run exists is what produces two bodies, and later updates compound it.
 
-Locate your region, in this order:
+Match markers on the token alone -- `pr-body:start`, `pr-body:end` -- ignoring whitespace inside the comment, since serializers respace HTML comments in transit. Recognize `mr-body:start` and `mr-body:end` as legacy equivalents, written by earlier versions of this skill, and rewrite them to the canonical token on the next update. Rule 2 is what survives a serializer that strips markers outright.
 
-1. **Both markers present** — replace everything between them.
-2. **Markers absent or unpaired** — find the contiguous run of template sections from the first `## Tickets` heading and replace that run in place. A previous update owned it whether it predates the markers or lost them since. An unpaired opener never acts as a boundary; a hand-deleted closer would otherwise swallow the rest of the body.
-3. **Neither** — insert at the top. Only here: inserting while a template-shaped run exists is what produces two bodies, and later updates compound it.
+Everything outside your region survives byte-for-byte, in place, whoever wrote it: never reword, resummarize, reformat, template-conform, relocate, or regenerate it from the diff. On an ambiguous boundary, carry content forward rather than drop it -- a duplicated line is recoverable, deleted review feedback is not. Never skip an update or leave the description stale to avoid an awkward layout.
 
-Match markers on the token alone — `mr-body:start`, `mr-body:end` — ignoring whitespace inside the comment, since serializers respace HTML comments in transit. Rule 2 is what survives a serializer that strips them outright. Always write markers back in canonical form, with the autogenerated notice beneath the opener.
+Jira ticket references are informational only -- neither forge closes a Jira issue on merge, so never use closing keywords (`Closes`, `Fixes`, `Resolves`) for a Jira key.
 
-Everything outside your region survives byte-for-byte, in place, whoever wrote it: never reword, resummarize, reformat, template-conform, relocate, or regenerate it from the diff. On an ambiguous boundary, carry content forward rather than drop it — a duplicated line is recoverable, deleted review feedback is not. Never skip an update or leave the body stale to avoid an awkward layout.
+## Body Template
 
-## PR Body Template
-
-<!-- pr-body:v1 -->
 Use this exact markdown structure, fence markers included. Omit Breaking Changes and Dependencies when not applicable. The markers delimit the region this skill owns and rewrites on update; everything outside them is preserved untouched.
 
 ```markdown
-<!-- mr-body:start -->
+<!-- pr-body:start -->
 <!-- Autogenerated. Everything inside this fence is rewritten on each update
      and any edits here will be lost. Add notes outside the fence; content
      there is preserved exactly as written. -->
@@ -62,16 +76,20 @@ Use this exact markdown structure, fence markers included. Omit Breaking Changes
 ## Dependencies
 
 <List added, removed, or upgraded dependencies, or omit this section entirely.>
-<!-- mr-body:end -->
+<!-- pr-body:end -->
 ```
 
 ## Rules
 
-Always assign to @me with `--assignee @me`. Never reference a ticket without validating it via `gh issue view` first. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
+Always assign to the current user: `@me` on GitHub, a username resolved via `whoami` on GitLab, which has no `@me` equivalent. The agent owns that difference -- dispatch the assignee it asks for and never hardcode a name. Never reference a host-native issue without validating it via `issue` first. Never apply a closing keyword to a Jira key.
 
-**Title violation:** any title that is not a plain-English, human-readable sentence — raw branch names, ticket slugs, kebab-case, or machine-style identifiers must be rewritten before create/update. `fix/auth-token-refresh` or `PROJ-123` are violations; "Fix authentication token refresh on expired sessions" is acceptable.
+Never compose a remote command here. An operation the agent's table does not cover is reported as unsupported, not worked around with a raw CLI call from this skill -- the tables are the single place those flags are maintained.
 
-**Body violation:** any body off the exact template — Tickets, Summary, Why, and Changes in that order using the prescribed markdown. Freeform prose, generic layouts, or invented sections like "Test Plan" must be corrected before create/update. This governs the fenced region alone: content outside it is never a violation whatever its shape, and must not be trimmed or template-conformed to satisfy this rule.
+Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
+
+**Title violation:** any title that is not a plain-English, human-readable sentence -- raw branch names, ticket slugs, kebab-case, or machine-style identifiers must be rewritten before create/update. `fix/auth-token-refresh` or `PROJ-123` are violations; "Fix authentication token refresh on expired sessions" is acceptable.
+
+**Body violation:** any body off the exact template -- Tickets, Summary, Why, and Changes in that order using the prescribed markdown. Freeform prose, generic layouts, or invented sections like "Test Plan" must be corrected before create/update. This governs the fenced region alone: content outside it is never a violation whatever its shape, and must not be trimmed or template-conformed to satisfy this rule.
 
 ## User Input
 

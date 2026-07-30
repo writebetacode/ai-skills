@@ -201,6 +201,10 @@
       "Bash(gh release create *)",
       "Bash(gh release view *)",
       "Bash(glab mr list *)",
+      "Bash(glab mr diff *)",
+      "Bash(glab issue view *)",
+      "Bash(glab repo view *)",
+      "Bash(gh repo view *)",
       "Bash(task *)",
       "Bash(jq *)"
     ],
@@ -225,7 +229,12 @@
       "Bash(git branch -D)",
       "Bash(git branch -d *)",
       "Bash(git branch -d)",
-      "Bash(git worktree remove *)"
+      "Bash(git worktree remove *)",
+      "Bash(glab mr note create *)",
+      "Bash(glab mr approve *)",
+      "Bash(glab mr revoke *)",
+      "Bash(gh pr review *)",
+      "Bash(gh pr comment *)"
     ]
   },
   "skipAutoPermissionPrompt": true,
