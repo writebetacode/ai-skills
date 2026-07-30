@@ -30,13 +30,15 @@ Gather in parallel via the agent: `view`, `diff`, `threads`.
 
 Read the diff in full, then read the surrounding code for every file it touches -- a hunk shows what changed, never whether it is correct against the code it lands in. Where the head SHA differs from the local branch tip, say so: the working tree is not what is being reviewed.
 
-Every question the diff raises is yours to answer first, chased as it surfaces rather than deferred: the callers, the definition, the tests, the history, the linked issue. A question reaches the report only once the repository has failed to settle it, and it carries what you looked at, so the author is asked only for what the author alone knows -- intent, an external system, a decision made off the diff.
+Every question the diff raises is yours to answer first, chased as it surfaces rather than deferred: the callers, the definition, the tests, the history, the linked issue. What the repository settles becomes a finding. What it cannot settle is still a finding, written so the author confirms rather than investigates: what you already checked, and the one part only they can supply -- intent, an external system, a decision made off the diff.
 
 Write `docs/pr-reviews/<number>.md`, creating directories as needed. Leave it unstaged and never gitignore it. Show the numbered findings and stop.
 
 The report is a file in someone's repo, so it lints like one: blank lines around every heading, list, and fenced block; a language on every fence; one top-level heading; no trailing whitespace; one trailing newline. Line length is the host repo's call, so never wrap prose to a column.
 
 ## Findings
+
+A finding traces to the change: a line the diff touched, or code the change makes wrong -- a caller the new signature breaks, an invariant it now violates, a test it leaves stale. Surrounding code is read to judge that, never mined for findings of its own. A defect on untouched lines of a touched file is out of scope however visible, as is a refactor the diff merely makes tempting.
 
 Number every finding and never reuse a number -- numbers are how the user selects what to post. State the issue in one sentence and name its concrete consequence: what breaks, under what condition. A finding with no consequence to name belongs in Could change or nowhere. Anchor only to lines you have read; a finding with no anchor is written without one.
 
@@ -46,9 +48,10 @@ Write each summary line once, in the voice below: posting reuses it verbatim. La
 | --- | --- | --- |
 | Should change | `issue`, `todo`, `chore` | `(blocking)` |
 | Could change | `suggestion`, `nitpick`, `polish`, `typo` | `(non-blocking)` |
-| Question | `question`, `thought`, `note` | none |
 
 Pick the narrowest label that fits -- `todo` over `issue` for the small and mechanical, `typo` or `nitpick` over `suggestion` when that is all it is -- and never one more severe than the consequence supports. Add `(if-minor)` where the author may resolve at their discretion.
+
+A finding the repository could not settle routes by consequence like any other: Should change where the unfavourable answer breaks something, Could change where it does not. It carries the condition in its text -- what must hold, what follows if it does not, and what you checked to get that far -- so the uncertainty is visible without a section of its own.
 
 ```markdown
 # <PR|MR> <#|!><number> -- <title>
@@ -67,15 +70,13 @@ Pick the narrowest label that fits -- `todo` over `issue` for the small and mech
 1. issue (blocking): <subject> -- `<file>:<line>`
    <correctness, security, data loss, or breakage, and its consequence>
 
+2. issue (blocking): <subject> -- `<file>:<line>`
+   <unsettled: what must hold, what breaks if it does not, and what you checked>
+
 ### Could change
 
-2. suggestion (non-blocking): <subject> -- `<file>:<line>`
+3. suggestion (non-blocking): <subject> -- `<file>:<line>`
    <improvement the author may decline, and what it buys>
-
-### Question
-
-3. question: <subject> -- `<file>:<line>`
-   <what you checked and what it showed, then the part only the author can settle>
 
 ### Verdict
 
@@ -128,7 +129,7 @@ Never compose a remote command here -- an operation the agent's table does not c
 
 Never invent a line number, file path, or consequence. Never claim anything was run or tested; describe inspected code as inspected. Review the diff on its merits, not the author's.
 
-**Question violation:** a question the repository answers. Anything the code, the tests, the history, or the linked issue settles is a finding or nothing at all.
+**Relevance violation:** a finding that does not trace to the change -- a defect on untouched lines of a touched file, a remark on surrounding code, or a question the code, the tests, the history, or the linked issue already answers. "`parseConfig` has swallowed this error since before the diff" is a violation; "the early return added here skips the `defer` above it" is a finding.
 
 **Numbering violation:** a finding written without a number, or a number reused for a different finding, must be corrected before the report is shown.
 
