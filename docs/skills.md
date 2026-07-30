@@ -24,6 +24,8 @@ Agents install to `~/.claude` only. On Gemini all four skills install and their 
 
 ## When a template moves to its own file
 
+The rule below, and the rest of what governs how these files are written -- what earns a place in one, what is derivable and gets cut, when a constraint becomes a violation clause -- is enforced operationally by `/skill-write`. This document explains why the repo is shaped as it is; that skill applies it while editing.
+
 A skill can ship reference files beside `SKILL.md` and read them on demand. That pays in exactly one situation: **when the context that loads the skill is not the context that uses the template.** Where they are the same, extraction buys nothing and costs a `Read` round-trip plus the chance the model skips it, so the template stays inline.
 
 `/sdlc-design` is the one case that qualifies. Its main thread is a pure router, forbidden by its own rules from producing specs, plans, or task files — yet it was loading 110 lines of artifact templates on every invocation, while `sdlc-architect`, which does the authoring, read the whole `SKILL.md` to find them. Splitting them into `templates.md` cut the orchestrator's file by more than half and left the architect reading only what it fills in.
