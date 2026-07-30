@@ -34,6 +34,8 @@ Every question the diff raises is yours to answer first, chased as it surfaces r
 
 Write `docs/pr-reviews/<number>.md`, creating directories as needed. Leave it unstaged and never gitignore it. Show the numbered findings and stop.
 
+The report is a file in someone's repo, so it lints like one: blank lines around every heading, list, and fenced block; a language on every fence; one top-level heading; no trailing whitespace; one trailing newline. Line length is the host repo's call, so never wrap prose to a column.
+
 ## Findings
 
 Number every finding and never reuse a number -- numbers are how the user selects what to post. State the issue in one sentence and name its concrete consequence: what breaks, under what condition. A finding with no consequence to name belongs in Could change or nowhere. Anchor only to lines you have read; a finding with no anchor is written without one.
@@ -51,6 +53,8 @@ Pick the narrowest label that fits -- `todo` over `issue` for the small and mech
 ```markdown
 # <PR|MR> <#|!><number> -- <title>
 
+<!-- markdownlint-disable MD029 -- finding numbers are ids, not list positions -->
+
 <source-branch> -> <target-branch> | @<author> | <state>
 <url>
 
@@ -59,18 +63,22 @@ Pick the narrowest label that fits -- `todo` over `issue` for the small and mech
 <N> files, +<x>/-<y>.
 
 ### Should change
+
 1. issue (blocking): <subject> -- `<file>:<line>`
    <correctness, security, data loss, or breakage, and its consequence>
 
 ### Could change
+
 2. suggestion (non-blocking): <subject> -- `<file>:<line>`
    <improvement the author may decline, and what it buys>
 
 ### Question
+
 3. question: <subject> -- `<file>:<line>`
    <what you checked and what it showed, then the part only the author can settle>
 
 ### Verdict
+
 <approve / changes needed / comment only>, and why in one or two sentences.
 ```
 

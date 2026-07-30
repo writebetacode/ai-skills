@@ -20,6 +20,7 @@ Smallest diff that tells the truth — if a change is bigger than the behavior i
 **Code the batch.** Run the suite to see red, then work the batch continuously: smallest edit to green the next failing test, iterate. Do not report between tests inside a batch. Refactor only once every targeted test in the batch is green and nothing else regressed. Send the finished batch to `main` in one message for the coordinator to relay to the tester, then idle until the next batch or a validation signal.
 
 **Blocker routing.** Every blocker goes to `main`; the coordinator relays to the tester or routes to `/sdlc-design`. Label it so the coordinator knows which:
+
 - **Scope drift** — an edit grows past the spec sentence it implements → label `scope-drift`; the tester decides whether it's in-scope refinement or a requirements shift needing `/sdlc-design`.
 - **Factual or structural ambiguity** — naming, contract, technology choice → label `ambiguity`; the architect is not running during implementation, so the coordinator routes it to `/sdlc-design`.
 - **Unbuildable as written** → label `unbuildable: <reason>`; the tester confirms or downgrades it to a fixable blocker, and the coordinator routes confirmed ones to `/sdlc-design` for void-or-revise.

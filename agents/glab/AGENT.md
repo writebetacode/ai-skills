@@ -30,6 +30,8 @@ The caller sends `op:` plus parameters, one per line. Bodies always arrive as fi
 | `threads` | `glab mr view <id> --comments` |
 | `create` | `glab mr create --yes --title <title> --description "$(cat <body-file>)" --target-branch <base> --assignee <username>`, plus `--draft` when asked |
 | `update-description` | `glab mr update <id> --description "$(cat <body-file>)"` |
+| `draft` | `glab mr update <id> --draft` |
+| `ready` | `glab mr update <id> --ready` |
 | `comment` | see anchoring below |
 | `approve` | `glab mr approve <id> --sha <head-sha>` |
 | `revoke` | `glab mr revoke <id>` |
@@ -52,6 +54,8 @@ glab mr note create <id> < body.md                               # no file ancho
 
 `--yes` is mandatory on create -- without it `glab` blocks on an interactive confirmation and the run hangs. `--line` and `--old-line` each require `--file` and cannot be combined. `--file`, `--reply`, and `--unique` are mutually exclusive, so anchored comments cannot use `--unique`: there is no CLI-side double-post guard. `--resolvable=false` cannot combine with `--file`; leave it off, since each finding is meant to be a resolvable thread. `glab` has no `@me`, so an assignee is a username from `whoami`, and `glab api` is the one command in the table with no `--jq` flag -- pipe its JSON through `jq` and read `.username`, rather than reaching for a `whoami` subcommand that does not exist. Neither `--description` nor `note create -m` reads a file: descriptions go through `"$(cat <path>)"`, comment bodies through stdin redirection.
 
+`--wip` is a documented alias for `--draft`, not a third state. GitLab keeps the flag in a `Draft:` title prefix, so a title from `view` carries it and `.draft` is what reports the state.
+
 `issue create` opens an editor unless both `--title` and `--yes` are passed, which hangs a non-interactive run. Its `--description` reads no file either, so the body goes through `"$(cat <path>)"`. There is no `--parent`: GitLab's analogue is `--epic`, taking an epic id, and it is a paid-tier feature -- report a rejection rather than dropping the parent silently.
 
 On `release-create`, three flags differ from their `gh` counterparts. The title is `--name`. **`--no-update` is mandatory** -- without it, creating against a tag that already has a release silently overwrites that release's name and notes instead of failing. And `--ref` *creates* the tag when it does not exist, masking a failed tag push, so omit it unless the order explicitly asks for tag-and-release in one step.
@@ -64,7 +68,7 @@ Comments land on the latest diff version. If the caller's `<head-sha>` is not th
 
 Report with `SendMessage` to the caller -- plain output is not visible to them -- one line per operation, in the order attempted:
 
-```
+```text
 OK   <op> <key> -- <what happened, one clause>
 FAIL <op> <key> -- exit <code>: <first line of stderr>
 ```
@@ -73,7 +77,7 @@ FAIL <op> <key> -- exit <code>: <first line of stderr>
 
 When the CLI itself is absent -- `command not found`, exit 127 -- that is not an auth failure and is reported as its own thing, so the caller can tell the user what to install:
 
-```
+```text
 FAIL auth -- glab is not installed: https://gitlab.com/gitlab-org/cli
 ```
 
@@ -85,6 +89,6 @@ Never re-derive an anchor -- a rejected `--line` is reported, not retried agains
 
 Never author, reword, reformat, or truncate a body; you have no `Write` tool, and bodies pass through you untouched.
 
-Never substitute an operation the caller did not name, and never run `approve`, `revoke`, or `comment` unless the work order names it. Never invent a flag absent from the table above -- report the need as unsupported.
+Never substitute an operation the caller did not name, and never run `approve`, `revoke`, `comment`, `draft`, or `ready` unless the work order names it. Never invent a flag absent from the table above -- report the need as unsupported.
 
 Restrict generated output -- commits, PRs, issues, comments, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.

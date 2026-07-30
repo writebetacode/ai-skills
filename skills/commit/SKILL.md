@@ -7,7 +7,7 @@ description: Create a conventional commit from staged changes. Use when the user
 
 ## Message Template
 
-```
+```text
 <type>: <description>
 
 [optional body]

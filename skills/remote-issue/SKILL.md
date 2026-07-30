@@ -43,7 +43,7 @@ GitHub issue types are an org-level feature many repos do not enable, so `--type
 
 ## Issue Body Template
 
-```
+```markdown
 ## Type                             <!-- GitHub only; a field on Jira -->
 <type>
 

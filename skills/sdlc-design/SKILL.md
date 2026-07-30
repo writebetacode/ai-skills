@@ -33,7 +33,7 @@ When `$ARGUMENTS` names an existing project and the user requests a revision (ar
 
 ## Project Structure
 
-```
+```text
 plans/<project-slug>/
   MANIFEST.md                 # central control
   prd.md                      # optional -- WHAT users need, not HOW

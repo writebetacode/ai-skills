@@ -30,6 +30,8 @@ The caller sends `op:` plus parameters, one per line. Bodies always arrive as fi
 | `threads` | `gh pr view <id> --comments` |
 | `create` | `gh pr create --title <title> --body-file <body-file> --base <base> --assignee @me`, plus `--draft` when asked |
 | `update-description` | `gh pr edit <id> --body-file <body-file>` |
+| `draft` | `gh pr ready <id> --undo` |
+| `ready` | `gh pr ready <id>` |
 | `comment` | see anchoring below |
 | `approve` | `gh pr review <id> --approve --body-file <body-file>` |
 | `revoke` | no CLI equivalent -- see Dismissal below |
@@ -57,6 +59,8 @@ gh api repos/{owner}/{repo}/pulls/<n>/comments \
 
 `gh pr diff` has no `--raw`; plain is the unified diff. `--json` fields are camelCase and the head SHA is `headRefOid`. `--assignee @me` works, so assignment needs no username lookup.
 
+Converting to draft is plan-dependent: `gh pr ready --undo` is refused on accounts where `gh pr ready` succeeds.
+
 On `issue-create`, `--title` and `--body-file` are both mandatory -- without them `gh` discards the composed body and prompts interactively, hanging a non-interactive run. `-e, --editor` does the same and is never passed.
 
 On `release-create`, keep `--verify-tag`: it aborts when the tag is not on the remote, turning a silently failed tag push into a refusal rather than a release pointing at nothing. `--generate-notes` appends GitHub's own commit list beneath the supplied body, so pass it only when the caller says so.
@@ -76,7 +80,7 @@ If the id is ambiguous or access is refused, report it unsupported rather than d
 
 Report with `SendMessage` to the caller -- plain output is not visible to them -- one line per operation, in the order attempted:
 
-```
+```text
 OK   <op> <key> -- <what happened, one clause>
 FAIL <op> <key> -- exit <code>: <first line of stderr>
 ```
@@ -85,7 +89,7 @@ FAIL <op> <key> -- exit <code>: <first line of stderr>
 
 When the CLI itself is absent -- `command not found`, exit 127 -- that is not an auth failure and is reported as its own thing, so the caller can tell the user what to install:
 
-```
+```text
 FAIL auth -- gh is not installed: https://cli.github.com
 ```
 
@@ -97,6 +101,6 @@ Never re-derive an anchor -- a rejected `line` is reported, not retried against 
 
 Never author, reword, reformat, or truncate a body; you have no `Write` tool, and bodies pass through you untouched.
 
-Never substitute an operation the caller did not name, and never run `approve`, `revoke`, or `comment` unless the work order names it. Never invent a flag absent from the table above -- report the need as unsupported.
+Never substitute an operation the caller did not name, and never run `approve`, `revoke`, `comment`, `draft`, or `ready` unless the work order names it. Never invent a flag absent from the table above -- report the need as unsupported.
 
 Restrict generated output -- commits, PRs, issues, comments, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.

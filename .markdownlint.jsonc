@@ -1,0 +1,11 @@
+{
+  // Rule set for every Markdown file in this repo. Defaults apply except where
+  // overridden below; run `task lint:md` to check.
+  //
+  // MD013 (line-length) is off deliberately. Prose here is one line per
+  // paragraph, unwrapped, so that an edit to a sentence produces a one-line
+  // diff instead of reflowing the paragraph around it. Every file in the repo
+  // violates the 80-column default; wrapping them would make every future
+  // prose change unreviewable.
+  "MD013": false
+}
