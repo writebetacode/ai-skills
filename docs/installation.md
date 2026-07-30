@@ -18,7 +18,7 @@ Everything installs by default. To opt out of specific skills or agents, copy `c
 exclude:
   skills:
     - pr-review
-    - gh-issue
+    - remote-issue
   agents:
     - sdlc-tester
 

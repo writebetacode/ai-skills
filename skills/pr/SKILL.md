@@ -26,7 +26,7 @@ Dispatch `auth` first; stop on failure. Gather in parallel: current branch, remo
 
 Resolve the target branch from arguments, or auto-detect by matching branch-name prefix against other local branches, falling back to `git merge-base` against the repo's default branch -- resolve it via `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), or `git remote show origin` parsed for `HEAD branch:` if that ref is missing; never assume `main`, since the repo may default to `develop`, `master`, or `trunk`.
 
-Draft a human-readable title under 70 characters covering the combined changes. Validate any host-native issue reference with `issue` before citing it. Compose the description from the template, write it to a temp file, then dispatch `create` with the title, body path, base, and username -- adding draft when "draft" appears in `$ARGUMENTS` -- or `update-description` following the Update Path below. Display the URL from the agent's report.
+Draft a human-readable title under 70 characters covering the combined changes. Validate any host-native issue reference with `issue-view` before citing it. Compose the description from the template, write it to a temp file, then dispatch `create` with the title, body path, base, and username -- adding draft when "draft" appears in `$ARGUMENTS` -- or `update-description` following the Update Path below. Display the URL from the agent's report.
 
 ## Update Path
 
@@ -81,7 +81,7 @@ Use this exact markdown structure, fence markers included. Omit Breaking Changes
 
 ## Rules
 
-Always assign to the current user: `@me` on GitHub, a username resolved via `whoami` on GitLab, which has no `@me` equivalent. The agent owns that difference -- dispatch the assignee it asks for and never hardcode a name. Never reference a host-native issue without validating it via `issue` first. Never apply a closing keyword to a Jira key.
+Always assign to the current user: `@me` on GitHub, a username resolved via `whoami` on GitLab, which has no `@me` equivalent. The agent owns that difference -- dispatch the assignee it asks for and never hardcode a name. Never reference a host-native issue without validating it via `issue-view` first. Never apply a closing keyword to a Jira key.
 
 Never compose a remote command here. An operation the agent's table does not cover is reported as unsupported, not worked around with a raw CLI call from this skill -- the tables are the single place those flags are maintained.
 

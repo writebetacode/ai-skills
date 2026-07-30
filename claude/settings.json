@@ -205,6 +205,9 @@
       "Bash(glab issue view *)",
       "Bash(glab repo view *)",
       "Bash(gh repo view *)",
+      "Bash(acli jira auth status)",
+      "Bash(acli jira workitem view *)",
+      "Bash(acli jira workitem create *)",
       "Bash(task *)",
       "Bash(jq *)"
     ],

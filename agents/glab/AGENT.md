@@ -30,7 +30,7 @@ The caller sends `op:` plus parameters, one per line. Comment and description bo
 | `description` | `glab mr view <id> --output json --jq .description` |
 | `diff` | `glab mr diff <id> --raw` |
 | `threads` | `glab mr view <id> --comments` |
-| `issue` | `glab issue view <n> --output json --jq '{iid,title,state,web_url}'` |
+| `issue-view` | `glab issue view <n> --output json --jq '{iid,title,state,web_url}'` |
 | `create` | `glab mr create --yes --title <title> --description "$(cat <body-file>)" --target-branch <base> --assignee <username>`, plus `--draft` when asked |
 | `update-description` | `glab mr update <id> --description "$(cat <body-file>)"` |
 | `comment` | `glab mr note create <id> --file <path> --line <n> < <body-file>` |
