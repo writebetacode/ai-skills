@@ -4,7 +4,7 @@ Behaviour shared across skills, or too involved to leave implicit in a single `S
 
 ## The per-CLI agent boundary
 
-`/pr`, `/pr-review`, and `/remote-issue` each serve every backend they support from one file, and none contains a remote command. The `gh`, `glab`, and `acli` agents own the command vocabulary — flags, JSON field names, anchor semantics, mutual exclusions — one CLI per agent, so no agent branches on backend and no skill duplicates a table. The skill picks the backend, dispatches a work order naming an operation, and the operation names are shared across agents, which is what lets one skill drive any of them.
+`/pr`, `/pr-review`, `/remote-issue`, and `/gh-release` each serve every backend they support from one file, and none contains a remote command. The `gh`, `glab`, and `acli` agents own the command vocabulary — flags, JSON field names, anchor semantics, mutual exclusions — one CLI per agent, so no agent branches on backend and no skill duplicates a table. The skill picks the backend, dispatches a work order naming an operation, and the operation names are shared across agents, which is what lets one skill drive any of them.
 
 How the backend gets picked differs by what it is scoped to. A forge follows the code, so `/pr` and `/pr-review` resolve it from the `origin` remote, and where a self-hosted URL settles nothing they ask each agent for `repo-id` and take the one that resolves. A tracker does not: a repo on GitHub may track its work in Jira, so `/remote-issue` asks rather than inferring from the remote, and a Jira create is scoped by a project key that has nothing to do with the working directory.
 

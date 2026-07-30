@@ -32,6 +32,9 @@ The caller sends `op:` plus parameters, one per line. Comment and body payloads 
 | `threads` | `gh pr view <id> --comments` |
 | `issue-view` | `gh issue view <n> --json number,title,state,url` |
 | `issue-create` | `gh issue create --title <title> --body-file <body-file> --assignee @me`, plus `--label <name>` and `--type <name>` when asked |
+| `release-list` | `gh release list --limit <n>` |
+| `release-view` | `gh release view <tag>` |
+| `release-create` | `gh release create <tag> --target <branch> --title <title> --notes-file <notes-file> --verify-tag`, plus `--generate-notes`, `--draft`, or `--prerelease` when asked |
 | `create` | `gh pr create --title <title> --body-file <body-file> --base <base> --assignee @me`, plus `--draft` when asked |
 | `update-description` | `gh pr edit <id> --body-file <body-file>` |
 | `comment` | see anchoring below |
@@ -65,6 +68,8 @@ gh pr comment <id> --body-file <body-file>
 `{owner}` and `{repo}` are placeholders `gh api` fills from the working directory, so they are passed literally -- do not substitute them by hand. `-F` types its value (numbers stay numbers) and reads from a file when the value starts with `@`; `-f` is always a raw string. `line` and `start_line` therefore take `-F`, and `side` takes `-f`.
 
 On `issue-create`, `--title` and `--body-file` are both mandatory: without them `gh` discards the composed body and prompts interactively, which hangs a non-interactive run. `-e, --editor` does the same and is never passed.
+
+On `release-create`, prefer `--notes-file` over `--notes` so the body survives shell quoting intact, and keep `--verify-tag`: it aborts when the tag is not on the remote, which is what turns a silently failed tag push into a refusal instead of a release pointing at nothing. `--generate-notes` appends GitHub's own commit list beneath the supplied body, so pass it only when the caller says the body is meant to carry one.
 
 `gh pr diff` has no `--raw` -- plain is the unified diff. `--json` field names are camelCase, and the head SHA is `headRefOid`. `--assignee @me` works here, so no username lookup is needed for assignment.
 
