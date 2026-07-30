@@ -321,6 +321,19 @@ tasks:
         done
         remove_link "$HOME/.claude/statusline.sh"
 
+  lint:md:
+    desc: Lint every Markdown file in this repo against .markdownlint.jsonc
+    silent: true
+    cmds:
+      - |
+        if ! command -v npx >/dev/null 2>&1; then
+          echo "ERR npx not found -- the Markdown linter needs Node.js: https://nodejs.org"
+          exit 1
+        fi
+        # Kept out of `verify`: this is the one target that reaches the network,
+        # and verify must keep working offline.
+        npx --yes markdownlint-cli2 "**/*.md" "#node_modules"
+
   verify:
     desc: Run all verification steps (install, doctor)
     cmds:

@@ -34,6 +34,8 @@ Every question the diff raises is yours to answer first, chased as it surfaces r
 
 Write `docs/pr-reviews/<number>.md`, creating directories as needed. Leave it unstaged and never gitignore it. Show the numbered findings and stop.
 
+The report is a file in someone's repo, so it lints like one: blank lines around every heading, list, and fenced block; a language on every fence bar the suggestion fences below, whose token is load-bearing; one top-level heading; no trailing whitespace; one trailing newline. Do not wrap prose to a column -- line length is the host repo's call, and rewrapping a summary line breaks the verbatim reuse that posting depends on. The one rule the report cannot satisfy is `MD029`, since a section opening at finding 4 is an id and not a miscounted list, so the template disables that rule alone, in the file, where a reader hitting the numbering can see why.
+
 ## Findings
 
 Number every finding and never reuse a number -- numbers are how the user selects what to post. State the issue in one sentence and name its concrete consequence: what breaks, under what condition. A finding with no consequence to name belongs in Could change or nowhere. Anchor only to lines you have read; a finding with no anchor is written without one.
@@ -51,6 +53,8 @@ Pick the narrowest label that fits -- `todo` over `issue` for the small and mech
 ```markdown
 # <PR|MR> <#|!><number> -- <title>
 
+<!-- markdownlint-disable MD029 -- finding numbers are ids, not list positions -->
+
 <source-branch> -> <target-branch> | @<author> | <state>
 <url>
 
@@ -59,18 +63,22 @@ Pick the narrowest label that fits -- `todo` over `issue` for the small and mech
 <N> files, +<x>/-<y>.
 
 ### Should change
+
 1. issue (blocking): <subject> -- `<file>:<line>`
    <correctness, security, data loss, or breakage, and its consequence>
 
 ### Could change
+
 2. suggestion (non-blocking): <subject> -- `<file>:<line>`
    <improvement the author may decline, and what it buys>
 
 ### Question
+
 3. question: <subject> -- `<file>:<line>`
    <what you checked and what it showed, then the part only the author can settle>
 
 ### Verdict
+
 <approve / changes needed / comment only>, and why in one or two sentences.
 ```
 

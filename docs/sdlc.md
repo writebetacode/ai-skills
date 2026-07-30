@@ -17,7 +17,7 @@ After lint and a full-suite pass, the coordinator (not the tester) spawns a fres
 ## Commands
 
 | Command | Phase | Description |
-|---|---|---|
+| --- | --- | --- |
 | `/sdlc-design` | 1 — Design | Turn an idea into specs, plans, tasks, and ADRs through strict one-at-a-time questioning routed to a persistent architect agent; also handles mid-flight revisions via per-task keep/revise/void triage |
 | `/sdlc-implement` | 2 — Implement | Execute tasks with persistent tester and coder agents, batched TDD loop, epic-precondition gate, and third-party spec-vs-code validation via a fresh sub-agent; auto-picks the next task from the manifest when called without arguments |
 | `/sdlc-complete` | 3 — Complete | Archive a finished project to `plans/complete/YYYYMMDD-<slug>/` and clean up its local branches |
@@ -26,7 +26,7 @@ After lint and a full-suite pass, the coordinator (not the tester) spawns a fres
 
 The commands share a common file layout under `plans/` (keep this directory out of version control in your global gitignore):
 
-```
+```text
 plans/
   <project-slug>/                   # project folder (from /sdlc-design, no date prefix)
     MANIFEST.md                     # central control document (always present)
@@ -50,7 +50,7 @@ Project-level ADRs live in `adr.md`; decisions strong enough to outlive the proj
 ## Agents
 
 | Agent | Model | Effort | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `sdlc-architect` | opus | xhigh | Design-phase architecture, intake, research, and document authoring; owns specs, plans, tasks, MANIFEST and enforces stack-linearity and NN-ordering |
 | `sdlc-tester` | sonnet | high | TDD discipline — red-first batches and full-suite reruns — and rework of drift reported by the validator |
 | `sdlc-coder` | sonnet | high | Smallest-diff implementation specialist |

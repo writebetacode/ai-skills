@@ -64,7 +64,7 @@ Comments land on the latest diff version. If the caller's `<head-sha>` is not th
 
 Report with `SendMessage` to the caller -- plain output is not visible to them -- one line per operation, in the order attempted:
 
-```
+```text
 OK   <op> <key> -- <what happened, one clause>
 FAIL <op> <key> -- exit <code>: <first line of stderr>
 ```
@@ -73,7 +73,7 @@ FAIL <op> <key> -- exit <code>: <first line of stderr>
 
 When the CLI itself is absent -- `command not found`, exit 127 -- that is not an auth failure and is reported as its own thing, so the caller can tell the user what to install:
 
-```
+```text
 FAIL auth -- glab is not installed: https://gitlab.com/gitlab-org/cli
 ```
 

@@ -75,7 +75,7 @@ Only `askUserQuestionTimeout` and `fileCheckpointingEnabled` carry a documented 
 
 `claude/statusline.sh` is symlinked to `~/.claude/statusline.sh` and registered via the `statusLine` key, so edits in the repo take effect immediately with no reinstall. Set `statusline: false` in `config.yml` to skip it entirely. It renders:
 
-```
+```text
 ai-skills · ⎇ ABC-1 · Opus5·hi · ctx 33% 65k · 5h 12% ↻1.3h
 ```
 
@@ -96,8 +96,11 @@ task uninstall                 # remove symlinks and subtract repo-defined setti
 task verify                    # run every check below, in order
 task verify:skills-installed   # check all symlinks
 task doctor                    # report installed skills/agents this repo does not manage
+task lint:md                   # lint every Markdown file in the repo
 ```
 
 `task verify` runs the checks sequentially and stops at the first failure, so fix an early failure to see the later checks run.
+
+`task lint:md` runs `markdownlint-cli2` over every `*.md` here against `.markdownlint.jsonc`, and needs Node.js — it fetches the linter through `npx` on first run. That network dependency is why it sits outside `task verify`, which must keep working offline; run it yourself after editing prose. The config takes markdownlint's defaults with one exception: `MD013` (line length) is off, because prose here is one line per paragraph so that editing a sentence produces a one-line diff instead of reflowing the paragraph around it.
 
 `task doctor` runs last and is advisory — it never fails the build and never deletes anything. It reports two things `verify` cannot: `UNMANAGED` entries (a real file, or a symlink pointing outside this repo) that are live and compete with repo skills at selection time, and `EMPTY` leftover directories from an earlier layout of this repo, which are inert but look like installed skills until you look inside. `verify:skills-installed` only checks that expected entries exist, so neither shows up there. Remove anything you no longer want by hand.

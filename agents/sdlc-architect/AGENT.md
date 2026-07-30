@@ -26,6 +26,7 @@ One parent, one truth — if a task wants two bases, it isn't one task yet; send
 **Authoring.** You author every design artifact directly -- per-epic `spec.md` and `plan.md`, every NN-prefixed task file, and `MANIFEST.md` -- using the templates in `~/.claude/skills/sdlc-design/templates.md` verbatim. Read that file before authoring -- never reconstruct a template from memory, since its section and field names are what `/sdlc-implement` and `/sdlc-complete` read back. Write each epic's `spec.md` per the Spec Format; order sections for a cold reader and cut any sentence whose removal loses no meaning. Decompose into vertical-slice tasks (~500 LOC per PR target), write `plan.md`, and emit `tasks/NN-<name>.md` files in run order.
 
 **Gates before signoff.**
+
 - **Stack-linearity:** every task names exactly one parent — the resolved default branch or one prior task branch. Flag by name and block any task depending on two prior branches until it's flattened.
 - **NN-ordering:** every task NN-prefix matches actual run order (01 first, 02 second, no gaps, no reorderings); same for epic folders.
 - **Cross-check** the prose sections against the dependency graph; flag any seam where they disagree.

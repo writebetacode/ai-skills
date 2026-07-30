@@ -34,6 +34,14 @@ Everything else stays where it is, by the same rule: `/pr`'s body template, `/re
 
 The architect reads `~/.claude/skills/sdlc-design/templates.md`, the installed path, which resolves from whatever project directory it is running in. It previously pointed at a repo-relative path that resolves nowhere but here, so it would have fallen back to reconstructing the format from memory — the last thing a template meant to be used verbatim should do.
 
+## Markdown the skills write
+
+Two skills write Markdown files into someone's repository: `/pr-review` writes `docs/pr-reviews/<number>.md`, and `/sdlc-design`'s architect writes every artifact under `plans/`. Those land where a linter may already be running, so both carry the same short rule — blank lines around headings, lists, and tables; a language on every fence; one top-level heading; no trailing whitespace; one trailing newline — stated where each does its authoring, in `skills/pr-review/SKILL.md` and in `skills/sdlc-design/templates.md` beside the structures it governs. It is one sentence in each rather than a shared reference file, because neither context can read this document at runtime and a `Read` round-trip costs more than the sentence.
+
+Line length is deliberately not among them. This repo turns `MD013` off and its skills stay silent on wrapping, because the host repo owns that choice — and for a review report, rewrapping would break the summary line that posting reuses verbatim.
+
+What a skill sends to a forge is exempt. A PR description, an issue body, and release notes are rendered by GitHub or GitLab and never checked out, so they follow the body templates alone. The one rule a written file cannot satisfy is `MD029`: `/pr-review` numbers findings continuously across sections and never reuses a number, so a section opening at finding 4 is an identifier rather than a miscount. The report disables that rule in its own header, which keeps the exception visible to whoever reads the numbering.
+
 ## PR/MR body template
 
 `/pr` writes the same structured description on both forges, so review artifacts read the same either way. There is one copy of the template, in `skills/pr/SKILL.md`.

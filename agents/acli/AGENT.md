@@ -47,7 +47,7 @@ Authentication is per Atlassian account and site. If `auth` reports no account, 
 
 Report with `SendMessage` to the caller -- plain output is not visible to them -- one line per operation, in the order attempted:
 
-```
+```text
 OK   <op> <key> -- <what happened, one clause>
 FAIL <op> <key> -- exit <code>: <first line of stderr>
 ```
@@ -56,7 +56,7 @@ FAIL <op> <key> -- exit <code>: <first line of stderr>
 
 When the CLI itself is absent -- `command not found`, exit 127 -- that is not an auth failure and is reported as its own thing, so the caller can tell the user what to install:
 
-```
+```text
 FAIL auth -- acli is not installed: https://developer.atlassian.com/cloud/acli/
 ```
 
