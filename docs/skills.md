@@ -20,6 +20,16 @@ Anchors are never re-derived across the boundary. A stale head SHA means the aut
 
 Agents install to `~/.claude` only. On Gemini all four skills install and their backend-agnostic reasoning still applies, but the dispatch has nothing to dispatch to, the same way the SDLC skills depend on agents that platform does not receive.
 
+## When a template moves to its own file
+
+A skill can ship reference files beside `SKILL.md` and read them on demand. That pays in exactly one situation: **when the context that loads the skill is not the context that uses the template.** Where they are the same, extraction buys nothing and costs a `Read` round-trip plus the chance the model skips it, so the template stays inline.
+
+`/sdlc-design` is the one case that qualifies. Its main thread is a pure router, forbidden by its own rules from producing specs, plans, or task files — yet it was loading 110 lines of artifact templates on every invocation, while `sdlc-architect`, which does the authoring, read the whole `SKILL.md` to find them. Splitting them into `templates.md` cut the orchestrator's file by more than half and left the architect reading only what it fills in.
+
+Everything else stays where it is, by the same rule: `/pr`'s body template, `/remote-issue`'s issue template, `/commit`'s message template, `/pr-review`'s report and comment formats, and the agents' command tables are all used by the very context that loaded them.
+
+The architect reads `~/.claude/skills/sdlc-design/templates.md`, the installed path, which resolves from whatever project directory it is running in. It previously pointed at a repo-relative path that resolves nowhere but here, so it would have fallen back to reconstructing the format from memory — the last thing a template meant to be used verbatim should do.
+
 ## PR/MR body template
 
 `/pr` writes the same structured description on both forges, so review artifacts read the same either way. There is one copy of the template, in `skills/pr/SKILL.md`.

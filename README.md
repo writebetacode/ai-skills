@@ -49,7 +49,7 @@ A manifest-driven process from feature idea to merged code, run by three persist
 ## Documentation
 
 - [Installation and configuration](docs/installation.md) — install, opt-outs, settings keys, status line, verification
-- [Skill behaviour](docs/skills.md) — the PR/MR body template, the per-CLI agent boundary, and how `/pr-review` splits reviewing from posting
+- [Skill behaviour](docs/skills.md) — the PR/MR body template, the per-CLI agent boundary, when a template earns its own file, and how `/pr-review` splits reviewing from posting
 - [SDLC workflow](docs/sdlc.md) — the three phases, the `plans/` layout, and the agents
 
 ## File layout
@@ -57,6 +57,7 @@ A manifest-driven process from feature idea to merged code, run by three persist
 ```
 skills/                             # one SKILL.md per skill
   <name>/SKILL.md
+  <name>/<reference>.md             # optional, read on demand (see docs/skills.md)
 agents/                             # one AGENT.md per agent
   <name>/AGENT.md
 claude/                             # global claude code specific settings
