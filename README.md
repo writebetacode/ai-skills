@@ -21,6 +21,7 @@ Every git-facing skill resolves the repo's default branch from `origin/HEAD` rat
 | Command | Description |
 |---|---|
 | `/commit` | Stage-aware conventional commits — commits exactly what is staged, immediately |
+| `/skill-write` | Author or revise a SKILL.md or AGENT.md — the frontmatter contract and the token-efficiency rules for what earns a place in the file |
 | `/pr` | Create or update pull requests and merge requests with structured descriptions, on GitHub or GitLab |
 | `/pr-review` | Review a PR or MR into a numbered `docs/pr-reviews/<number>.md` report, then post selected findings back as inline comments |
 | `/remote-issue` | File a consistently-formatted GitHub or GitLab issue, or a Jira work item, prompting for the tracker and the fields it requires |

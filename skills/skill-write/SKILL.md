@@ -1,0 +1,90 @@
+---
+name: skill-write
+description: Author or revise a SKILL.md or AGENT.md for this repo -- scoping questions, the frontmatter contract, and the token-efficiency rules that decide what earns a place in the file. Use when codifying a repetitive task into a skill, a specialized role into an agent, or when editing either.
+---
+
+# Skill Write
+
+## Workflow
+
+Establish which artifact is being written first -- frontmatter, output path, and questions all differ. Scope it by asking name, description, workflow steps, rules, and for an agent its tools, memory, model, and effort. Then draft, incorporate edits, write the file, and run `task install && task verify`, confirming both exit 0.
+
+Update the docs in the same change. `CLAUDE.md` names which of the four owns what; a new skill or agent always touches `README.md`'s table plus whichever document covers its behaviour.
+
+## File Format
+
+`skills/<name>/SKILL.md`, ending with `## User Input` and `$ARGUMENTS`. One file serves Claude Code and Gemini CLI both.
+
+```yaml
+---
+name: <name>
+description: <what it does, then "Use when ...">
+---
+```
+
+`agents/<name>/AGENT.md`, no `## User Input` section, Claude Code only.
+
+```yaml
+---
+name: <name>
+description: <what it does, then who invokes it and what it must never decide>
+tools: [Tool1, Tool2]
+memory: none
+model: <opus | sonnet | haiku>
+effort: <low | medium | high | xhigh | max>
+---
+```
+
+Agents pin `model` and `effort` because they spawn cold with no session to inherit from. Weigh the model by task -- `opus` for design, architecture, and judgment; `sonnet` for routine coding and mechanical dispatch; `haiku` for read-only lookups -- and `effort` by reasoning load, `high` for most work, `xhigh` or `max` for subtle correctness. Scope `tools` narrowly; omit only to inherit every session tool. Withholding a tool is a real constraint, stronger than an instruction: an agent with no `Write` cannot author the payload it forwards.
+
+Give an agent a one-line Identity -- the disposition it argues from when a call is close.
+
+## Token Efficiency
+
+Skills and agents are paid for on every invocation. Classify each sentence before writing or cutting it.
+
+**Derivable -- leave it out.** What a current model produces from the task itself: rationale for a rule it would follow anyway, why an approach is correct, a constraint already stated elsewhere in the same file, step-by-step sequencing of an obvious procedure, hedging against mistakes these models do not make.
+
+**Specification -- keep verbatim.** What cannot be derived because it is a fact about this setup or an arbitrary choice: templates and their section order, literal commands and flags, tool and agent names, paths and naming schemes, message and JSON contracts, status vocabularies, thresholds, and every constraint on a destructive or irreversible operation. Never paraphrase a command or reorder a template.
+
+Rationale is not automatically derivable. Keep the sentence that resolves a case the rules do not list, or that sets the stake so a reader knows to stop rather than warn; cut the one that only re-explains a rule already given.
+
+Keep anything genuinely ambiguous between the categories -- losing capability costs more than the tokens save. Where one constraint could sit in either Workflow or Rules, put it where it is likelier to be followed; for a destructive operation that is the imperative-negative in Rules.
+
+## What Not To Extract
+
+Duplication between two files costs nothing at runtime, because skills load one at a time. Never split a file to remove text another file repeats -- the only cost is editing twice, and a shared file that must be read back is worse.
+
+Extract a template into its own `<name>.md` beside `SKILL.md` in exactly one case: the context that loads the skill is not the context that fills the template in. Where they are the same, extraction buys a read and saves nothing. Point a cross-context reader at the installed path, `~/.claude/skills/<name>/<file>.md`, which resolves from any project directory.
+
+## Writing Style
+
+Prose paragraphs, not bullets: bullets fragment context and strip the connectives that carry intent. Tables and code blocks are the exception, and are the right form for command references and templates.
+
+State a hard constraint as a violation clause -- a bolded label, what counts, then a violating and an acceptable example. Examples are specification; they settle the boundary that prose leaves soft.
+
+Define the failure paths. A skill that forbids a fallback but never says what to do when its dependency is absent leaves nothing between a forbidden workaround and a dead stop, and the workaround is what happens.
+
+Transcribe commands from the CLI itself, never from memory. Where a binary was unavailable and a published reference was used instead, say so in the file and instruct reporting the tool's own error rather than substituting a flag that looks close.
+
+## Updating
+
+Read the current file first. List every behaviour a change would remove and confirm each removal before writing; cutting derivable prose is not a removal and needs no confirmation, as long as each specification item survives.
+
+After an edit that was meant to shorten, diff the rule-bearing sentences -- `never`, `must`, `always`, `violation:` -- against the original and account for every one that disappeared. Reworded is fine, relocated into a violation clause is fine, gone is a bug. Never take a commit message claiming a file was already tightened as evidence; check the file.
+
+## Rules
+
+Never write a file without explicit confirmation of the full draft. Always ask scoping questions one at a time.
+
+Target 100 lines, excluding tables and templates. Past that, check whether a section is derivable before deciding the skill is genuinely large.
+
+Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
+
+**Restatement violation:** a Role section paraphrasing the frontmatter description, which loads with the body anyway, or any constraint stated in both Workflow and Rules.
+
+**Model violation:** a `model` key in a SKILL.md -- skills run on whatever tier the session holds -- or an AGENT.md pinning `model` without `effort`.
+
+## User Input
+
+$ARGUMENTS

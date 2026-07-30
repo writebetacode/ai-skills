@@ -34,7 +34,9 @@ Dispatch `auth`; stop on failure. Resolve the default branch via `git symbolic-r
 
 GitLab puts `/-/` before the route and GitHub does not, so a link built for the wrong forge 404s. On a first release there is no previous tag: omit the link rather than inventing a range.
 
-**Publish on confirmation.** Create an annotated tag (`git tag -a <version> -m <title>`) when the repo's recent tags are annotated, a lightweight one when they are not; `git cat-file -t "$(git rev-parse <tag>)"` reports `tag` for annotated and `commit` for lightweight.
+**Publish on confirmation.** Create an annotated tag (`git tag -a <version> -m <title>`) when the repo's recent tags are annotated, a lightweight one when they are not; `git cat-file -t "$(git rev-parse <tag>)"` reports `tag` for annotated and `commit` for lightweight -- the one place the undereferenced form is wanted, since it inspects the tag object itself.
+
+Everywhere else dereference: on an annotated tag `git rev-parse <tag>` returns that object, so compare and report `<tag>^{commit}`. Confirm it equals the resolved default branch's tip before publishing, and stop if it does not -- a branch behind its remote looks identical to one up to date, and tagging there ships the last release's tree under a new version.
 
 Push the tag, always, before dispatching. The forges fail opposite ways when it is missing and the agents are configured so neither hides it: `gh` refuses the create outright, while `glab` would otherwise create the tag itself from a ref and mask the failed push. Then write the drafted body to a temp file outside the repo and dispatch `release-create` with the tag, title, and notes path -- plus the target branch on GitHub, which GitLab does not take. Ask for GitHub's `--generate-notes` only when the drafted body is meant to carry gh's commit list beneath it; GitLab has no equivalent. Display the release URL from the agent's report.
 
