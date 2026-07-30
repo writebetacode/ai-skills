@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Create or update a pull request or merge request with a human-readable title and structured description, on GitHub or GitLab. Use when the user wants to open or update a PR or MR for the current branch.
+description: Create or update a pull request or merge request with a human-readable title and structured description, on GitHub or GitLab, and move an existing one between draft and ready. Use when the user wants to open or update a PR or MR for the current branch, or to mark one as draft or ready for review.
 ---
 
 # PR
@@ -22,6 +22,8 @@ Dispatch `auth` first; stop on failure. Gather in parallel: current branch, remo
 Resolve the target branch from arguments, or auto-detect by matching branch-name prefix against other local branches, falling back to `git merge-base` against the repo's default branch -- resolve it via `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), or `git remote show origin` parsed for `HEAD branch:` if that ref is missing. Never assume `main`: the repo may default to `develop`, `master`, or `trunk`.
 
 Draft a human-readable title under 70 characters covering the combined changes. Validate any host-native issue reference with `issue-view` before citing it. Compose the description from the template, write it to a temp file, then dispatch `create` with the title, body path, base, and username -- adding draft when "draft" appears in `$ARGUMENTS` -- or `update-description` following the Update Path below. Display the URL from the agent's report.
+
+`draft` and `ready` move an existing PR/MR between the two states, dispatched only when the request asks for the move: "mark it ready", "back to draft". The state `view` already returned says whether the move is real -- report a PR that is already ready rather than dispatching at it. Where the same request also revises the description, update first and toggle after, since marking ready is what puts it in front of reviewers.
 
 ## Update Path
 
@@ -79,6 +81,8 @@ Always assign to the current user: `@me` on GitHub, a `whoami` username on GitLa
 Never reference a host-native issue without validating it via `issue-view` first. Jira references are informational only -- neither forge closes a Jira issue on merge, so never apply a closing keyword (`Closes`, `Fixes`, `Resolves`) to a Jira key.
 
 Never compose a remote command here -- an operation the agent's table does not cover is reported as unsupported, not worked around with a raw CLI call.
+
+Never write the draft state into a title. GitLab stores it as a `Draft:` prefix, but that belongs to the operations, and a refusal -- GitHub's conversion to draft is plan-dependent -- is reported as it stands. A title edited to fake the state outlives the toggle.
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
