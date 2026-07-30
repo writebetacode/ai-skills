@@ -15,7 +15,7 @@ Before resolving a task in any epic, validate preconditions: every epic listed u
 
 ## Implementation Agents
 
-Implementation MUST happen through two long-lived agents, spawned once per task via the `Agent` tool with `subagent_type` `sdlc-tester` and `sdlc-coder`. Each agent's AGENT.md carries its workflow, identity, and model tier — do not re-specify here. Subagents run in the background by default, which is what this flow needs — do not pass `run_in_background: false`.
+Spawn both agents once per task via the `Agent` tool with `subagent_type` `sdlc-tester` and `sdlc-coder`. Each agent's AGENT.md carries its workflow, identity, and model tier — do not re-specify here. Subagents run in the background by default, which is what this flow needs — do not pass `run_in_background: false`.
 
 Reach an already-spawned agent with `SendMessage` addressed to `sdlc-tester` or `sdlc-coder` — the name comes from the agent definition, not from the spawn call — which resumes it from its own transcript with full context intact. This is what makes the batched loop work: the tester writing batch 2 still remembers what batch 1 revealed. If a send by name fails to route, fall back to the `agentId` returned by that agent's spawn call. Never re-spawn an agent mid-task with a fresh `Agent` call; that discards its context and restarts it cold.
 

@@ -9,14 +9,14 @@ One skill for both trackers. The commands belong to the `gh` and `acli` agents; 
 
 ## Tracker
 
-Ask which tracker unless `$ARGUMENTS` settles it -- a project key like `PROJ-123` or the word "jira" means Jira, "github" or "gh" means GitHub. Never infer from the git remote alone: a repo on GitHub may well track its work in Jira, and filing in the wrong tracker is not quietly undone.
+Ask which tracker unless `$ARGUMENTS` settles it -- a project key like `PROJ-123` or the word "jira" means Jira, "github" or "gh" means GitHub. Never infer from the git remote: a repo on GitHub may track its work in Jira, and filing in the wrong tracker is not quietly undone.
 
 | Tracker | Agent | Files a | Scoped by |
 | --- | --- | --- | --- |
 | GitHub | `gh` | issue | the working directory's repo |
 | Jira | `acli` | work item | a project key, unrelated to the working directory |
 
-Dispatch `auth` to the chosen agent and stop on failure. Then resume it with `SendMessage` for the create. Send `op:` and its parameters one per line, and pass the description as a file path -- write the composed body to a temp file outside the repo. The bytes never travel as prose in a message.
+Dispatch `auth` to the chosen agent and stop on failure, then resume it with `SendMessage` for the create. Send `op:` and its parameters one per line, and pass the description as a file path -- write the composed body to a temp file outside the repo, so the bytes never travel as prose in a message.
 
 ## Workflow
 
@@ -35,7 +35,7 @@ Where a field lands differs by tracker, because Jira models as fields what GitHu
 | assignee | `@me` | `@me` |
 | labels, parent | `--label`, `--parent` when given | `--label`, `--parent` when given |
 
-GitHub issue types are an org-level feature many repos do not enable, so `--type` goes up only when asked for explicitly; the body's `## Type` section is what carries it otherwise.
+GitHub issue types are an org-level feature many repos do not enable, so `--type` goes up only when asked for explicitly; the body's `## Type` section carries it otherwise.
 
 ## Issue Body Template
 
@@ -66,15 +66,15 @@ Actual: <actual behavior>
 <questions>
 ```
 
-Jira renders plain text, not GitHub-flavored markdown: the headings stay, but nothing in the body should depend on markdown for meaning. Keep task lists and code fences out of a Jira description unless the user asks for them.
+Jira renders plain text, not GitHub-flavored markdown: headings stay, but nothing in the body should depend on markdown for meaning. Keep task lists and code fences out of a Jira description unless the user asks for them.
 
 ## Rules
 
 Follow the body template exactly -- no header or order changes, beyond dropping `## Type` on Jira where it is a real field. Never create without explicit confirmation of the finished title and body. Assign every issue to the current user.
 
-Never compose a remote command here. An operation the agent's table does not cover is reported as unsupported, not worked around with a raw CLI call from this skill -- the tables are the single place those flags are maintained.
-
 Never invent a project key or a work item type. Both are the user's to supply, and a rejected create is brought back to them rather than retried against a guess.
+
+Never compose a remote command here -- an operation the agent's table does not cover is reported as unsupported, not worked around with a raw CLI call.
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 

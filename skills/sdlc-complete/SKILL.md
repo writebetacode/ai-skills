@@ -17,7 +17,7 @@ After archiving, collect branch names from each task file's `Branch` field. Reso
 
 ## Rules
 
-Never archive without explicit confirmation. Warn for incomplete tasks rather than skipping silently. Delete a branch only after its diff against the resolved default branch is verified empty — never against an assumed `main`; warn and skip otherwise. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
+Never archive without explicit confirmation. Warn for incomplete tasks rather than skipping silently. Delete a branch only after its diff against the resolved default branch is verified empty; warn and skip otherwise. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

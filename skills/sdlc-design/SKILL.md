@@ -11,7 +11,7 @@ Flow: **[design]** -> implement -> complete
 
 Spec/plan authoring and all intake MUST happen through one long-lived agent, spawned at the very start before any questioning via the `Agent` tool with `subagent_type` `sdlc-architect`. Subagents run in the background by default, which is what this flow needs — do not pass `run_in_background: false`. Its AGENT.md carries the workflow, identity, and model tier — do not re-specify here.
 
-Reach it thereafter with `SendMessage` addressed to `sdlc-architect` — the name comes from the agent definition, not from the spawn call — which resumes it from its own transcript with the whole intake history intact. If a send by name fails to route, fall back to the `agentId` returned by the spawn call. Never re-spawn it mid-design with a fresh `Agent` call; that restarts it cold and loses every answer collected so far. The architect owns intake, research, signoff, and every artifact: it proposes a multi-epic split for the user to confirm when scope decomposes into independent streams, then authors `spec.md`, `plan.md`, `tasks/NN-<name>.md` (in run order), runs the gates, and writes `MANIFEST.md`.
+Reach it thereafter with `SendMessage` addressed to `sdlc-architect` — the name comes from the agent definition, not from the spawn call — which resumes it from its own transcript with the whole intake history intact. If a send by name fails to route, fall back to the `agentId` returned by the spawn call. Never re-spawn it mid-design with a fresh `Agent` call; that restarts it cold and loses every answer collected so far. The architect owns intake, research, the gates, signoff, and every artifact, including the multi-epic split it proposes for the user to confirm when scope decomposes into independent streams.
 
 ## Orchestrator Role
 
@@ -169,7 +169,7 @@ Spec Ready -> Planned -> In Progress (N/M) -> Complete
 
 ## Rules
 
-NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through the `sdlc-architect` agent. Research and gate rules are the architect's. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
+NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through the `sdlc-architect` agent. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 
