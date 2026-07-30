@@ -6,7 +6,7 @@ Behaviour shared across skills, or too involved to leave implicit in a single `S
 
 `/pr`, `/pr-review`, `/remote-issue`, and `/remote-release` each serve every backend they support from one file, and none contains a remote command. The `gh`, `glab`, and `acli` agents own the command vocabulary — flags, JSON field names, anchor semantics, mutual exclusions — one CLI per agent, so no agent branches on backend and no skill duplicates a table. The skill picks the backend, dispatches a work order naming an operation, and the operation names are shared across agents, which is what lets one skill drive any of them.
 
-How the backend gets picked differs by what it is scoped to. A forge follows the code, so `/pr` and `/pr-review` resolve it from the `origin` remote, and where a self-hosted URL settles nothing they ask each agent for `repo-id` and take the one that resolves. A tracker does not: a repo on GitHub may track its work in Jira, so `/remote-issue` asks rather than inferring from the remote, and a Jira create is scoped by a project key that has nothing to do with the working directory.
+How the backend gets picked differs by what it is scoped to. A forge follows the code, so `/pr`, `/pr-review`, and `/remote-release` resolve it from the `origin` remote, and where a self-hosted URL settles nothing they ask each agent for `repo-id` and take the one that resolves. A tracker does not: a repo on GitHub may track its work in Jira, so `/remote-issue` asks rather than inferring from the remote, and a Jira create is scoped by a project key that has nothing to do with the working directory.
 
 The split is invocation versus content. The agent decides how a comment is posted; the skill decides what it says — including the suggestion-block dialect, which differs by forge (`suggestion` on GitHub, `suggestion:-0+0` on GitLab) but is a property of the body, not of the command, so it stays with the skill that writes the body. Where a backend models as a field what another leaves to prose — Jira's work item type, against GitHub's `## Type` body section — that mapping is also the skill's, since it decides what the body contains.
 
@@ -18,7 +18,7 @@ Command tables are transcribed from the CLI itself wherever the binary is availa
 
 Anchors are never re-derived across the boundary. A stale head SHA means the author pushed since the review was written, and recovering from it needs the new diff — which lives in the skill, not the agent. The agents therefore report a rejected anchor and stop; retrying against a line the agent picked would put a comment on unrelated code. Reports are per item, keyed by finding number, because the skill writes a local record of what posted from them and a batch collapsed into one line corrupts it. Neither forge offers a double-post guard for anchored comments — `glab`'s `--unique` is mutually exclusive with `--file` — so an unmatched report is checked against existing threads before anything is retried.
 
-Agents install to `~/.claude` only. On Gemini both skills install and their host-agnostic reasoning still applies, but the dispatch has nothing to dispatch to, the same way the SDLC skills depend on agents that platform does not receive.
+Agents install to `~/.claude` only. On Gemini all four skills install and their backend-agnostic reasoning still applies, but the dispatch has nothing to dispatch to, the same way the SDLC skills depend on agents that platform does not receive.
 
 ## PR/MR body template
 
