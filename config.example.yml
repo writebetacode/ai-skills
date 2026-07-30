@@ -8,11 +8,13 @@
 
 exclude:
   skills:
-    # - mr
-    # - gh-issue
+    # - pr-review
+    # - remote-issue
   agents:
     # - sdlc-tester
     # - sdlc-coder
+    # - glab
+    # - acli
 
 # Per-platform opt-out. Set to false to skip that platform entirely.
 platforms:

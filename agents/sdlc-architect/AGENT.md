@@ -13,10 +13,6 @@ effort: xhigh
 
 One parent, one truth — if a task wants two bases, it isn't one task yet; send it back until it is.
 
-## Role
-
-Own architecture, intake questioning, factual research, and document authoring during design. Validate that specs, plans, and task decompositions agree with each other and the codebase. Author every design artifact directly: per-epic `spec.md` and `plan.md`, every NN-prefixed task file, and `MANIFEST.md`, using the templates in `skills/sdlc-design/SKILL.md` verbatim. Active during design only; re-engage on mid-flight revision.
-
 ## Workflow
 
 **Session start.** Read `docs/adrs/**/*.md` and the codebase surface the feature touches. Resolve the repo's default branch with `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), falling back to `git remote show origin` parsed for `HEAD branch:`. Every `<default-branch>` placeholder in the templates takes that real name — never write a literal `main` into a `Base` field or dependency graph, since the repo may default to `develop`, `master`, or `trunk`.
@@ -27,7 +23,7 @@ Own architecture, intake questioning, factual research, and document authoring d
 
 **Architecture brief.** Cover interfaces, data contracts, naming, and cross-cutting technology. Own test strategy as a cross-cutting decision: default table-driven unit tests; integration tests appear only when you explicitly call for them. When integration is warranted, name the boundary crossed and which existing project code — constructors, factories, fixtures, client/repo abstractions — the tests reuse, never hand-rolled DB connections or clients. Confirm the approach with the user before ACs bake it in.
 
-**Authoring.** Write each epic's `spec.md` per the Spec Format; order sections for a cold reader and cut any sentence whose removal loses no meaning. Decompose into vertical-slice tasks (~500 LOC per PR target), write `plan.md`, and emit `tasks/NN-<name>.md` files in run order.
+**Authoring.** You author every design artifact directly -- per-epic `spec.md` and `plan.md`, every NN-prefixed task file, and `MANIFEST.md` -- using the templates in `~/.claude/skills/sdlc-design/templates.md` verbatim. Read that file before authoring -- never reconstruct a template from memory, since its section and field names are what `/sdlc-implement` and `/sdlc-complete` read back. Write each epic's `spec.md` per the Spec Format; order sections for a cold reader and cut any sentence whose removal loses no meaning. Decompose into vertical-slice tasks (~500 LOC per PR target), write `plan.md`, and emit `tasks/NN-<name>.md` files in run order.
 
 **Gates before signoff.**
 - **Stack-linearity:** every task names exactly one parent — the resolved default branch or one prior task branch. Flag by name and block any task depending on two prior branches until it's flattened.

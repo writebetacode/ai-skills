@@ -103,7 +103,7 @@ tasks:
           echo "    Use block form instead:"
           echo "      exclude:"
           echo "        skills:"
-          echo "          - mr"
+          echo "          - pr-review"
           exit 1
         fi
 
@@ -162,7 +162,9 @@ tasks:
         }
         for dir in "$HOME/.claude/skills/"*/ "$HOME/.gemini/skills/"*/; do
           [ -d "$dir" ] || continue
-          remove_stale "${dir}SKILL.md" "$(basename "$dir")" skills
+          # Every *.md, not just SKILL.md: a skill may ship reference files
+          # alongside it, and a renamed or deleted one leaves a broken link.
+          for f in "$dir"*.md; do remove_stale "$f" "$(basename "$dir")" skills; done
         done
         for dir in "$HOME/.claude/agents/"*/ "$HOME/.gemini/agents/"*/; do
           [ -d "$dir" ] || continue
@@ -182,7 +184,9 @@ tasks:
           name=$(basename "$dir")
           if is_excluded "$name" skills; then echo "SKIP $name skill (excluded)"; continue; fi
           mkdir -p "$HOME/.claude/skills/$name"
-          ln -sf "$(pwd)/${dir}SKILL.md" "$HOME/.claude/skills/$name/SKILL.md"
+          for src in "$dir"*.md; do
+            ln -sf "$(pwd)/$src" "$HOME/.claude/skills/$name/$(basename "$src")"
+          done
         done
       - |
         {{.CONFIG_READER}}
@@ -258,7 +262,9 @@ tasks:
           name=$(basename "$dir")
           if is_excluded "$name" skills; then continue; fi
           mkdir -p "$HOME/.gemini/skills/$name"
-          ln -sf "$(pwd)/${dir}SKILL.md" "$HOME/.gemini/skills/$name/SKILL.md"
+          for src in "$dir"*.md; do
+            ln -sf "$(pwd)/$src" "$HOME/.gemini/skills/$name/$(basename "$src")"
+          done
         done
 
   uninstall:
@@ -310,44 +316,15 @@ tasks:
             case "$target" in "$repo"/*) rm -f "$f"; rmdir "$(dirname "$f")" 2>/dev/null || true; echo "REMOVED $f" ;; esac
           fi
         }
-        for dir in "$HOME/.claude/skills/"*/ "$HOME/.gemini/skills/"*/; do remove_link "${dir}SKILL.md"; done
-        for dir in "$HOME/.claude/agents/"*/ "$HOME/.gemini/agents/"*/; do
+        for dir in "$HOME/.claude/skills/"*/ "$HOME/.gemini/skills/"*/ "$HOME/.claude/agents/"*/ "$HOME/.gemini/agents/"*/; do
           for f in "$dir"*.md; do remove_link "$f"; done
         done
         remove_link "$HOME/.claude/statusline.sh"
 
-  verify:pr-body:
-    silent: true
-    desc: Verify the shared PR/MR body template is byte-identical across all skills tagged with pr-body:v1
-    cmds:
-      - |
-        canonical=""
-        failed=0
-        for f in skills/*/SKILL.md; do
-          if grep -q "pr-body:v1" "$f"; then
-            block=$(awk '
-              /<!-- pr-body:v1/{flag=1; next}
-              flag && /^```/{fence=!fence; print; next}
-              flag && !fence && /^(## |<!-- )/{flag=0; next}
-              flag{print}
-            ' "$f")
-            if [ -z "$canonical" ]; then
-              canonical="$block"
-              ref="$f"
-            elif [ "$block" != "$canonical" ]; then
-              echo "DRIFT $f differs from $ref"
-              failed=1
-            fi
-          fi
-        done
-        if [ $failed -eq 0 ]; then echo "OK pr-body block consistent across all tagged skills"; fi
-        exit $failed
-
   verify:
-    desc: Run all verification steps (install, pr-body, doctor)
+    desc: Run all verification steps (install, doctor)
     cmds:
       - task: verify:skills-installed
-      - task: verify:pr-body
       # doctor last and advisory-only: leftovers are worth surfacing but must not
       # fail the build, since the user may keep unrelated skills of their own.
       - task: doctor
@@ -389,7 +366,7 @@ tasks:
           for dir in "$base/skills/"*/; do
             [ -d "$dir" ] || continue
             empty_dir "$dir" && continue
-            report "${dir}SKILL.md" skills "$(basename "$dir")"
+            for f in "$dir"*.md; do report "$f" skills "$(basename "$dir")"; done
           done
         done
         for dir in "$HOME/.claude/agents/"*/; do
@@ -434,13 +411,18 @@ tasks:
         }
         for dir in skills/*/; do
           name=$(basename "$dir")
-          if is_excluded "$name" skills; then
-            absent "$HOME/.claude/skills/$name/SKILL.md"
-            absent "$HOME/.gemini/skills/$name/SKILL.md"
-            continue
-          fi
-          if platform_enabled claude; then check "$HOME/.claude/skills/$name/SKILL.md"; fi
-          if platform_enabled gemini; then check "$HOME/.gemini/skills/$name/SKILL.md"; fi
+          # Every *.md the skill ships, so a reference file that failed to link
+          # is an error rather than a silent gap the skill only hits at runtime.
+          for src in "$dir"*.md; do
+            base=$(basename "$src")
+            if is_excluded "$name" skills; then
+              absent "$HOME/.claude/skills/$name/$base"
+              absent "$HOME/.gemini/skills/$name/$base"
+              continue
+            fi
+            if platform_enabled claude; then check "$HOME/.claude/skills/$name/$base"; fi
+            if platform_enabled gemini; then check "$HOME/.gemini/skills/$name/$base"; fi
+          done
         done
         if platform_enabled claude 2>/dev/null && [ -f "claude/settings.json" ]; then
           if jq -e '.spinnerVerbs' "$HOME/.claude/settings.json" >/dev/null 2>&1; then

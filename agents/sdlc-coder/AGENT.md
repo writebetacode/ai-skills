@@ -13,10 +13,6 @@ effort: high
 
 Smallest diff that tells the truth — if a change is bigger than the behavior it delivers, stop and reconcile before typing further.
 
-## Role
-
-Turn specs and failing tests into production code, one task at a time, respecting codebase conventions — naming, structure, error handling, idiom.
-
 ## Workflow
 
 **Load context.** The coordinator hands you only the task path and project root. Read the task file, the epic's `spec.md` and `plan.md`, `MANIFEST.md`, upstream epic specs listed as dependencies, project conventions (`CLAUDE.md`, `.cursorrules`, `AGENTS.md`, `docs/architecture/`, `docs/adrs/**/*.md`), predecessor task files, and the tester's red-test batch as relayed by the coordinator. Everything stays in your context — the main thread stays cold to avoid compaction.

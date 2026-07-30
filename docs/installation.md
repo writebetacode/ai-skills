@@ -8,7 +8,9 @@ cd ai-skills
 task install
 ```
 
-Symlinks all skills and agents into `~/.claude` and `~/.gemini` so repo updates apply immediately without reinstalling. A single set of skill files serves both platforms; agents install to `~/.claude` only. `task install` runs `task uninstall` first, so it fully reconciles the installed state with your config on every run — newly excluded items are removed, newly re-included ones come back.
+Symlinks all skills and agents into `~/.claude` and `~/.gemini` so repo updates apply immediately without reinstalling. A single set of skill files serves both platforms; agents install to `~/.claude` only.
+
+Every `*.md` in a skill or agent directory is linked, not just `SKILL.md`, so a skill can ship reference files it reads on demand — `skills/sdlc-design/templates.md` is the one that does. `task verify` checks each of them individually, so a reference file that failed to link is an error rather than a gap the skill only discovers at runtime, and `task install` removes the link when the source file is renamed or deleted. `task install` runs `task uninstall` first, so it fully reconciles the installed state with your config on every run — newly excluded items are removed, newly re-included ones come back.
 
 ## Choosing what gets installed
 
@@ -17,8 +19,8 @@ Everything installs by default. To opt out of specific skills or agents, copy `c
 ```yaml
 exclude:
   skills:
-    - mr
-    - gh-issue
+    - pr-review
+    - remote-issue
   agents:
     - sdlc-tester
 
@@ -29,7 +31,7 @@ platforms:
 statusline: false    # skip the status line
 ```
 
-Because it's an exclude list, a skill added to the repo later installs automatically unless you name it. Use block form for the lists — inline form (`skills: [mr]`) is rejected with an error rather than silently ignored.
+Because it's an exclude list, a skill added to the repo later installs automatically unless you name it. Use block form for the lists — inline form (`skills: [pr-review]`) is rejected with an error rather than silently ignored.
 
 `statusline: false` skips the status line specifically: `statusline.sh` is not linked and the `statusLine` key is dropped from the settings merge, so your existing `~/.claude/settings.json` keeps whatever it already had. The two go together deliberately — linking without the key would leave a script nothing invokes, and merging the key without the script would point `statusLine` at a path that does not exist. `task verify` then checks the symlink is *absent*, the same way it treats an excluded skill.
 
@@ -41,9 +43,11 @@ Because it's an exclude list, a skill added to the repo later installs automatic
 
 `task uninstall` removes every symlink pointing into this repo and subtracts the repo-defined settings back out of `~/.claude/settings.json`: permission entries listed in the repo are removed from `allow`, `ask`, and `deny` alike (including any you happened to add independently — re-add those if needed), repo-defined keys are deleted, and everything the repo never defined survives untouched. The subtraction spans all three lists on purpose: an entry the repo moves between them — `deny` to `ask`, say — would otherwise leave its stale copy behind, and since rules evaluate deny before ask, the move would silently do nothing.
 
-## Git safety rules
+## Git and forge safety rules
 
-The `deny` list blocks irreversible git operations outright — `reset --hard`, `clean -f`, `restore`, and force-push. Branch deletion (`git branch -d/-D`) sits in `ask` instead: rules are evaluated deny, then ask, then allow, so it prompts on every deletion even though `Bash(git branch *)` is allowed, and you approve inline rather than being blocked. That is deliberate — `/prune-branches` and `/sdlc-complete` already require per-branch confirmation, and the permission layer is what enforces it when a prompt-level rule is misread. `git worktree remove` sits in `ask` for the same reason, and `git stash clear`/`git stash drop` in `deny`: both discard work that no commit holds, so neither is recoverable through the reflog the way a bad `checkout` is.
+Posting to a forge gets the same treatment as deleting a branch. Publishing a review comment, approving, or revoking approval is outward-facing and attributed to your account, so `glab mr note create`, `glab mr approve`, `glab mr revoke`, `gh pr review`, and `gh pr comment` sit in `ask` and prompt every time, backstopping the explicit-request rule `/pr-review` already carries. Read-only forge commands and the create paths — issues, PRs, releases — sit in `allow`, matching how the skills treat them: those confirm their content with you before dispatching. One asymmetry worth knowing: a pre-existing blanket `Bash(gh api *)` in `allow` covers GitHub's anchored-comment endpoint, so GitHub inline comments do not prompt where GitLab's do. Narrow or remove that entry if you want them to behave alike.
+
+The `deny` list blocks irreversible git operations outright — `reset --hard`, `clean -f`, `restore`, and force-push. Branch deletion (`git branch -d/-D`) sits in `ask` instead: rules are evaluated deny, then ask, then allow, so it prompts on every deletion even though `Bash(git branch *)` is allowed, and you approve inline rather than being blocked. That is deliberate — `/sdlc-complete` already requires per-branch confirmation, and the permission layer is what enforces it when a prompt-level rule is misread. Worktrees are split finer, because the plain command already protects itself: `git worktree remove` refuses to delete a worktree holding uncommitted or untracked changes, so it sits in `allow` alongside `add`, `list`, `prune`, and `move`, while `git worktree remove --force` and its `-f` short form sit in `ask` — forcing is the part that discards work. That split is pattern-based, so it holds for `remove --force <path>` and not for `remove <path> --force`; git accepts both orderings, and only the first matches. `git stash clear`/`git stash drop` sit in `deny`: both discard work that no commit holds, so neither is recoverable through the reflog the way a bad `checkout` is.
 
 ## Settings keys
 
@@ -91,7 +95,6 @@ One limit worth knowing, a property of the data rather than the script: Fable 5 
 task uninstall                 # remove symlinks and subtract repo-defined settings
 task verify                    # run every check below, in order
 task verify:skills-installed   # check all symlinks
-task verify:pr-body            # check the shared PR/MR body template has not drifted
 task doctor                    # report installed skills/agents this repo does not manage
 ```
 

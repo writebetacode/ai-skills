@@ -11,7 +11,7 @@ Flow: **[design]** -> implement -> complete
 
 Spec/plan authoring and all intake MUST happen through one long-lived agent, spawned at the very start before any questioning via the `Agent` tool with `subagent_type` `sdlc-architect`. Subagents run in the background by default, which is what this flow needs — do not pass `run_in_background: false`. Its AGENT.md carries the workflow, identity, and model tier — do not re-specify here.
 
-Reach it thereafter with `SendMessage` addressed to `sdlc-architect` — the name comes from the agent definition, not from the spawn call — which resumes it from its own transcript with the whole intake history intact. If a send by name fails to route, fall back to the `agentId` returned by the spawn call. Never re-spawn it mid-design with a fresh `Agent` call; that restarts it cold and loses every answer collected so far. The architect owns intake, research, signoff, and every artifact: it proposes a multi-epic split for the user to confirm when scope decomposes into independent streams, then authors `spec.md`, `plan.md`, `tasks/NN-<name>.md` (in run order), runs the gates, and writes `MANIFEST.md`.
+Reach it thereafter with `SendMessage` addressed to `sdlc-architect` — the name comes from the agent definition, not from the spawn call — which resumes it from its own transcript with the whole intake history intact. If a send by name fails to route, fall back to the `agentId` returned by the spawn call. Never re-spawn it mid-design with a fresh `Agent` call; that restarts it cold and loses every answer collected so far. The architect owns intake, research, the gates, signoff, and every artifact, including the multi-epic split it proposes for the user to confirm when scope decomposes into independent streams.
 
 ## Orchestrator Role
 
@@ -62,114 +62,13 @@ The architect idles after each reply and costs nothing while idle, so no shutdow
 
 End with: "Design complete. Run `/sdlc-implement` to begin."
 
-## Spec Format
+## Artifact Templates
 
-File: `epics/NN-<epic-slug>/spec.md`
-
-```
-# <Title>
-
-Date: <YYYY-MM-DD>
-Prompt: "<original prompt>"
-
-## Dependencies
-<Epic prerequisites by title, or "None.">
-
-## Problem Statement
-<2-4 sentences. No prior context assumed.>
-
-## Scope
-### In Scope / ### Out of Scope
-
-## Decisions
-<Numbered. **<Topic>**: <Decision>. <Rationale>.>
-
-## Requirements
-### Functional Requirements / ### Non-Functional Requirements
-
-## Edge Cases
-## Architectural Context
-## Terminology
-<Table: Term | Definition | Aliases to avoid.>
-## Reference Files
-## Open Questions
-```
-
-## Plan Format
-
-File: `epics/NN-<epic-slug>/plan.md`
-
-```
-# Implementation Plan: <Spec Title>
-
-Source spec: spec.md
-Date: <YYYY-MM-DD>
-
-## Approach
-<2-4 sentences on overall strategy.>
-
-## Dependency Graph
-<default-branch> -> feat/<slug>/01-name -> feat/<slug>/02-name
-
-## Tasks
-| Task | Branch | Base | Spec Requirements | Summary | Status |
-|------|--------|------|-------------------|---------|--------|
-| 01-<name> | <type>/<slug>/01-<name> | <default-branch> | FR-1, FR-2 | <one-line> | Todo |
-```
-
-Task Status values: `Todo`, `In Progress`, `Done` (no counts -- counts apply only to epic Status in the manifest).
-
-## Task File Format
-
-File: `epics/NN-<epic-slug>/tasks/NN-<name>.md`
-
-```
-# Task NN: <Title>
-
-Branch: <type>/<spec-slug>/NN-<task-name>
-Base: <default-branch> OR exactly one prior task branch
-
-## Spec Requirements
-- FR-<N>: <quoted requirement text>
-- NFR-<N>: <quoted requirement text>
-
-## Description
-<2-4 paragraphs on WHAT and WHY, not HOW.>
-
-## Key Files
-- path/to/file -- <expected change>
-
-## Acceptance Criteria
-1. <Testable outcome>
-
-## Dependencies
-<Prior task, or "None (branches from <default-branch>).">
-```
-
-## Manifest Format
-
-File: `MANIFEST.md`
-
-```
-# Project Manifest: <Project Name>
-
-Created: YYYY-MM-DD  |  Last updated: YYYY-MM-DD
-
-## Status Dashboard
-| # | Epic | Phase | Status | Spec | Plan | Blockers |
-
-### Status Values
-Spec Ready -> Planned -> In Progress (N/M) -> Complete
-
-## Build Order
-## Open Issues
-| # | Severity | Issue | Status | Resolution |
-## Actionable Now
-```
+The Spec, Plan, Task File, and Manifest formats live in `templates.md` beside this file. The architect reads them directly and fills them in verbatim; the orchestrator never authors an artifact, so it never needs them loaded.
 
 ## Rules
 
-NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through the `sdlc-architect` agent. Research and gate rules are the architect's. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
+NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through the `sdlc-architect` agent. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 
