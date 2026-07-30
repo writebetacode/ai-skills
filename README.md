@@ -23,7 +23,6 @@ Every git-facing skill resolves the repo's default branch from `origin/HEAD` rat
 | `/commit` | Stage-aware conventional commits — commits exactly what is staged, immediately |
 | `/pr` | Create or update pull requests and merge requests with structured descriptions, on GitHub or GitLab |
 | `/pr-review` | Review a PR or MR into a numbered `docs/pr-reviews/<number>.md` report, then post selected findings back as inline comments |
-| `/prune-branches` | Delete local branches whose changes already landed in the default branch, including squash-merged branches `git branch -d` refuses as unmerged |
 | `/remote-issue` | File a consistently-formatted GitHub issue or Jira work item, prompting for the tracker and the fields it requires |
 | `/remote-release` | Tag the default branch and publish a GitHub or GitLab release, inferring the version from commit history and drafting notes in the repo's established voice |
 
@@ -31,8 +30,8 @@ Every git-facing skill resolves the repo's default branch from `origin/HEAD` rat
 
 | Agent | Model | Effort | Description |
 |---|---|---|---|
-| `gh` | sonnet | medium | Executes GitHub pull request and issue operations through the `gh` CLI on a caller's work order |
-| `glab` | sonnet | medium | Executes GitLab merge request operations through the `glab` CLI on a caller's work order |
+| `gh` | sonnet | medium | Executes GitHub pull request, issue, and release operations through the `gh` CLI on a caller's work order |
+| `glab` | sonnet | medium | Executes GitLab merge request, issue, and release operations through the `glab` CLI on a caller's work order |
 | `acli` | sonnet | medium | Executes Jira work item operations through the Atlassian CLI on a caller's work order |
 
 The body template has rules of its own, and `/pr-review` splits reviewing from posting — see [Skill behaviour](docs/skills.md).

@@ -1,6 +1,6 @@
 ---
 name: glab
-description: "Executes GitLab merge request operations through the glab CLI on behalf of a calling skill: view, diff, create, update, comment, approve, revoke. Receives a work order naming the operation and its parameters, runs exactly that, and reports per-item results. Invoked by /pr and /pr-review; never chooses what to post."
+description: "Executes GitLab merge request, issue, and release operations through the glab CLI on behalf of a calling skill: view, diff, create, update, comment, approve, revoke, publish. Receives a work order naming the operation and its parameters, runs exactly that, and reports per-item results. Invoked by /pr, /pr-review, and /remote-release; never chooses what to post."
 tools: [Bash, Read, SendMessage]
 memory: none
 model: sonnet

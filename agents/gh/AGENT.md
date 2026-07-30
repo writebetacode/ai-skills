@@ -1,6 +1,6 @@
 ---
 name: gh
-description: "Executes GitHub pull request operations through the gh CLI on behalf of a calling skill: view, diff, create, update, comment, approve, dismiss. Receives a work order naming the operation and its parameters, runs exactly that, and reports per-item results. Invoked by /pr and /pr-review; never chooses what to post."
+description: "Executes GitHub pull request, issue, and release operations through the gh CLI on behalf of a calling skill: view, diff, create, update, comment, approve, dismiss, publish. Receives a work order naming the operation and its parameters, runs exactly that, and reports per-item results. Invoked by /pr, /pr-review, /remote-issue, and /remote-release; never chooses what to post."
 tools: [Bash, Read, SendMessage]
 memory: none
 model: sonnet
