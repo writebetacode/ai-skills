@@ -9,19 +9,21 @@ Flow: **[design]** -> implement -> complete
 
 ## Design Agent
 
-Spec/plan authoring and all intake MUST happen through one long-lived agent, spawned at the very start before any questioning via the `Agent` tool with `subagent_type` `sdlc-architect`. Subagents run in the background by default, which is what this flow needs — do not pass `run_in_background: false`. Its AGENT.md carries the workflow, identity, and model tier — do not re-specify here.
+Spec/plan authoring and all intake MUST happen through one long-lived agent, spawned at the very start before any questioning via the `Agent` tool with `subagent_type` `sdlc-architect`. Subagents run in the background by default, which is what this flow needs -- do not pass `run_in_background: false`. Its AGENT.md carries the workflow, identity, and model tier -- do not re-specify here.
 
-Reach it thereafter with `SendMessage` addressed to `sdlc-architect` — the name comes from the agent definition, not from the spawn call — which resumes it from its own transcript with the whole intake history intact. If a send by name fails to route, fall back to the `agentId` returned by the spawn call. Never re-spawn it mid-design with a fresh `Agent` call; that restarts it cold and loses every answer collected so far. The architect owns intake, research, the gates, signoff, and every artifact, including the multi-epic split it proposes for the user to confirm when scope decomposes into independent streams.
+If the agent cannot be spawned, it is not installed: name it, tell the user to install it, and stop. There is no fallback -- the Rules below forbid driving intake or authoring artifacts here, so a design run without the architect does not degrade into a main-thread one.
+
+Reach it thereafter with `SendMessage` addressed to `sdlc-architect` -- the name comes from the agent definition, not from the spawn call -- which resumes it from its own transcript with the whole intake history intact. If a send by name fails to route, fall back to the `agentId` returned by the spawn call. Never re-spawn it mid-design with a fresh `Agent` call; that restarts it cold and loses every answer collected so far. The architect owns intake, research, the gates, signoff, and every artifact, including the multi-epic split it proposes for the user to confirm when scope decomposes into independent streams.
 
 ## Orchestrator Role
 
-The main thread is a pure router: forward every user reply to `sdlc-architect` via `SendMessage` and relay the architect's next question back verbatim — never batching, rephrasing, or supplementing; no own questions, pre-review, commentary, or deciding when intake is complete. Question discipline is the architect's — its AGENT.md "Intake loop" is authoritative. If `$ARGUMENTS` is empty, tell the architect on spawn so it opens by asking what to build.
+The main thread is a pure router: forward every user reply to `sdlc-architect` via `SendMessage` and relay the architect's next question back verbatim. Question discipline is the architect's -- its AGENT.md "Intake loop" is authoritative, and so is the call on when intake is complete. If `$ARGUMENTS` is empty, tell the architect on spawn so it opens by asking what to build.
 
-Relay each question as your turn's final output and stop there, so the user can answer. Do not poll the architect, fill the wait with other work, or answer on the user's behalf.
+Relay each question as your turn's final output and stop there, so the user can answer. Do not poll the architect or fill the wait with other work.
 
 ## Gates
 
-The architect runs all six signoff gates per its AGENT.md "Gates before signoff" — they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (the repo's default branch or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
+The architect runs all six signoff gates per its AGENT.md "Gates before signoff" -- they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (the repo's default branch or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
 
 ## Concurrency Model
 
@@ -29,7 +31,7 @@ Within an epic, tasks are strictly linear: NN order is run order, every task sta
 
 ## Mid-Flight Revision
 
-When `$ARGUMENTS` names an existing project and the user requests a revision (architecture shift, scope change, reshape), enter revision mode. Never touch in-flight partial work — tell the user to stash or leave the tree alone. Spawn a fresh `sdlc-architect` and route all revision intake through it under the orchestrator-as-router rule. The architect reads the manifest, completed task files, and in-progress work, then decides per remaining task: **keep** (unchanged), **revise** (updated spec — mark `[revised: vN]` in MANIFEST and overwrite the task file), or **void** (no longer needed — mark `[voided: <reason>]` in MANIFEST, leave the file in place for history). Append any new tasks with fresh NN-prefixes continuing the sequence. Update `adr.md` with the triggering decision. Confirm the updated plan with the user before returning them to `/sdlc-implement`.
+When `$ARGUMENTS` names an existing project and the user requests a revision (architecture shift, scope change, reshape), enter revision mode. Never touch in-flight partial work -- tell the user to stash or leave the tree alone. Spawn a fresh `sdlc-architect` and route all revision intake through it under the orchestrator-as-router rule. The architect reads the manifest, completed task files, and in-progress work, then decides per remaining task: **keep** (unchanged), **revise** (updated spec -- mark `[revised: vN]` in MANIFEST and overwrite the task file), or **void** (no longer needed -- mark `[voided: <reason>]` in MANIFEST, leave the file in place for history). Append any new tasks with fresh NN-prefixes continuing the sequence. Update `adr.md` with the triggering decision. Confirm the updated plan with the user before returning them to `/sdlc-implement`.
 
 ## Project Structure
 
@@ -52,11 +54,11 @@ Neither project nor epic slug carries a date prefix; date appends only on archiv
 
 ## PRD and ADR Handling
 
-`prd.md` is optional — write it only for user-facing product requirements worth separating from the technical spec (the WHAT, not the HOW). When it exists, every epic's `spec.md` MUST cite it under `## Dependencies` ("PRD: prd.md") and trace each FR to a PRD section by quoted phrase or heading; an unreferenced PRD is wired in or deleted. `adr.md` is a required running log, one heading per project-level decision with context, decision, consequences. A decision strong enough to outlive the project (naming conventions, cross-cutting framework choice, data contract family) promotes to `docs/adrs/<YYYYMMDD>-<slug>.md` in the host repo, noted back in `adr.md`. Every session starts with the architect reading all existing `docs/adrs/**/*.md`.
+`prd.md` is optional -- write it only for user-facing product requirements worth separating from the technical spec (the WHAT, not the HOW). When it exists, every epic's `spec.md` MUST cite it under `## Dependencies` ("PRD: prd.md") and trace each FR to a PRD section by quoted phrase or heading; an unreferenced PRD is wired in or deleted. `adr.md` is a required running log, one heading per project-level decision with context, decision, consequences. A decision strong enough to outlive the project (naming conventions, cross-cutting framework choice, data contract family) promotes to `docs/adrs/<YYYYMMDD>-<slug>.md` in the host repo, noted back in `adr.md`. Every session starts with the architect reading all existing `docs/adrs/**/*.md`.
 
 ## Agent Teardown
 
-The architect idles after each reply and costs nothing while idle, so no shutdown handshake is needed — after signoff and the `MANIFEST.md` write, simply stop messaging it. If it is stuck mid-run and must be terminated, `TaskStop` accepts its name.
+The architect idles after each reply and costs nothing while idle, so no shutdown handshake is needed -- after signoff and the `MANIFEST.md` write, simply stop messaging it. If it is stuck mid-run and must be terminated, `TaskStop` accepts its name.
 
 ## Completion
 
@@ -68,9 +70,9 @@ The Spec, Plan, Task File, and Manifest formats live in `templates.md` beside th
 
 ## Rules
 
-NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through the `sdlc-architect` agent.
+NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there -- all artifacts and questions come through the `sdlc-architect` agent.
 
-**Router violation:** relaying anything other than the architect's question as written — merging two of its questions into one turn, softening a blunt one, appending your own follow-up, or answering on the user's behalf. Adding "and while we're here, what about auth?" beside the architect's question is a violation; sending its question alone and stopping is acceptable, even where you can see what it will ask next.
+**Router violation:** relaying anything other than the architect's question as written -- merging two of its questions into one turn, softening a blunt one, appending your own follow-up, or answering on the user's behalf. Adding "and while we're here, what about auth?" beside the architect's question is a violation; sending its question alone and stopping is acceptable, even where you can see what it will ask next.
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 

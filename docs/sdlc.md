@@ -6,6 +6,8 @@ A manifest-driven process from feature idea to merged code.
 
 `/sdlc-design` is the single entry point: a persistent architect agent runs strict one-question-at-a-time intake and context7-backed research, authors all artifacts (spec, plan, tasks, MANIFEST), enforces stack-linearity (every task has exactly one parent branch) and NN-prefix ordering, and handles mid-flight revisions via per-task keep/revise/void triage.
 
+Every version or API claim carries a stamped source. context7 is the first stop, but its free tier allows 1,000 calls a month and a design session spends ten to fifteen, so a long-running project can exhaust it — and a library it has never indexed refuses just the same. Either way the architect falls back to WebSearch/WebFetch against the project's own docs, records the entry in the same form with the URL in place of the context7 source, marks it `[web fallback]`, and names the affected packages, so the weaker citation is visible rather than silent. What it never does is drop to an unsourced claim or one from memory; the citation regime is what makes a spec auditable months later.
+
 Within an epic, tasks run linearly; across epics, disjoint dependency sets may run in parallel via two `/sdlc-implement` sessions in two checkouts.
 
 ## Implement
@@ -55,6 +57,8 @@ Project-level ADRs live in `adr.md`; decisions strong enough to outlive the proj
 | `sdlc-tester` | sonnet | high | TDD discipline — red-first batches and full-suite reruns — and rework of drift reported by the validator |
 | `sdlc-coder` | sonnet | high | Smallest-diff implementation specialist |
 
-`sdlc-architect` is spawned by `/sdlc-design` once per design session; `sdlc-tester` and `sdlc-coder` by `/sdlc-implement` once per task. Each is launched via the `Agent` tool (`subagent_type` set to the agent's name) and resumed thereafter with `SendMessage` addressed to that same name, which restores its full transcript — that persistence is what lets the tester write batch 2 knowing what batch 1 revealed. Each carries a one-line signature phrase that restates its hardest rule.
+`sdlc-architect` is spawned by `/sdlc-design` once per design session; `sdlc-tester` and `sdlc-coder` by `/sdlc-implement` once per task. Each is launched via the `Agent` tool (`subagent_type` set to the agent's name) and resumed thereafter with `SendMessage` addressed to that same name, which restores its full transcript — that persistence is what lets the tester write batch 2 knowing what batch 1 revealed. Each carries a one-line signature phrase that restates its hardest rule, and a frontmatter description naming both who invokes it and what it must never decide.
+
+An agent that cannot be spawned is not installed, and both skills name it and stop rather than continuing without it — the same rule the forge skills follow. There is deliberately no fallback: `/sdlc-design` forbids driving intake or authoring artifacts in the main thread and `/sdlc-implement` forbids implementing there, so degrading into a main-thread run would do exactly what those rules exist to prevent. This is reachable in normal use, since `config.yml` can exclude an agent while keeping its skill, and Gemini receives the skills without any agents at all.
 
 Unlike skills, agents pin `model` and `effort`: they spawn as fresh processes with no session to inherit from, so the tier is part of the role definition. Tester and coder run on `sonnet` — writing table-driven tests against a written spec and greening them with the smallest diff is routine coding, and the batched TDD loop is the flow's dominant token cost. Judgment-heavy roles stay on `opus`: the architect, and the one-shot spec-vs-code validator `/sdlc-implement` spawns.
