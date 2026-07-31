@@ -1,11 +1,11 @@
 ---
 name: pr-review
-description: Review a pull request or merge request on GitHub or GitLab, write numbered findings to docs/pr-reviews/<number>.md, and post selected findings back as inline comments. Use when reviewing a PR or MR, posting review comments, or approving and revoking approval.
+description: Review a pull request or merge request on GitHub or GitLab in one of three modes -- writing numbered findings to docs/pr-reviews/<number>.md, submitting them to the forge as one review with inline comments and a verdict, or following up on the threads those findings started. Use when reviewing a PR or MR, submitting or posting review comments, replying to review threads, requesting changes, or approving and revoking approval.
 ---
 
 # PR Review
 
-Reviewing and posting are separate. A review run writes a local file and posts nothing.
+Three modes. A local run writes `docs/pr-reviews/<number>.md` and posts nothing. A submit run writes that same file, then sends the findings to the forge as one review. A follow-up run reads the threads those findings started and answers what came back. Local is the default: submit where the request names it -- `--submit`, "submit the review", "post this as a review" -- and follow up on `--follow-up` or a request to pick the threads back up.
 
 ## Host
 
@@ -22,9 +22,22 @@ The agent owns the commands; this skill owns what the comment says -- including 
 | GitHub | ` ```suggestion ` | the comment's own anchor range |
 | GitLab | ` ```suggestion:-0+0 ` | offsets in the fence: `-0+0` is the anchored line alone, `-1+2` extends one above and two below |
 
+The verdict is a review event on GitHub and a separate approval on GitLab, and the two do not cover the same ground:
+
+| Verdict | GitHub | GitLab |
+| --- | --- | --- |
+| changes needed | `REQUEST_CHANGES` on the review | no such state -- the summary posts as a note, and the state is reported unsupported |
+| comment only | `COMMENT` on the review | the summary posts as a note |
+| approve | `APPROVE` on the review | `approve`, pinned to the head SHA |
+| revoke | no equivalent -- dismissal needs the review id and elevated access | `revoke` |
+
+Never simulate a verdict the host lacks: revoking an approval is not a changes-requested state, and a note saying "requesting changes" does not set one.
+
 ## Workflow
 
 Dispatch `auth`; stop on failure. Resolve the PR/MR from `$ARGUMENTS` -- a number, branch name, or URL -- falling back to the current branch's open one. Confirm the working directory is the right project by comparing `repo-id` against the PR/MR's; if they disagree, stop rather than writing findings into an unrelated repo.
+
+A follow-up run branches here: it does not re-read the diff, but opens the existing `docs/pr-reviews/<number>.md` and goes to Follow Up below. Where no report exists, or nothing in it was ever posted, say so and stop -- a follow-up request is not an instruction to review from scratch.
 
 Gather in parallel via the agent: `view`, `diff`, `threads`.
 
@@ -32,7 +45,7 @@ Read the diff in full, then read the surrounding code for every file it touches 
 
 Every question the diff raises is yours to answer first, chased as it surfaces rather than deferred: the callers, the definition, the tests, the history, the linked issue. What the repository settles becomes a finding. What it cannot settle is still a finding, written so the author confirms rather than investigates: what you already checked, and the one part only they can supply -- intent, an external system, a decision made off the diff.
 
-Write `docs/pr-reviews/<number>.md`, creating directories as needed. Leave it unstaged and never gitignore it. Show the numbered findings and stop.
+Write `docs/pr-reviews/<number>.md`, creating directories as needed. Leave it unstaged and never gitignore it. Show the numbered findings. A local run stops there and a submit run goes on to Submit below, the file being written first either way, so what landed has a record to be marked on.
 
 The report is a file in someone's repo, so it lints like one: blank lines around every heading, list, and fenced block; a language on every fence; one top-level heading; no trailing whitespace; one trailing newline. Line length is the host repo's call, so never wrap prose to a column.
 
@@ -85,15 +98,17 @@ A finding the repository could not settle routes by consequence like any other: 
 
 Head each section with the head SHA it was reviewed at -- `.sha` on GitLab, `headRefOid` on GitHub -- chronologically, newest last. If that SHA already heads a section the revision has been reviewed: say so and stop, unless asked for a re-read.
 
-Re-reviewing appends a section and continues numbering upward from the highest number in the file, so a number already posted keeps pointing at the same finding. Mark superseded findings `(resolved in <short-sha>)` in place -- never renumber, never delete -- and `(posted <YYYY-MM-DD>)` when a post succeeds.
+Re-reviewing appends a section and continues numbering upward from the highest number in the file, so a number already posted keeps pointing at the same finding. Mark superseded findings `(resolved in <short-sha>)` in place -- never renumber, never delete -- and `(posted <YYYY-MM-DD>, thread <id>)` when a post succeeds.
 
-## Posting
+## Submit
 
-Post only on an explicit request naming findings -- "post 2 and 5", "send the should-changes". Ask when the selection is ambiguous, then show the comment bodies and post on confirmation.
+Two ways in. A submit run sends every finding at once; a later request naming findings -- "post 2 and 5", "send the should-changes" -- sends only those, and an ambiguous selection is asked about before anything goes up.
 
 Compare the section's SHA against the current head first. If they differ the author has pushed since, and every anchor must be re-read against the new diff before anything goes up: the agent refuses a stale head rather than relocating a comment, and re-deriving the anchor is this skill's job, since the diff is here and not there.
 
-Each finding becomes its own thread. Write its body to a temp file outside the repo, then dispatch one `comment` per finding, keyed by finding number, with the anchor you recorded: a line in the new version, a removed line, a whole file, or no file anchor.
+Write every body to a temp file outside the repo. On GitHub the review is one dispatch -- `review-batch`, carrying the head SHA, the event, a summary body, and one entry per anchored finding -- so it arrives as a single notification and lands whole or not at all. A finding with no line anchor cannot ride in that array and goes into the summary body instead, named by its number. On GitLab there is no batch: dispatch one `comment` per finding, keyed by finding number, with the anchor you recorded -- a line in the new version, a removed line, a whole file, or no file anchor -- and the verdict separately afterwards.
+
+The event follows the report's Verdict: changes needed submits `REQUEST_CHANGES`, comment only submits `COMMENT`. Approve is the exception -- it submits `COMMENT` and reports that the approval is waiting to be named, unless the request that started the run named it.
 
 The body is the finding's summary line, bolded, with its number, then the discussion:
 
@@ -109,7 +124,17 @@ The body is the finding's summary line, bolded, with its number, then the discus
 
 A suggestion block replaces exactly the anchored range and is one click from being committed, so it must be complete, correctly indented, and valid where it lands. Offer one only where you have read the replaced lines and the fix is unambiguous; use prose for anything needing judgment, touching multiple sites, or inferring intent. Use the host's fence from the table above.
 
-Mark the file from the agent's per-finding report individually -- a finding is `(posted ...)` only against its own `OK`. Neither forge guards against a double-post on an anchored comment, so a report you cannot match to a finding is checked with `threads` before anything is retried.
+Mark the file from the agent's per-finding report individually -- a finding is `(posted <YYYY-MM-DD>, thread <id>)` only against its own `OK`, and that id is how a follow-up run finds the thread again. A batched review reports the review id and not the per-comment ids, so dispatch `thread-list` afterwards and key each thread to its finding by the `(N)` marker its body carries. Neither forge guards against a double-post on an anchored comment, so a report you cannot match to a finding is checked with `thread-list` before anything is retried.
+
+## Follow Up
+
+Dispatch `thread-list` and resolve every thread against the report: by the id recorded beside a finding, or where none was recorded -- a review posted before ids were kept -- by the `(N)` marker its body carries. A thread matching neither belongs to someone else and is reported as context, never answered as though it were yours.
+
+Report each finding's thread as replied, unresolved, or resolved, quoting what came back. Resolution state is not uniform: GitLab reports it, and GitHub's comment listing does not carry it, so say the state is unavailable rather than inferring it from a reply.
+
+Then do the work the reply asks for. A reply pointing at code is checked against that code before answering, so an author who says the deadline comes from the handler gets a response that has read the handler; the investigation obligation is the same one the review ran under, and a reply the repository settles is answered rather than deferred. A finding the reply resolves is marked `(settled in thread)` in place and recommended for resolution.
+
+Replies post only on a request naming which threads to answer, one `reply` dispatch each keyed by thread id, bodies written to a temp file outside the repo like any other. Never resolve, unresolve, or delete a thread: resolution is the author's signal that they acted on it, and closing it here erases the record that anyone disagreed.
 
 ## Voice
 
@@ -119,11 +144,11 @@ The author reads these without the context that produced them, and they outlive 
 
 ## Approval
 
-Dispatch `approve` or `revoke` on explicit request only, pinned to the head SHA you read. GitLab records approval against that SHA; GitHub has no revoke, and dismissal needs the review id and elevated access, so the agent may report it unsupported. Say that approval is recorded against the user's account and endorses an AI-produced review, and never approve over unresolved Should-change findings without confirmation.
+Approve and revoke run on explicit request only, pinned to the head SHA you read -- as the event of a submit run, or as `approve` and `revoke` dispatched on their own. GitLab records approval against that SHA; GitHub has no revoke, and dismissal needs the review id and elevated access, so the agent may report it unsupported. Say that approval is recorded against the user's account and endorses an AI-produced review, and never approve over unresolved Should-change findings without confirmation.
 
 ## Rules
 
-Producing the report is the whole of a review run: a verdict is never itself an approval.
+A verdict is never itself an approval: the report concludes, and only a request naming approval approves.
 
 Never compose a remote command here -- an operation the agent's table does not cover is reported as unsupported, not worked around with a raw CLI call.
 
@@ -133,7 +158,7 @@ Never invent a line number, file path, or consequence. Never claim anything was 
 
 **Numbering violation:** a finding written without a number, or a number reused for a different finding, must be corrected before the report is shown.
 
-**Scope violation:** posting, approving, or revoking without an explicit user instruction naming the action. "Review this PR" is never such an instruction.
+**Scope violation:** submitting, posting, replying, approving, or revoking without an explicit user instruction naming the action. "Review this PR" is never such an instruction, and neither is a report whose Verdict reads approve.
 
 Restrict generated output -- commits, PRs, issues, comments, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
