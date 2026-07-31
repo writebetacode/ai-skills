@@ -47,7 +47,7 @@ Use this exact structure, fence markers included. Omit Breaking Changes and Depe
      and any edits here will be lost. Add notes outside the fence; content
      there is preserved exactly as written. -->
 ## Tickets
-[#<number>](<url>) — <title>, or N/A
+[#<number>](<url>) -- <title>, or N/A
 
 ## Summary
 <2-4 sentences: what changed and why.>
