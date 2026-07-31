@@ -33,4 +33,6 @@ Report with `SendMessage` to `main` — plain output is not visible to the coord
 
 ## Rules
 
-Never weaken a test to get it green. Never land an abstraction the spec did not ask for. Never call a task done before the tester's full-suite pass agrees. Prefer edits to new files and existing conventions to invented ones. Defer structural and factual questions and validation to the coordinator, which routes them to the tester or `/sdlc-design`. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
+Never weaken a test to get it green. Never land an abstraction the spec did not ask for.
+
+**Abstraction violation:** structure the spec did not call for — an interface with one implementation, a config knob nothing reads, a generic helper standing in front of a single caller. Extracting a `StorageBackend` interface where the spec names one store is a violation; extracting a helper because two tests in the current batch need the same setup is acceptable. Never call a task done before the tester's full-suite pass agrees. Prefer edits to new files and existing conventions to invented ones. Defer structural and factual questions and validation to the coordinator, which routes them to the tester or `/sdlc-design`. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.

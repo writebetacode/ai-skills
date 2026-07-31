@@ -11,7 +11,7 @@ One skill for both forges. The commands belong to the `gh` and `glab` agents; wh
 
 Resolve the forge from the `origin` remote and dispatch every remote operation to that host's agent -- `gh` for GitHub, `glab` for GitLab -- via the `Agent` tool, resuming it with `SendMessage` within a run. Where a self-hosted URL settles nothing, ask each available agent for `repo-id` and take the one that resolves; if both do or neither does, ask the user.
 
-Two failures stop the run rather than routing around it. If the agent cannot be spawned, it is excluded in `config.yml` or not installed: name it and say so. If it reports the CLI missing, tell the user which CLI to install, with the URL it gave. Never fall back to running the command here -- and never tag or push on the way to a release you cannot then publish.
+Two failures stop the run rather than routing around it. If the agent cannot be spawned, it is not installed: name it and say so. If it reports the CLI missing, tell the user which CLI to install, with the URL it gave. Never fall back to running the command here -- and never tag or push on the way to a release you cannot then publish.
 
 Send `op:` and its parameters one per line, and pass the release notes as a file path -- the bytes never travel as prose in a message, which is what keeps a body byte-exact and out of reach of shell quoting. Git stays in this skill: tags, log, and remote resolution are local operations with no agent between them.
 
@@ -52,9 +52,9 @@ Never compose a remote command here -- an operation the agent's table does not c
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
-**Version violation:** any tag that breaks the repo's existing format -- a missing or added `v` prefix, a truncated `MAJOR.MINOR.PATCH`, or a number that does not follow the latest tag -- must be corrected before tagging.
+**Version violation:** any tag that breaks the repo's existing format -- a missing or added `v` prefix, a truncated `MAJOR.MINOR.PATCH`, or a number that does not follow the latest tag -- must be corrected before tagging. Against a latest tag of `v1.4.2`, `1.4.3` drops the prefix, `v1.5` truncates, and `v1.6.0` skips the sequence; `v1.4.3` and `v1.5.0` are acceptable.
 
-**Title violation:** any title that drops the repo's established prefix convention, or that restates the version number instead of describing the release, must be rewritten before publishing.
+**Title violation:** any title that drops the repo's established prefix convention, or that restates the version number instead of describing the release, must be rewritten before publishing. Where recent releases read `Release v1.4.2 -- <description>`, both `v1.4.3` and `Release v1.4.3` are violations, naming the version and describing nothing; `Release v1.4.3 -- narrower glab permissions and a follow-up review mode` is acceptable.
 
 ## User Input
 

@@ -23,7 +23,7 @@ Every git-facing skill resolves the repo's default branch from `origin/HEAD` rat
 | `/commit` | Stage-aware conventional commits — commits exactly what is staged, immediately |
 | `/skill-write` | Author or revise a SKILL.md or AGENT.md — the frontmatter contract and the token-efficiency rules for what earns a place in the file |
 | `/pr` | Create or update pull requests and merge requests with structured descriptions, and move one between draft and ready, on GitHub or GitLab |
-| `/pr-review` | Review a PR or MR into a numbered `docs/pr-reviews/<number>.md` report, then post selected findings back as inline comments |
+| `/pr-review` | Review a PR or MR into a numbered `docs/pr-reviews/<number>.md` report, post selected findings back as inline comments, `--submit` the whole review with a verdict, or `--follow-up` on the threads it started |
 | `/remote-issue` | File a consistently-formatted GitHub or GitLab issue, or a Jira work item, prompting for the tracker and the fields it requires |
 | `/remote-release` | Tag the default branch and publish a GitHub or GitLab release, inferring the version from commit history and drafting notes in the repo's established voice |
 
@@ -31,9 +31,9 @@ Every git-facing skill resolves the repo's default branch from `origin/HEAD` rat
 
 | Agent | Model | Effort | Description |
 | --- | --- | --- | --- |
-| `gh` | sonnet | medium | Executes GitHub pull request, issue, and release operations through the `gh` CLI on a caller's work order |
-| `glab` | sonnet | medium | Executes GitLab merge request, issue, and release operations through the `glab` CLI on a caller's work order |
-| `acli` | sonnet | medium | Executes Jira work item operations through the Atlassian CLI on a caller's work order |
+| `gh` | sonnet | medium | Executes GitHub pull request, issue, and release operations through the `gh` CLI on a caller's work order — view, list, create, edit, review, merge, publish, delete |
+| `glab` | sonnet | medium | Executes GitLab merge request, issue, and release operations through the `glab` CLI on a caller's work order — view, list, create, edit, review, merge, publish, delete |
+| `acli` | sonnet | medium | Executes Jira work item operations through the Atlassian CLI on a caller's work order — view, search, create, edit, comment, transition, assign, delete |
 
 The body template has rules of its own, and `/pr-review` splits reviewing from posting — see [Skill behaviour](docs/skills.md).
 

@@ -68,7 +68,11 @@ The Spec, Plan, Task File, and Manifest formats live in `templates.md` beside th
 
 ## Rules
 
-NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through the `sdlc-architect` agent. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
+NEVER produce specs, plans, or task files in the main conversation, and NEVER drive intake there — all artifacts and questions come through the `sdlc-architect` agent.
+
+**Router violation:** relaying anything other than the architect's question as written — merging two of its questions into one turn, softening a blunt one, appending your own follow-up, or answering on the user's behalf. Adding "and while we're here, what about auth?" beside the architect's question is a violation; sending its question alone and stopping is acceptable, even where you can see what it will ask next.
+
+Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 ## User Input
 

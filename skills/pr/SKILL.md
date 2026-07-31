@@ -11,7 +11,7 @@ One skill for both forges. The commands belong to the `gh` and `glab` agents; wh
 
 Resolve the forge from the `origin` remote and dispatch every remote operation to that host's agent -- `gh` for GitHub, `glab` for GitLab -- via the `Agent` tool, resuming it with `SendMessage` within a run. Where a self-hosted URL settles nothing, ask each available agent for `repo-id` and take the one that resolves; if both do or neither does, ask the user rather than guessing. Say "pull request" or "merge request" to match the host once resolved.
 
-Two failures stop the run rather than routing around it. If the agent cannot be spawned, it is excluded in `config.yml` or not installed: name it and say so. If it reports the CLI missing, tell the user which CLI to install, with the URL it gave. Never fall back to running the command here in either case.
+Two failures stop the run rather than routing around it. If the agent cannot be spawned, it is not installed: name it and say so. If it reports the CLI missing, tell the user which CLI to install, with the URL it gave. Never fall back to running the command here in either case.
 
 Send `op:` and its parameters one per line, and pass every description as a file path -- write the composed body to a temp file outside the repo. Bytes must never travel as prose in a message; that is what keeps a description byte-exact through the handoff.
 
@@ -21,7 +21,7 @@ Dispatch `auth` first; stop on failure. Gather in parallel: current branch, remo
 
 Resolve the target branch from arguments, or auto-detect by matching branch-name prefix against other local branches, falling back to `git merge-base` against the repo's default branch -- resolve it via `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), or `git remote show origin` parsed for `HEAD branch:` if that ref is missing. Never assume `main`: the repo may default to `develop`, `master`, or `trunk`.
 
-Draft a human-readable title under 70 characters covering the combined changes. Validate any host-native issue reference with `issue-view` before citing it. Compose the description from the template, write it to a temp file, then dispatch `create` with the title, body path, base, and username -- adding draft when "draft" appears in `$ARGUMENTS` -- or `update-description` following the Update Path below. Display the URL from the agent's report.
+Draft a human-readable title under 70 characters covering the combined changes. Validate any host-native issue reference with `issue-view` before citing it. Compose the description from the template, write it to a temp file, then dispatch `create` with the title, body path, base, and username -- adding draft when "draft" appears in `$ARGUMENTS` -- or `update-description` following the Update Path below. An update redrafts the title too, against the combined changes as they now stand: where it differs from the one `view` reported, dispatch `title` alongside the description. Display the URL from the agent's report.
 
 Dispatch `draft` or `ready` only when the request asks for the move: "mark it ready", "back to draft". `view` already reported the current state, so a move that would change nothing is reported instead of dispatched. Where the same request also revises the description, update first and toggle after, since marking ready is what puts the body in front of reviewers.
 
@@ -88,7 +88,7 @@ Restrict generated output -- commits, PRs, issues, and files you write -- to ASC
 
 **Title violation:** any title that is not a plain-English, human-readable sentence -- raw branch names, ticket slugs, kebab-case, or machine-style identifiers must be rewritten before create/update. `fix/auth-token-refresh` or `PROJ-123` are violations, as is a `Draft:` prefix written here to mark state the `draft` operation owns; "Fix authentication token refresh on expired sessions" is acceptable.
 
-**Body violation:** any body off the exact template -- Tickets, Summary, Why, and Changes in that order using the prescribed markdown. Freeform prose, generic layouts, or invented sections like "Test Plan" must be corrected before create/update. This governs the fenced region alone: content outside it is never a violation whatever its shape, and must not be trimmed or template-conformed to satisfy this rule.
+**Body violation:** any body off the exact template -- Tickets, Summary, Why, and Changes in that order using the prescribed markdown. Freeform prose, generic layouts, or invented sections like "Test Plan" must be corrected before create/update. A fenced region opening at `## Summary` with no `## Tickets`, or carrying a `## Test Plan`, is a violation; one running Tickets, Summary, Why, and Changes in that order, with Breaking Changes and Dependencies present only where they apply, is acceptable. This governs the fenced region alone: content outside it is never a violation whatever its shape, and must not be trimmed or template-conformed to satisfy this rule.
 
 ## User Input
 

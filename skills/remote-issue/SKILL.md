@@ -19,7 +19,7 @@ Ask which tracker unless `$ARGUMENTS` settles it -- a project key like `PROJ-123
 
 Dispatch `auth` to the chosen agent and stop on failure, then resume it with `SendMessage` for the create. Send `op:` and its parameters one per line, and pass the description as a file path -- write the composed body to a temp file outside the repo, so the bytes never travel as prose in a message.
 
-Two failures stop the run rather than routing around it. If the agent cannot be spawned, it is excluded in `config.yml` or not installed: name it and say so. If it reports the CLI missing, tell the user which CLI to install, with the URL it gave. Never fall back to running the command here in either case.
+Two failures stop the run rather than routing around it. If the agent cannot be spawned, it is not installed: name it and say so. If it reports the CLI missing, tell the user which CLI to install, with the URL it gave. Never fall back to running the command here in either case.
 
 ## Workflow
 
@@ -82,7 +82,7 @@ Never compose a remote command here -- an operation the agent's table does not c
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
-**Title violation:** a GitHub or GitLab title that is not `<type>: <title>`, or a Jira summary carrying a type prefix that duplicates the `--type` field.
+**Title violation:** a GitHub or GitLab title that is not `<type>: <title>`, or a Jira summary carrying a type prefix that duplicates the `--type` field. On a forge, `Login is broken` is a violation and `fix: login rejects valid tokens after refresh` is acceptable; on Jira the same text without the `fix:` is acceptable, and `Bug: login rejects valid tokens` is a violation because `--type` already carries it.
 
 ## User Input
 
