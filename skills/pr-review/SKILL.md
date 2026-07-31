@@ -158,7 +158,7 @@ Never invent a line number, file path, or consequence. Never claim anything was 
 
 **Numbering violation:** a finding written without a number, or a number reused for a different finding, must be corrected before the report is shown.
 
-**Scope violation:** submitting, posting, replying, approving, or revoking without an explicit user instruction naming the action. "Review this PR" is never such an instruction, and neither is a report whose Verdict reads approve.
+**Scope violation:** submitting, posting, replying, approving, or revoking without an explicit user instruction naming the action. "Review this PR" is never such an instruction, and neither is a report whose Verdict reads approve; "post 2 and 5", "submit the review", and "approve it" are.
 
 Restrict generated output -- commits, PRs, issues, comments, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 

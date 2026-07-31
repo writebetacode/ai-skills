@@ -88,7 +88,7 @@ Restrict generated output -- commits, PRs, issues, and files you write -- to ASC
 
 **Title violation:** any title that is not a plain-English, human-readable sentence -- raw branch names, ticket slugs, kebab-case, or machine-style identifiers must be rewritten before create/update. `fix/auth-token-refresh` or `PROJ-123` are violations, as is a `Draft:` prefix written here to mark state the `draft` operation owns; "Fix authentication token refresh on expired sessions" is acceptable.
 
-**Body violation:** any body off the exact template -- Tickets, Summary, Why, and Changes in that order using the prescribed markdown. Freeform prose, generic layouts, or invented sections like "Test Plan" must be corrected before create/update. This governs the fenced region alone: content outside it is never a violation whatever its shape, and must not be trimmed or template-conformed to satisfy this rule.
+**Body violation:** any body off the exact template -- Tickets, Summary, Why, and Changes in that order using the prescribed markdown. Freeform prose, generic layouts, or invented sections like "Test Plan" must be corrected before create/update. A fenced region opening at `## Summary` with no `## Tickets`, or carrying a `## Test Plan`, is a violation; one running Tickets, Summary, Why, and Changes in that order, with Breaking Changes and Dependencies present only where they apply, is acceptable. This governs the fenced region alone: content outside it is never a violation whatever its shape, and must not be trimmed or template-conformed to satisfy this rule.
 
 ## User Input
 

@@ -52,9 +52,9 @@ Never compose a remote command here -- an operation the agent's table does not c
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
-**Version violation:** any tag that breaks the repo's existing format -- a missing or added `v` prefix, a truncated `MAJOR.MINOR.PATCH`, or a number that does not follow the latest tag -- must be corrected before tagging.
+**Version violation:** any tag that breaks the repo's existing format -- a missing or added `v` prefix, a truncated `MAJOR.MINOR.PATCH`, or a number that does not follow the latest tag -- must be corrected before tagging. Against a latest tag of `v1.4.2`, `1.4.3` drops the prefix, `v1.5` truncates, and `v1.6.0` skips the sequence; `v1.4.3` and `v1.5.0` are acceptable.
 
-**Title violation:** any title that drops the repo's established prefix convention, or that restates the version number instead of describing the release, must be rewritten before publishing.
+**Title violation:** any title that drops the repo's established prefix convention, or that restates the version number instead of describing the release, must be rewritten before publishing. Where recent releases read `Release v1.4.2 -- <description>`, both `v1.4.3` and `Release v1.4.3` are violations, naming the version and describing nothing; `Release v1.4.3 -- narrower glab permissions and a follow-up review mode` is acceptable.
 
 ## User Input
 

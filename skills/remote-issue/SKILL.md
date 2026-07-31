@@ -82,7 +82,7 @@ Never compose a remote command here -- an operation the agent's table does not c
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
-**Title violation:** a GitHub or GitLab title that is not `<type>: <title>`, or a Jira summary carrying a type prefix that duplicates the `--type` field.
+**Title violation:** a GitHub or GitLab title that is not `<type>: <title>`, or a Jira summary carrying a type prefix that duplicates the `--type` field. On a forge, `Login is broken` is a violation and `fix: login rejects valid tokens after refresh` is acceptable; on Jira the same text without the `fix:` is acceptable, and `Bug: login rejects valid tokens` is a violation because `--type` already carries it.
 
 ## User Input
 
