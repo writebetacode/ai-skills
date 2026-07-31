@@ -31,9 +31,9 @@ Every git-facing skill resolves the repo's default branch from `origin/HEAD` rat
 
 | Agent | Model | Effort | Description |
 | --- | --- | --- | --- |
-| `gh` | sonnet | medium | Executes GitHub pull request, issue, and release operations through the `gh` CLI on a caller's work order |
-| `glab` | sonnet | medium | Executes GitLab merge request, issue, and release operations through the `glab` CLI on a caller's work order |
-| `acli` | sonnet | medium | Executes Jira work item operations through the Atlassian CLI on a caller's work order |
+| `gh` | sonnet | medium | Executes GitHub pull request, issue, and release operations through the `gh` CLI on a caller's work order — view, list, create, edit, review, merge, publish, delete |
+| `glab` | sonnet | medium | Executes GitLab merge request, issue, and release operations through the `glab` CLI on a caller's work order — view, list, create, edit, review, merge, publish, delete |
+| `acli` | sonnet | medium | Executes Jira work item operations through the Atlassian CLI on a caller's work order — view, search, create, edit, comment, transition, assign, delete |
 
 The body template has rules of its own, and `/pr-review` splits reviewing from posting — see [Skill behaviour](docs/skills.md).
 
