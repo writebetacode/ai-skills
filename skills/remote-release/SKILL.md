@@ -45,7 +45,7 @@ Push the tag, always, before dispatching. The forges fail opposite ways when it 
 
 Never publish without an explicit confirmation covering the final version, title, and body together. Never tag from a branch other than the resolved default branch, or from a dirty tree. Never invent a version that skips or reorders the sequence.
 
-Never reuse an existing tag -- check with `git rev-parse <version>` first and stop if it resolves. On GitLab this is load-bearing rather than tidy: creating against a tag that already has a release overwrites its name and notes instead of failing.
+Never reuse an existing tag -- check with `git rev-parse --verify <version>` first and stop if it resolves. Keep `--verify`: the bare form prints the tag name back on a miss and exits non-zero, which reads like a hit to anyone not checking the exit code. On GitLab this is load-bearing rather than tidy: creating against a tag that already has a release overwrites its name and notes instead of failing.
 
 Never claim in release notes that something was tested, verified, or exercised unless that actually happened in a way you can point to; describe inspected-only work as inspected. A release note is a public durable record, and an overstated one is worse than a terse one.
 
