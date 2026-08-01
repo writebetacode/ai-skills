@@ -1,6 +1,6 @@
 ---
 name: skill-write
-description: Author or revise a SKILL.md or AGENT.md for this repo -- scoping questions, the frontmatter contract, the description rules that decide whether a skill ever fires, and the token-efficiency rules that decide what earns a place in the file. Use when codifying a repetitive task into a skill, a specialized role into an agent, when editing either however small the change looks, or when a skill triggers on the wrong prompts.
+description: Author or revise a SKILL.md or AGENT.md for this repo -- scoping questions, the frontmatter contract, the description rules that decide whether a skill ever fires, and the token-efficiency and progressive-disclosure rules that decide what earns a place in the file. Use when codifying a repetitive task into a skill, a specialized role into an agent, when editing either however small the change looks, when a skill triggers on the wrong prompts, or when one has grown long enough to be worth splitting.
 ---
 
 # Skill Write
@@ -43,7 +43,7 @@ Give an agent a one-line Identity -- the disposition it argues from when a call 
 
 The description is the only part loaded before a skill fires, so it decides whether the skill is consulted at all and the body never gets a vote. Write it in two halves: what the skill does, then the contexts that should reach for it, in the words a user would type rather than the ones the skill uses internally. Skills under-fire far more often than they over-fire, so state the trigger wider than feels necessary and cover the prompts that describe the goal without naming the artifact.
 
-A description competes with its siblings, not with silence. Before calling one done, write three or four prompts a real user would type -- including near-misses belonging to a neighbouring skill -- and check that the description sorts them: "approve PR 12" has to reach `/pr-review` rather than `/pr`, and "log this as a bug" has to reach `/remote-issue` rather than `/pr`. A prompt that lands in both is fixed in the description, not left for the model to break the tie.
+A description competes with its siblings, not with silence. Before calling one done, write three or four prompts a real user would type -- including near-misses belonging to a neighbouring skill -- and check that the description sorts them. Siblings acting on the same object are where this bites: where one skill drafts a document and another publishes it, "get this ready to go out" has to land on exactly one, and it does so only because each description claims a verb the other never uses. A prompt that lands in both is fixed in the description, not left for the model to break the tie.
 
 ## Token Efficiency
 
@@ -57,13 +57,19 @@ Rationale is not automatically derivable. Keep the sentence that resolves a case
 
 Keep anything genuinely ambiguous between the categories -- losing capability costs more than the tokens save. Where one constraint could sit in either Workflow or Rules, put it where it is likelier to be followed; for a destructive operation that is the imperative-negative in Rules.
 
-## What Not To Extract
+## Progressive Disclosure
+
+A skill's body loads whole on every invocation; a sibling `<name>.md` loads only when something reads it. Splitting one out trades tokens for a `Read` round-trip and the chance the model skips it and works from memory instead, so it pays only where a real path never reaches the block. Two gates open it and either is enough -- apply it wherever one does, and inline everything else.
+
+**Cross-context.** The context that loads the skill is not the one that uses the block. A skill whose main thread only routes -- forbidden by its own rules from authoring, delegating that to an agent -- pays for every template line it carries and fills in none of them, while the agent that does reads the whole `SKILL.md` to find them. Point that reader at the installed path, `~/.claude/skills/<name>/<file>.md`, which resolves from any project directory; a repo-relative path resolves nowhere but the repo it was written in.
+
+**Selective bulk.** A block of roughly 1k tokens or more that a named mode never reaches -- one you can name, not one that might skip it. Measure before splitting: `wc -c` over the section, bytes over four. Under that floor the pointer prose and the round-trip eat the saving.
+
+Length alone opens neither gate. Check whether a section is derivable before extracting it, since cutting beats deferring, and never defer a block that has to be reproduced byte-exact -- a skipped read becomes a reconstruction from memory, which is what a verbatim format cannot survive.
+
+`task install` links every `*.md` in the skill's directory and nothing else, so a reference file is a flat `<name>.md` sibling. A `scripts/` or `assets/` directory is never installed and cannot be reached at runtime, so a skill needing repeated deterministic work states the commands instead of shipping a program. An agent has no equivalent -- only `AGENT.md` is linked -- so neither gate opens for one: it carries what it needs in that file, or reads an installed skill's reference file at `~/.claude/skills/<name>/<file>.md`.
 
 Duplication between two files costs nothing at runtime, because skills load one at a time. Never split a file to remove text another file repeats -- the only cost is editing twice, and a shared file that must be read back is worse.
-
-Extract a template into its own `<name>.md` beside `SKILL.md` in exactly one case: the context that loads the skill is not the context that fills the template in. Where they are the same, extraction buys a read and saves nothing. Point a cross-context reader at the installed path, `~/.claude/skills/<name>/<file>.md`, which resolves from any project directory.
-
-`task install` links every `*.md` in the skill's directory and nothing else, so a reference file is a flat `<name>.md` sibling. A `scripts/` or `assets/` directory is never installed and cannot be reached at runtime, so a skill needing repeated deterministic work states the commands instead of shipping a program. An agent has no equivalent: only `AGENT.md` is linked, so an agent carries what it needs in that one file or reads an installed skill's path at runtime, the way `sdlc-architect` reads `templates.md`.
 
 ## Writing Style
 
@@ -85,7 +91,7 @@ After an edit that was meant to shorten, diff the rule-bearing sentences -- `nev
 
 Always ask scoping questions one at a time, and keep asking until nothing material is unsettled. Write the file once it is, without pausing for approval of the draft.
 
-Target 100 lines, counting everything outside the frontmatter, tables, and fenced blocks. Past that, check whether a section is derivable before deciding the skill is genuinely large.
+Target 100 lines, counting everything outside the frontmatter, tables, and fenced blocks. Past that, check whether a section is derivable, then whether a gate in Progressive Disclosure opens, before deciding the skill is genuinely large.
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
@@ -96,6 +102,8 @@ Restrict generated output -- commits, PRs, issues, and files you write -- to ASC
 **Model violation:** a `model` key in a SKILL.md -- skills run on whatever tier the session holds -- or an AGENT.md pinning `model` without `effort`.
 
 **Trigger violation:** a description that stops at what the skill does, or that names the artifact without the intent someone would arrive with. "Create a conventional commit from staged changes" alone is a violation, since nothing in it claims the prompt "commit this"; the same sentence followed by "Use when the user wants to commit staged changes with a properly formatted commit message" is acceptable.
+
+**Disclosure violation:** extracting a block every path through the skill reads, or pointing a cross-context reader at a repo-relative path rather than the installed one. Splitting out a body template the skill fills in itself is a violation, since the context that composes the body is the one that loaded the template; splitting out templates a delegated agent fills in is acceptable, since the context that loads them is forbidden from using them.
 
 ## User Input
 
