@@ -165,6 +165,13 @@ tasks:
           # Every *.md, not just SKILL.md: a skill may ship reference files
           # alongside it, and a renamed or deleted one leaves a broken link.
           for f in "$dir"*.md; do remove_stale "$f" "$(basename "$dir")" skills; done
+          # Same for bundled scripts/ and assets/, which are mirrored file by file.
+          for f in $(find "$dir" -mindepth 2 -type l 2>/dev/null); do
+            remove_stale "$f" "$(basename "$dir")" skills
+          done
+          for sub in "$dir"scripts "$dir"assets; do
+            [ -d "$sub" ] && rmdir "$sub" 2>/dev/null || true
+          done
         done
         for dir in "$HOME/.claude/agents/"*/ "$HOME/.gemini/agents/"*/; do
           [ -d "$dir" ] || continue
@@ -186,6 +193,18 @@ tasks:
           mkdir -p "$HOME/.claude/skills/$name"
           for src in "$dir"*.md; do
             ln -sf "$(pwd)/$src" "$HOME/.claude/skills/$name/$(basename "$src")"
+          done
+          # scripts/ and assets/ are mirrored file by file, so a skill can ship an
+          # executable it reaches by ${CLAUDE_SKILL_DIR}/scripts/<name>. Linking each
+          # file rather than the directory keeps clean:stale and verify able to see
+          # every one of them individually, the same way they see a reference file.
+          for sub in scripts assets; do
+            [ -d "$dir$sub" ] || continue
+            find "$dir$sub" -type f | while read -r src; do
+              rel="${src#$dir}"
+              mkdir -p "$HOME/.claude/skills/$name/$(dirname "$rel")"
+              ln -sf "$(pwd)/$src" "$HOME/.claude/skills/$name/$rel"
+            done
           done
         done
       - |
@@ -264,6 +283,14 @@ tasks:
           mkdir -p "$HOME/.gemini/skills/$name"
           for src in "$dir"*.md; do
             ln -sf "$(pwd)/$src" "$HOME/.gemini/skills/$name/$(basename "$src")"
+          done
+          for sub in scripts assets; do
+            [ -d "$dir$sub" ] || continue
+            find "$dir$sub" -type f | while read -r src; do
+              rel="${src#$dir}"
+              mkdir -p "$HOME/.gemini/skills/$name/$(dirname "$rel")"
+              ln -sf "$(pwd)/$src" "$HOME/.gemini/skills/$name/$rel"
+            done
           done
         done
 
@@ -426,15 +453,18 @@ tasks:
           name=$(basename "$dir")
           # Every *.md the skill ships, so a reference file that failed to link
           # is an error rather than a silent gap the skill only hits at runtime.
-          for src in "$dir"*.md; do
-            base=$(basename "$src")
+          # Reference files and bundled scripts/assets alike, so one that failed to
+          # link is an error rather than a silent gap the skill only hits at runtime.
+          for src in "$dir"*.md $(find "$dir"scripts "$dir"assets -type f 2>/dev/null); do
+            [ -e "$src" ] || continue
+            rel="${src#$dir}"
             if is_excluded "$name" skills; then
-              absent "$HOME/.claude/skills/$name/$base"
-              absent "$HOME/.gemini/skills/$name/$base"
+              absent "$HOME/.claude/skills/$name/$rel"
+              absent "$HOME/.gemini/skills/$name/$rel"
               continue
             fi
-            if platform_enabled claude; then check "$HOME/.claude/skills/$name/$base"; fi
-            if platform_enabled gemini; then check "$HOME/.gemini/skills/$name/$base"; fi
+            if platform_enabled claude; then check "$HOME/.claude/skills/$name/$rel"; fi
+            if platform_enabled gemini; then check "$HOME/.gemini/skills/$name/$rel"; fi
           done
         done
         if platform_enabled claude 2>/dev/null && [ -f "claude/settings.json" ]; then

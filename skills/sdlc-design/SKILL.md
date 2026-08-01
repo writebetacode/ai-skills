@@ -1,6 +1,7 @@
 ---
 name: sdlc-design
 description: Turn an idea into specs, plans, tasks, and ADRs through strict one-at-a-time questioning routed to a persistent architect agent. Use when starting a new feature that needs a written plan before implementation, or when a mid-flight revision forces the plan back onto the table.
+argument-hint: "[what to build | project-dir]"
 ---
 
 # Design
@@ -23,7 +24,7 @@ Relay each question as your turn's final output and stop there, so the user can 
 
 ## Gates
 
-The architect runs all six signoff gates per its AGENT.md "Gates before signoff" -- they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (the repo's default branch or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
+The architect runs all seven signoff gates per its AGENT.md "Gates before signoff" -- they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (the repo's default branch or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
 
 ## Concurrency Model
 
@@ -66,7 +67,7 @@ End with: "Design complete. Run `/sdlc-implement` to begin."
 
 ## Artifact Templates
 
-The Spec, Plan, Task File, and Manifest formats live in `templates.md` beside this file. The architect reads them directly and fills them in verbatim; the orchestrator never authors an artifact, so it never needs them loaded.
+The Spec, Plan, Task File, and Manifest formats live in `${CLAUDE_SKILL_DIR}/templates.md`. The architect reads them directly and fills them in verbatim; the orchestrator never authors an artifact, so it never needs them loaded.
 
 ## Rules
 
