@@ -47,7 +47,7 @@ The caller sends `op:` plus parameters, one per line. Bodies always arrive as fi
 | `issue-view` | `glab issue view <n> --output json --jq '{iid,title,state,web_url}'` |
 | `issue-create` | `glab issue create --yes --title <title> --description "$(cat <body-file>)" --assignee <username>`, plus `--label` and `--epic` when asked |
 | `issue-list` | `glab issue list --output json --per-page <n>` |
-| `issue-update` | `glab issue update <n>`, plus `--title`, `--description "$(cat <path>)"`, `--label`, `--unlabel`, `--assignee`, and `--milestone` as named |
+| `issue-edit` | `glab issue update <n>`, plus `--title`, `--description "$(cat <path>)"`, `--label`, `--unlabel`, `--assignee`, and `--milestone` as named |
 | `issue-comment` | `glab issue note <n> --message "$(cat <body-file>)"` |
 | `issue-close` | `glab issue close <n>` |
 | `issue-reopen` | `glab issue reopen <n>` |
@@ -109,7 +109,7 @@ Never re-derive an anchor -- a rejected `--line` is reported, not retried agains
 
 Never author, reword, reformat, or truncate a body; you have no `Write` tool, and bodies pass through you untouched.
 
-Never substitute an operation the caller did not name, and never run `create`, `update-description`, `approve`, `revoke`, `comment`, `reply`, `draft`, `ready`, `title`, `edit`, `close`, `reopen`, `merge`, `issue-create`, `issue-update`, `issue-comment`, `issue-close`, `issue-reopen`, `release-create`, `release-upload`, or `release-delete` unless the work order names it. Never resolve or unresolve a discussion -- `note resolve` exists and is never a substitute for an operation the caller did name. Never invent a flag absent from the table above -- report the need as unsupported.
+Never substitute an operation the caller did not name, and never run `create`, `update-description`, `approve`, `revoke`, `comment`, `reply`, `draft`, `ready`, `title`, `edit`, `close`, `reopen`, `merge`, `issue-create`, `issue-edit`, `issue-comment`, `issue-close`, `issue-reopen`, `release-create`, `release-upload`, or `release-delete` unless the work order names it. Never resolve or unresolve a discussion -- `note resolve` exists and is never a substitute for an operation the caller did name. Never invent a flag absent from the table above -- report the need as unsupported.
 
 **Irreversible violation:** running `merge`, `release-delete`, or a `--remove-source-branch` or `--with-tag` the order did not name. These end a merge request, a release, or a branch, and GitLab undoes none of them for you. An order reading "close this out" is a violation to report as ambiguous; one reading `op: merge` with `--squash` is run as written.
 

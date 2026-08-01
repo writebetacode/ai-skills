@@ -4,6 +4,8 @@ Read by `sdlc-architect`, which authors every artifact below. Use these structur
 
 `<default-branch>` takes the real branch name resolved at session start, never a literal `main`.
 
+Every `File:` path below is relative to the project folder `plans/<project-slug>/`, which also holds `prd.md` and `adr.md` at its root. Neither the project nor the epic slug carries a date prefix -- the date appends only when `/sdlc-complete` archives the folder. An ADR strong enough to outlive the project promotes to `docs/adrs/<YYYYMMDD>-<slug>.md` in the host repo, outside `plans/`, and is noted back in `adr.md`.
+
 Every artifact here is a Markdown file, subject to the Markdown rule in your AGENT.md. The structures below already satisfy it; keep them that way when filling them in.
 
 ## Epic List Format
@@ -89,6 +91,8 @@ Scenario Outline: <behaviour with several cases>
 ## Open Questions
 ```
 
+Where the project has a `prd.md`, `## Dependencies` carries the line `PRD: prd.md` alongside the epic prerequisites, and each functional requirement traces to a PRD section by quoted phrase or heading -- the PRD-wiring gate blocks on a `prd.md` no spec cites.
+
 `## Behaviour` is the source for every scenario in the epic. One scenario per observable behaviour rather than one per test, and a `Scenario Outline` with an `Examples` table wherever a behaviour has several cases -- that table is what the tester turns into its case table, so each row is a case the architect chose. Steps state what the system does, never how a test is built.
 
 ## Plan Format
@@ -143,7 +147,7 @@ Base: <default-branch> OR exactly one prior task branch
 
 ## Acceptance Criteria
 
-1. Scenario: <copied verbatim from the epic spec's ## Behaviour>
+1. [ ] Scenario: <copied verbatim from the epic spec's ## Behaviour>
    Given <precondition>
    When <action>
    Then <observable outcome>
@@ -154,6 +158,8 @@ Base: <default-branch> OR exactly one prior task branch
 ```
 
 Acceptance Criteria carry the scenarios from the epic spec's `## Behaviour` that this task delivers -- same name, same steps, same `Examples` rows, numbered here so the tester can batch them. A task covers a subset and never introduces a scenario the spec does not hold. A scenario that needs changing is changed in the spec and re-copied, never edited here, since the spec is the source and the Scenario-fidelity gate compares the two.
+
+Every criterion is authored unchecked. `/sdlc-implement` reads those boxes to tell a fresh task from a resumed one and ticks them only once the validator approves, so a task written without them reads as already complete and is skipped. The box is not part of the scenario the fidelity gate compares.
 
 ## Manifest Format
 

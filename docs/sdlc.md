@@ -26,7 +26,7 @@ Within an epic, tasks are strictly linear. Across epics, disjoint dependency set
 
 ## Complete
 
-`/sdlc-complete` archives the project to `plans/complete/YYYYMMDD-<slug>/` (the date appends at archive time, so a slug can be reused) and deletes the local branches its tasks left behind. Because squash merges leave `git branch -d` reporting "not merged", it verifies each branch by diffing against the default branch and skips any whose diff is not empty.
+`/sdlc-complete` archives the project to `plans/complete/YYYYMMDD-<slug>/` (the date appends at archive time, so a slug can be reused) and deletes the local branches its tasks left behind. Because squash merges leave `git branch -d` reporting "not merged", it verifies each branch by asking whether merging it into the default branch would change anything — `git merge-tree --write-tree`, compared against that branch's tree — and skips any branch that would, along with any whose check did not run cleanly.
 
 ## Layout
 
