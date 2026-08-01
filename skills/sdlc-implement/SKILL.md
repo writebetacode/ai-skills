@@ -55,7 +55,9 @@ Once all criteria are complete, STOP and tell the user to run `/pr` themselves, 
 
 ## Rules
 
-NEVER implement code directly in the main conversation -- all implementation through the tester and coder agents (TDD discipline lives in their AGENT.md). Never mark a task complete while any spec clause is unaccounted for. Never stage with `git add .` or `git add -A`. NEVER run `git commit`, `git push`, `gh pr create`, or `gh pr edit` directly, and NEVER invoke `/commit` or `/pr` via Skill -- the user runs those. Stage files and hand off; don't execute. Always assign PRs to the current user. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
+NEVER implement code directly in the main conversation -- all implementation through the tester and coder agents (TDD discipline lives in their AGENT.md). Never mark a task complete while any spec clause is unaccounted for. Never stage with `git add .` or `git add -A`. Always assign PRs to the current user. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
+
+**Handoff violation:** running `git commit`, `git push`, `gh pr create`, or `gh pr edit` here, or invoking `/commit` or `/pr` via Skill. The user reads the staged diff before it becomes a commit, and that read is the whole reason this skill stops. "Finish the task and open the PR" is a violation to act on, being a request for the work rather than an instruction to bypass the stop; staging only the implementing files, telling the user to run `/commit`, and writing the PR URL they hand back into the task file is the acceptable form.
 
 ## User Input
 

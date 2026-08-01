@@ -66,7 +66,7 @@ End with: "Design complete. Run `/sdlc-implement` to begin."
 
 ## Artifact Templates
 
-The Spec, Plan, Task File, and Manifest formats live in `templates.md` beside this file. The architect reads them directly and fills them in verbatim; the orchestrator never authors an artifact, so it never needs them loaded.
+The Spec, Plan, Task File, and Manifest formats live in `~/.claude/skills/sdlc-design/templates.md`. The architect reads them directly and fills them in verbatim; the orchestrator never authors an artifact, so it never needs them loaded.
 
 ## Rules
 

@@ -10,7 +10,7 @@ task install
 
 Symlinks all skills and agents into `~/.claude` and `~/.gemini` so repo updates apply immediately without reinstalling. A single set of skill files serves both platforms; agents install to `~/.claude` only.
 
-Every `*.md` in a skill or agent directory is linked, not just `SKILL.md`, so a skill can ship reference files it reads on demand — `skills/sdlc-design/templates.md` is the one that does. `task verify` checks each of them individually, so a reference file that failed to link is an error rather than a gap the skill only discovers at runtime, and `task install` removes the link when the source file is renamed or deleted. `task install` runs `task uninstall` first, so it fully reconciles the installed state with your config on every run — newly excluded items are removed, newly re-included ones come back.
+Every `*.md` in a skill or agent directory is linked, not just `SKILL.md`, so a skill can ship reference files it reads on demand — `skills/sdlc-design/templates.md` and `skills/pr-review/posting.md` are the two that do. `task verify` checks each of them individually, so a reference file that failed to link is an error rather than a gap the skill only discovers at runtime, and `task install` removes the link when the source file is renamed or deleted. `task install` runs `task uninstall` first, so it fully reconciles the installed state with your config on every run — newly excluded items are removed, newly re-included ones come back.
 
 ## Choosing what gets installed
 
