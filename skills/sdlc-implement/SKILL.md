@@ -1,6 +1,7 @@
 ---
 name: sdlc-implement
 description: Execute one task from an SDLC implementation plan -- branch setup, a batched red-green TDD loop through persistent tester and coder agents, third-party spec-vs-code validation, then a staged diff handed back for the user to commit and open a PR from. Use when building or coding the next task in a plan, resuming a task already part-done, or picking up where /sdlc-design left off.
+argument-hint: "[task-path|task-number|project-dir]"
 ---
 
 # Implement

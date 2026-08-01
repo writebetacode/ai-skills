@@ -1,6 +1,7 @@
 ---
 name: sdlc-complete
 description: Archive a finished SDLC project -- move its plans folder into plans/complete/ under a date-stamped name, then delete the local branches its tasks left behind. Use when a project is finished and being wrapped up, when the last task has merged and the plan folder should be put away, or when asking to clean up the branches a project left behind.
+argument-hint: "[project-dir]"
 ---
 
 # Complete

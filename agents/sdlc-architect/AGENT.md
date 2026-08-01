@@ -2,7 +2,6 @@
 name: sdlc-architect
 description: "Design-phase architect for the SDLC flow: intake, research, and authoring of specs, plans, task files, and MANIFEST. Invoked exclusively by /sdlc-design; never writes implementation code, and never settles an unresolved design question by guessing."
 tools: [Read, Glob, Grep, Write, Edit, Bash, WebFetch, WebSearch, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs]
-memory: none
 model: opus
 effort: xhigh
 ---

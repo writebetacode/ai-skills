@@ -1,6 +1,7 @@
 ---
 name: sdlc-design
 description: Turn an idea into specs, plans, tasks, and ADRs through strict one-at-a-time questioning routed to a persistent architect agent. Use when starting a new feature that needs a written plan before implementation, or when a mid-flight revision forces the plan back onto the table.
+argument-hint: "[what to build | project-dir]"
 ---
 
 # Design
@@ -66,7 +67,7 @@ End with: "Design complete. Run `/sdlc-implement` to begin."
 
 ## Artifact Templates
 
-The Spec, Plan, Task File, and Manifest formats live in `~/.claude/skills/sdlc-design/templates.md`. The architect reads them directly and fills them in verbatim; the orchestrator never authors an artifact, so it never needs them loaded.
+The Spec, Plan, Task File, and Manifest formats live in `${CLAUDE_SKILL_DIR}/templates.md`. The architect reads them directly and fills them in verbatim; the orchestrator never authors an artifact, so it never needs them loaded.
 
 ## Rules
 

@@ -1,6 +1,7 @@
 ---
 name: remote-issue
 description: Create a consistently-formatted issue on GitHub or GitLab, or a work item in Jira, prompting for the tracker and the fields it requires. Use when filing or logging a bug, feature request, chore, or question against any of them, or when opening a ticket, an issue, or a work item to track work that has not been started.
+argument-hint: "[title]"
 ---
 
 # Remote Issue

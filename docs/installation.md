@@ -10,7 +10,7 @@ cd ai-skills
 task install
 ```
 
-Skills and agents are symlinked, not copied, so pulling this repo updates them with no reinstall. One set of skill files serves both Claude Code and Gemini CLI; agents install to `~/.claude` only. Every `*.md` in a skill directory is linked, not just `SKILL.md`, so a skill can ship reference files it reads on demand.
+Skills and agents are symlinked, not copied, so pulling this repo updates them with no reinstall. One set of skill files serves both Claude Code and Gemini CLI; agents install to `~/.claude` only. Every `*.md` in a skill directory is linked, not just `SKILL.md`, so a skill can ship reference files it reads on demand. A `scripts/` or `assets/` directory is mirrored file by file alongside them, which lets a skill ship an executable and reach it as `${CLAUDE_SKILL_DIR}/scripts/<name>` — the variable Claude Code expands to wherever the skill is installed. Each file is linked individually rather than the directory as a whole, so `task verify` checks every one and a deleted script is cleaned up rather than left dangling.
 
 `task install` runs `task uninstall` first, so each run reconciles your machine with the current config: newly excluded items are removed, newly included ones come back, and symlinks into this repo whose source no longer exists are cleaned up. Symlinks pointing elsewhere and real files are never touched.
 

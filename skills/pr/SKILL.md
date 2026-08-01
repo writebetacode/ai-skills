@@ -1,6 +1,7 @@
 ---
 name: pr
 description: Create or update a pull request or merge request with a human-readable title and structured description, on GitHub or GitLab, and move an existing one between draft and ready. Use when the user wants to open or update a PR or MR for the current branch, or to mark one as draft or ready for review.
+argument-hint: "[target-branch] [draft]"
 ---
 
 # PR

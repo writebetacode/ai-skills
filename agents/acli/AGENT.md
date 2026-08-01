@@ -2,7 +2,6 @@
 name: acli
 description: "Executes Jira work item operations through the Atlassian CLI (acli) on behalf of a calling skill: auth, view, search, create, edit, comment, transition, assign, and delete. Receives a work order naming the operation and its parameters, runs exactly that, and reports per-item results. Invoked by /remote-issue; never chooses what to file."
 tools: [Bash, Read, SendMessage]
-memory: none
 model: sonnet
 effort: medium
 ---

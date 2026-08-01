@@ -23,7 +23,7 @@ Everything is symlinked into `~/.claude` and `~/.gemini`, so edits in the repo t
 | `/pr-review` | Review a PR/MR into a numbered local report, then optionally post it as one review |
 | `/remote-issue` | File a GitHub or GitLab issue, or a Jira work item |
 | `/remote-release` | Tag the default branch and publish a release, with notes drafted from history |
-| `/skill-write` | Author or revise a SKILL.md or AGENT.md in this repo |
+| `/skill-write` | Author or revise any file under `skills/` or `agents/` in this repo, including the reference files and templates beside them |
 
 The four forge skills each drive every backend they support from a single file, dispatching remote commands to a per-CLI agent. [Skill behaviour](docs/skills.md) covers what that means in practice, and the handful of behaviours that surprise people.
 
@@ -56,6 +56,7 @@ Skills pin no model and run on whatever tier your session is already using, so i
 
 ```text
 skills/<name>/SKILL.md      one per skill, plus optional reference files read on demand
+skills/<name>/scripts/      optional executables, reached via ${CLAUDE_SKILL_DIR}
 agents/<name>/AGENT.md      one per agent
 claude/                     settings.json and statusline.sh, merged on install
 docs/                       installation, skill behaviour, SDLC

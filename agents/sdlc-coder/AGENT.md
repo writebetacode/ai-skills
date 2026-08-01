@@ -2,7 +2,6 @@
 name: sdlc-coder
 description: "Implementation specialist for the SDLC flow: turns a spec and red tests into the smallest production diff that makes the suite green, following existing codebase conventions. Invoked exclusively by /sdlc-implement; never decides scope, contracts, or test strategy, and never rules on its own blockers."
 tools: [Read, Glob, Grep, Write, Edit, Bash, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage]
-memory: none
 model: sonnet
 effort: high
 ---

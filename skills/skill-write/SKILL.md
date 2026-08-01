@@ -1,26 +1,30 @@
 ---
 name: skill-write
-description: Author or revise a SKILL.md or AGENT.md for this repo -- scoping questions, the frontmatter contract, the description rules that decide whether a skill ever fires, and the token-efficiency and progressive-disclosure rules that decide what earns a place in the file. Use when codifying a repetitive task into a skill, a specialized role into an agent, when editing either however small the change looks, when a skill triggers on the wrong prompts, or when one has grown long enough to be worth splitting.
+description: Author or revise any file under skills/ or agents/ in this repo -- SKILL.md, AGENT.md, and the reference files and templates beside them -- covering scoping questions, the frontmatter contract, the description rules that decide whether a skill ever fires, and the token-efficiency and progressive-disclosure rules that decide what earns a place in the file. Use when codifying a repetitive task into a skill, a specialized role into an agent, when editing any of those files however small the change looks, when changing a template or format that other files read back, when a skill triggers on the wrong prompts, or when one has grown long enough to be worth splitting.
+argument-hint: "[what to write or revise]"
 ---
 
 # Skill Write
 
 ## Workflow
 
-Establish which artifact is being written first -- frontmatter, output path, and questions all differ. Where the conversation already contains the workflow being codified, take the steps, tool names, and corrections from it and confirm them, rather than asking cold for what is already on screen. Scope the rest by asking name, description, workflow steps, rules, and for an agent its tools, memory, model, and effort. Then write the file and run `task install && task verify && task lint:md`, confirming all three exit 0 -- `lint:md` sits outside `verify` because it needs the network, so it never runs unless it is named. Close by reading back what the change added and checking it against the rules below: every other check here is aimed at what a change removed, so nothing but this pass looks at the new text.
+Establish which artifact is being written first -- frontmatter, output path, and questions all differ. Where the conversation already contains the workflow being codified, take the steps, tool names, and corrections from it and confirm them, rather than asking cold for what is already on screen. Scope the rest by asking name, description, workflow steps, rules, and for an agent its tools, model, and effort. Then write the file and run `task install && task verify && task lint:md`, confirming all three exit 0 -- `lint:md` sits outside `verify` because it needs the network, so it never runs unless it is named. Close by reading back what the change added and checking it against the rules below: every other check here is aimed at what a change removed, so nothing but this pass looks at the new text.
 
 Update the docs in the same change. `CLAUDE.md` names which of the four owns what; a new skill or agent always touches `README.md`'s table plus whichever document covers its behaviour.
 
 ## File Format
 
-`skills/<name>/SKILL.md`, ending with `## User Input` and `$ARGUMENTS`. One file serves Claude Code and Gemini CLI both. The directory name and the `name` field have to match, since together they are what makes the slash command resolve.
+`skills/<name>/SKILL.md`, ending with `## User Input` and `$ARGUMENTS`. One file serves Claude Code and Gemini CLI both. The directory name is what the slash command resolves from; keep the `name` field equal to it, since `name` sets only the label shown in listings and a mismatch means the command and the listing disagree.
 
 ```yaml
 ---
 name: <name>
 description: <what it does, then "Use when ...">
+argument-hint: "<[thing] the skill expects, omitted when it takes none>"
 ---
 ```
+
+Quote `argument-hint`. Unquoted, `[x]` is a YAML flow sequence rather than a string, and `[x] [y]` does not parse at all -- taking the whole frontmatter down with it, so the skill loses its description and its trigger rather than just its hint.
 
 `agents/<name>/AGENT.md`, no `## User Input` section, Claude Code only.
 
@@ -29,15 +33,16 @@ description: <what it does, then "Use when ...">
 name: <name>
 description: <what it does, then who invokes it and what it must never decide>
 tools: [Tool1, Tool2]
-memory: none
 model: <opus | sonnet | haiku>
 effort: <low | medium | high | xhigh | max>
 ---
 ```
 
-Agents pin `model` and `effort` because they spawn cold with no session to inherit from. Weigh the model by task -- `opus` for design, architecture, and judgment; `sonnet` for routine coding and mechanical dispatch; `haiku` for read-only lookups -- and `effort` by reasoning load, `high` for most work, `xhigh` or `max` for subtle correctness. `memory` is `none` on every agent here: each is spawned per task and re-reads its inputs, so nothing should outlive the spawn. Scope `tools` narrowly; omit only to inherit every session tool. Withholding a tool is a real constraint, stronger than an instruction: an agent with no `Write` cannot author the payload it forwards.
+Agents pin `model` and `effort` because they spawn cold with no session to inherit from. Weigh the model by task -- `opus` for design, architecture, and judgment; `sonnet` for routine coding and mechanical dispatch; `haiku` for read-only lookups -- and `effort` by reasoning load, `high` for most work, `xhigh` or `max` for subtle correctness. Omit `memory` entirely: its only values are `user`, `project`, and `local`, all of which persist a directory across sessions, and every agent here is spawned per task and re-reads its inputs. Scope `tools` narrowly; omit only to inherit every session tool. Withholding a tool is a real constraint, stronger than an instruction: an agent with no `Write` cannot author the payload it forwards.
 
 Give an agent a one-line Identity -- the disposition it argues from when a call is close.
+
+`skills/<name>/<file>.md` for a reference file: no frontmatter, since it is not a skill and has no `name` to resolve. Open with one top-level heading and a lead line naming who reads it and what that reader already has loaded, so the file carries only what its own context lacks.
 
 ## Triggering
 
@@ -61,13 +66,13 @@ Keep anything genuinely ambiguous between the categories -- losing capability co
 
 A skill's body loads whole on every invocation; a sibling `<name>.md` loads only when something reads it. Splitting one out trades tokens for a `Read` round-trip and the chance the model skips it and works from memory instead, so it pays only where a real path never reaches the block. Two gates open it and either is enough -- apply it wherever one does, and inline everything else.
 
-**Cross-context.** The context that loads the skill is not the one that uses the block. A skill whose main thread only routes -- forbidden by its own rules from authoring, delegating that to an agent -- pays for every template line it carries and fills in none of them, while the agent that does reads the whole `SKILL.md` to find them. Point that reader at the installed path, `~/.claude/skills/<name>/<file>.md`, which resolves from any project directory; a repo-relative path resolves nowhere but the repo it was written in.
+**Cross-context.** The context that loads the skill is not the one that uses the block. A skill whose main thread only routes -- forbidden by its own rules from authoring, delegating that to an agent -- pays for every template line it carries and fills in none of them, while the agent that does reads the whole `SKILL.md` to find them. A skill naming its own sibling writes `${CLAUDE_SKILL_DIR}/<file>.md`, which Claude Code expands to wherever the skill is installed. An agent gets no such substitution and needs the literal `~/.claude/skills/<name>/<file>.md`. Either way a repo-relative path resolves nowhere but the repo it was written in.
 
 **Selective bulk.** A block of roughly 1k tokens or more that a named mode never reaches -- one you can name, not one that might skip it. Measure before splitting: `wc -c` over the section, bytes over four. Under that floor the pointer prose and the round-trip eat the saving.
 
 Length alone opens neither gate. Check whether a section is derivable before extracting it, since cutting beats deferring, and never defer a block that has to be reproduced byte-exact -- a skipped read becomes a reconstruction from memory, which is what a verbatim format cannot survive.
 
-`task install` links every `*.md` in the skill's directory and nothing else, so a reference file is a flat `<name>.md` sibling. A `scripts/` or `assets/` directory is never installed and cannot be reached at runtime, so a skill needing repeated deterministic work states the commands instead of shipping a program. An agent has no equivalent -- only `AGENT.md` is linked -- so neither gate opens for one: it carries what it needs in that file, or reads an installed skill's reference file at `~/.claude/skills/<name>/<file>.md`.
+`task install` links every `*.md` beside `SKILL.md` and mirrors a `scripts/` or `assets/` directory beneath it, so a reference file is a flat `<name>.md` sibling and an executable belongs in `scripts/`. Reach a bundled script as `${CLAUDE_SKILL_DIR}/scripts/<name>` and pre-approve that exact path in `allowed-tools`, so repeated deterministic work runs without a prompt rather than being retyped as a command each time. An agent has no equivalent -- only `AGENT.md` is linked -- so neither gate opens for one: it carries what it needs in that file, or reads an installed skill's reference file at `~/.claude/skills/<name>/<file>.md`.
 
 Duplication between two files costs nothing at runtime, because skills load one at a time. Never split a file to remove text another file repeats -- the only cost is editing twice, and a shared file that must be read back is worse.
 
@@ -102,6 +107,8 @@ Restrict generated output -- commits, PRs, issues, and files you write -- to ASC
 **Model violation:** a `model` key in a SKILL.md -- skills run on whatever tier the session holds -- or an AGENT.md pinning `model` without `effort`.
 
 **Trigger violation:** a description that stops at what the skill does, or that names the artifact without the intent someone would arrive with. "Create a conventional commit from staged changes" alone is a violation, since nothing in it claims the prompt "commit this"; the same sentence followed by "Use when the user wants to commit staged changes with a properly formatted commit message" is acceptable.
+
+**Contract violation:** renaming, reordering, or removing a section or field another file reads back by name, without following every reader in the same change. `templates.md`'s `## Acceptance Criteria` is read by `/sdlc-implement` and compared by a signoff gate, so renaming it there alone is a violation; adding a section no reader indexes, or rewording the prose inside one, is not.
 
 **Disclosure violation:** extracting a block every path through the skill reads, or pointing a cross-context reader at a repo-relative path rather than the installed one. Splitting out a body template the skill fills in itself is a violation, since the context that composes the body is the one that loaded the template; splitting out templates a delegated agent fills in is acceptable, since the context that loads them is forbidden from using them.
 

@@ -2,7 +2,6 @@
 name: gh
 description: "Executes GitHub pull request, issue, and release operations through the gh CLI on behalf of a calling skill: view, list, diff, create, update, retitle, edit, comment, review, approve, request changes, dismiss, close, reopen, merge, publish, and delete. Receives a work order naming the operation and its parameters, runs exactly that, and reports per-item results. Invoked by /pr, /pr-review, /remote-issue, and /remote-release; never chooses what to post."
 tools: [Bash, Read, SendMessage]
-memory: none
 model: sonnet
 effort: medium
 ---

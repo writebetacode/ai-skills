@@ -1,6 +1,7 @@
 ---
 name: commit
 description: Create a conventional commit from staged changes. Use when the user wants to commit staged changes with a properly formatted commit message.
+argument-hint: "[extra context for the message]"
 ---
 
 # Commit

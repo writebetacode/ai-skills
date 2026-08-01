@@ -1,6 +1,7 @@
 ---
 name: pr-review
 description: Review a pull request or merge request on GitHub or GitLab in one of three modes -- writing numbered findings to docs/pr-reviews/<number>.md, submitting them to the forge as one review with inline comments and a verdict, or following up on the threads those findings started. Use when reviewing a PR or MR, submitting or posting review comments, replying to review threads, requesting changes, or approving and revoking approval.
+argument-hint: "[pr-number|branch|url] [--submit|--follow-up]"
 ---
 
 # PR Review
@@ -37,7 +38,7 @@ Never simulate a verdict the host lacks: revoking an approval is not a changes-r
 
 Dispatch `auth`; stop on failure. Resolve the PR/MR from `$ARGUMENTS` -- a number, branch name, or URL -- falling back to the current branch's open one. Confirm the working directory is the right project by comparing `repo-id` against the PR/MR's; if they disagree, stop rather than writing findings into an unrelated repo.
 
-A follow-up run branches here: it does not re-read the diff, but opens the existing `docs/pr-reviews/<number>.md` and continues in `~/.claude/skills/pr-review/posting.md`, which is read before any thread is answered. Where no report exists, or nothing in it was ever posted, say so and stop -- a follow-up request is not an instruction to review from scratch.
+A follow-up run branches here: it does not re-read the diff, but opens the existing `docs/pr-reviews/<number>.md` and continues in `${CLAUDE_SKILL_DIR}/posting.md`, which is read before any thread is answered. Where no report exists, or nothing in it was ever posted, say so and stop -- a follow-up request is not an instruction to review from scratch.
 
 Gather in parallel via the agent: `view`, `diff`, `threads`.
 
@@ -47,7 +48,7 @@ Every question the diff raises is yours to answer first, chased as it surfaces r
 
 Then sweep for what the diff does not raise on its own, each item conditional on the change touching it: an error path added with no caller handling it, a signature or schema change with a site left behind, a new input crossing a trust boundary, behavior added with no test that would fail without it, unbounded work on a path that was bounded before. A dimension the change does not touch produces nothing -- this is a recall aid rather than a checklist to satisfy, and the Relevance violation governs whatever it surfaces like any other finding.
 
-Write `docs/pr-reviews/<number>.md`, creating directories as needed. Leave it unstaged and never gitignore it. Show the numbered findings. A local run stops there. A submit run continues in `~/.claude/skills/pr-review/posting.md`, which is read before anything goes to the forge; the file is written first either way, so what landed has a record to be marked on.
+Write `docs/pr-reviews/<number>.md`, creating directories as needed. Leave it unstaged and never gitignore it. Show the numbered findings. A local run stops there. A submit run continues in `${CLAUDE_SKILL_DIR}/posting.md`, which is read before anything goes to the forge; the file is written first either way, so what landed has a record to be marked on.
 
 The report is a file in someone's repo, so it lints like one: blank lines around every heading, list, and fenced block; a language on every fence; one top-level heading; no trailing whitespace; one trailing newline. Line length is the host repo's call, so never wrap prose to a column.
 
