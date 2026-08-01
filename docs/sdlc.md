@@ -55,12 +55,12 @@ Each task drives one branch and one PR, stacked on the previous task's branch. `
 | Agent | Model | Effort | Role |
 | --- | --- | --- | --- |
 | `sdlc-architect` | opus | xhigh | intake, research, and every design artifact |
-| `sdlc-tester` | sonnet | high | red-first batches, full-suite reruns, drift rework |
+| `sdlc-tester` | opus | high | red-first batches, full-suite reruns, drift rework |
 | `sdlc-coder` | sonnet | high | smallest diff that greens the batch |
 
 Each is spawned once — per session for the architect, per task for the other two — and resumed with `SendMessage`, which restores its full transcript. That persistence is the point: the tester writing batch 2 still remembers what batch 1 revealed.
 
-Judgment-heavy roles run on `opus`: the architect, and the one-shot validator. Writing table-driven tests against a written spec and greening them is routine coding, so the tester and coder run on `sonnet`, which matters because the TDD loop is the flow's dominant token cost.
+Judgment-heavy roles run on `opus`: the architect, the one-shot validator, and the tester — which rules a coder's `scope-drift` as refinement or a requirements shift, confirms or downgrades `unbuildable`, and decides a spec sentence is too ambiguous to write against. Nothing downstream catches those: the validator reads spec against diff, so it sees the coder building the wrong thing but never judges whether the tests were worth passing. Greening a batch against tests already written is routine coding, so the coder runs on `sonnet`, which matters because it is the TDD loop's dominant token cost.
 
 If an agent cannot be spawned it is not installed, and the skill names it and stops. There is no fallback by design — `/sdlc-design` forbids authoring in the main thread and `/sdlc-implement` forbids implementing there, so degrading into a main-thread run would do exactly what those rules prevent. This is reachable in normal use: `config.yml` can exclude an agent while keeping its skill, and Gemini CLI receives the skills without any agents at all.
 

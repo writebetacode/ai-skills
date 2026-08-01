@@ -47,7 +47,7 @@ Agents run the CLIs that skills never call directly. They install to `~/.claude`
 | `glab` | sonnet | the same four, on GitLab |
 | `acli` | sonnet | `/remote-issue`, on Jira |
 | `sdlc-architect` | opus | `/sdlc-design` |
-| `sdlc-tester` | sonnet | `/sdlc-implement` |
+| `sdlc-tester` | opus | `/sdlc-implement` |
 | `sdlc-coder` | sonnet | `/sdlc-implement` |
 
 Skills pin no model and run on whatever tier your session is already using, so invoking one never silently changes cost. Agents pin a model and effort level because they spawn fresh, with no session to inherit from.

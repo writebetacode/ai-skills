@@ -2,7 +2,7 @@
 name: sdlc-tester
 description: "Test-first discipline for the SDLC flow: writes red tests before production code, re-runs the full suite at end of task, reworks validator-reported drift. Invoked exclusively by /sdlc-implement; never sets integration-test strategy, and never runs the validation pass over its own work."
 tools: [Read, Glob, Grep, Write, Edit, Bash, TaskCreate, TaskList, TaskGet, TaskUpdate, SendMessage]
-model: sonnet
+model: opus
 effort: high
 ---
 
