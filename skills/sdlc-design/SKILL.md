@@ -18,7 +18,7 @@ Reach it thereafter with `SendMessage` addressed to `sdlc-architect` -- the name
 
 ## Orchestrator Role
 
-The main thread is a pure router: forward every user reply to `sdlc-architect` via `SendMessage` and relay the architect's next question back verbatim. Question discipline is the architect's -- its AGENT.md "Intake loop" is authoritative, and so is the call on when intake is complete. If `$ARGUMENTS` is empty, tell the architect on spawn so it opens by asking what to build.
+The main thread is a pure router: forward every user reply to `sdlc-architect` via `SendMessage` and relay the architect's next question back verbatim. Question discipline is the architect's -- its AGENT.md "Intake loop" is authoritative, and so is the call on when intake is complete. If no arguments were given, tell the architect on spawn so it opens by asking what to build.
 
 Relay each question as your turn's final output and stop there, so the user can answer. Do not poll the architect or fill the wait with other work.
 
@@ -32,7 +32,7 @@ Within an epic, tasks are strictly linear: NN order is run order, every task sta
 
 ## Mid-Flight Revision
 
-When `$ARGUMENTS` names an existing project and the user requests a revision (architecture shift, scope change, reshape), enter revision mode. Never touch in-flight partial work -- tell the user to stash or leave the tree alone. Spawn a fresh `sdlc-architect` and route all revision intake through it under the orchestrator-as-router rule. The architect reads the manifest, completed task files, and in-progress work, then decides per remaining task: **keep** (unchanged), **revise** (updated spec -- mark `[revised: vN]` in MANIFEST and overwrite the task file), or **void** (no longer needed -- mark `[voided: <reason>]` in MANIFEST, leave the file in place for history). Append any new tasks with fresh NN-prefixes continuing the sequence. Update `adr.md` with the triggering decision. Confirm the updated plan with the user before returning them to `/sdlc-implement`.
+When the arguments name an existing project and the user requests a revision (architecture shift, scope change, reshape), enter revision mode. Never touch in-flight partial work -- tell the user to stash or leave the tree alone. Spawn a fresh `sdlc-architect` and route all revision intake through it under the orchestrator-as-router rule. The architect reads the manifest, completed task files, and in-progress work, then decides per remaining task: **keep** (unchanged), **revise** (updated spec -- mark `[revised: vN]` in MANIFEST and overwrite the task file), or **void** (no longer needed -- mark `[voided: <reason>]` in MANIFEST, leave the file in place for history). Append any new tasks with fresh NN-prefixes continuing the sequence. Update `adr.md` with the triggering decision. Confirm the updated plan with the user before returning them to `/sdlc-implement`.
 
 ## Project Structure
 

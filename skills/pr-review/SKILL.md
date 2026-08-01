@@ -36,7 +36,7 @@ Never simulate a verdict the host lacks: revoking an approval is not a changes-r
 
 ## Workflow
 
-Dispatch `auth`; stop on failure. Resolve the PR/MR from `$ARGUMENTS` -- a number, branch name, or URL -- falling back to the current branch's open one. Confirm the working directory is the right project by comparing `repo-id` against the PR/MR's; if they disagree, stop rather than writing findings into an unrelated repo.
+Dispatch `auth`; stop on failure. Resolve the PR/MR from the arguments -- a number, branch name, or URL -- falling back to the current branch's open one. Confirm the working directory is the right project by comparing `repo-id` against the PR/MR's; if they disagree, stop rather than writing findings into an unrelated repo.
 
 A follow-up run branches here: it does not re-read the diff, but opens the existing `docs/pr-reviews/<number>.md` and continues in `${CLAUDE_SKILL_DIR}/posting.md`, which is read before any thread is answered. Where no report exists, or nothing in it was ever posted, say so and stop -- a follow-up request is not an instruction to review from scratch.
 
@@ -50,7 +50,7 @@ Then sweep for what the diff does not raise on its own, each item conditional on
 
 Write `docs/pr-reviews/<number>.md`, creating directories as needed. Leave it unstaged and never gitignore it. Show the numbered findings. A local run stops there. A submit run continues in `${CLAUDE_SKILL_DIR}/posting.md`, which is read before anything goes to the forge; the file is written first either way, so what landed has a record to be marked on.
 
-The report is a file in someone's repo, so it lints like one: blank lines around every heading, list, and fenced block; a language on every fence; one top-level heading; no trailing whitespace; one trailing newline. Line length is the host repo's call, so never wrap prose to a column.
+The report is a file in someone's repo, so it lints like one: blank lines around every heading, list, table, and fenced block; a language on every fence; one top-level heading; no consecutive blank lines; no trailing whitespace; one trailing newline. Line length is the host repo's call, so never wrap prose to a column. Where the repo configures a markdown linter -- a `.markdownlint*` file, or a lint script covering `.md` -- run it on the report and fix what it reports, since a linter that is actually present outranks the list above; that list is the whole contract only where the repo configures none.
 
 ## Findings
 

@@ -14,7 +14,7 @@ Update the docs in the same change. `CLAUDE.md` names which of the four owns wha
 
 ## File Format
 
-`skills/<name>/SKILL.md`, ending with `## User Input` and `$ARGUMENTS`. One file serves Claude Code and Gemini CLI both. The directory name is what the slash command resolves from; keep the `name` field equal to it, since `name` sets only the label shown in listings and a mismatch means the command and the listing disagree.
+`skills/<name>/SKILL.md`, ending with `## User Input` and the arguments token -- `ARGUMENTS` in dollar form. One file serves Claude Code and Gemini CLI both. The directory name is what the slash command resolves from; keep the `name` field equal to it, since `name` sets only the label shown in listings and a mismatch means the command and the listing disagree.
 
 ```yaml
 ---
@@ -42,6 +42,8 @@ Agents pin `model` and `effort` because they spawn cold with no session to inher
 
 Give an agent a one-line Identity -- the disposition it argues from when a call is close.
 
+The spec carries fields this repo declines, and recording the decision is what stops it being re-argued as an oversight. Every skill here stays model-invocable rather than taking `disable-model-invocation`, because each already guards its own side effects and a user-only skill drops its description from context entirely, which is the one thing that decides whether it is ever reached. The arguments token covers what these skills take, so `arguments` and its named placeholders go unused. `skills:` preloads a whole `SKILL.md` into an agent at spawn, which suits an agent needing a skill's body rather than the reference file beside it -- not the case here, where the architect wants `templates.md`. `hooks`, `paths`, `shell`, `isolation`, and `color` earn nothing yet.
+
 `skills/<name>/<file>.md` for a reference file: no frontmatter, since it is not a skill and has no `name` to resolve. Open with one top-level heading and a lead line naming who reads it and what that reader already has loaded, so the file carries only what its own context lacks.
 
 ## Triggering
@@ -66,13 +68,13 @@ Keep anything genuinely ambiguous between the categories -- losing capability co
 
 A skill's body loads whole on every invocation; a sibling `<name>.md` loads only when something reads it. Splitting one out trades tokens for a `Read` round-trip and the chance the model skips it and works from memory instead, so it pays only where a real path never reaches the block. Two gates open it and either is enough -- apply it wherever one does, and inline everything else.
 
-**Cross-context.** The context that loads the skill is not the one that uses the block. A skill whose main thread only routes -- forbidden by its own rules from authoring, delegating that to an agent -- pays for every template line it carries and fills in none of them, while the agent that does reads the whole `SKILL.md` to find them. A skill naming its own sibling writes `${CLAUDE_SKILL_DIR}/<file>.md`, which Claude Code expands to wherever the skill is installed. An agent gets no such substitution and needs the literal `~/.claude/skills/<name>/<file>.md`. Either way a repo-relative path resolves nowhere but the repo it was written in.
+**Cross-context.** The context that loads the skill is not the one that uses the block. A skill whose main thread only routes -- forbidden by its own rules from authoring, delegating that to an agent -- pays for every template line it carries and fills in none of them, while the agent that does reads the whole `SKILL.md` to find them. A skill naming its own sibling points at `CLAUDE_SKILL_DIR` -- the variable in dollar-and-braces form -- followed by `/<file>.md`, which Claude Code expands to wherever the skill is installed. Never spell that token out literally in this file: the runtime substitutes it here too, turning an instruction about any skill into a hardcoded path to this one. An agent gets no such substitution and needs the literal `~/.claude/skills/<name>/<file>.md`. Either way a repo-relative path resolves nowhere but the repo it was written in.
 
 **Selective bulk.** A block of roughly 1k tokens or more that a named mode never reaches -- one you can name, not one that might skip it. Measure before splitting: `wc -c` over the section, bytes over four. Under that floor the pointer prose and the round-trip eat the saving.
 
 Length alone opens neither gate. Check whether a section is derivable before extracting it, since cutting beats deferring, and never defer a block that has to be reproduced byte-exact -- a skipped read becomes a reconstruction from memory, which is what a verbatim format cannot survive.
 
-`task install` links every `*.md` beside `SKILL.md` and mirrors a `scripts/` or `assets/` directory beneath it, so a reference file is a flat `<name>.md` sibling and an executable belongs in `scripts/`. Reach a bundled script as `${CLAUDE_SKILL_DIR}/scripts/<name>` and pre-approve that exact path in `allowed-tools`, so repeated deterministic work runs without a prompt rather than being retyped as a command each time. An agent has no equivalent -- only `AGENT.md` is linked -- so neither gate opens for one: it carries what it needs in that file, or reads an installed skill's reference file at `~/.claude/skills/<name>/<file>.md`.
+`task install` links every `*.md` beside `SKILL.md` and mirrors a `scripts/` or `assets/` directory beneath it, so a reference file is a flat `<name>.md` sibling and an executable belongs in `scripts/`. Reach a bundled script through that same variable plus `/scripts/<name>`, and pre-approve that exact path in `allowed-tools`, so repeated deterministic work runs without a prompt rather than being retyped as a command each time. An agent has no equivalent -- only `AGENT.md` is linked -- so neither gate opens for one: it carries what it needs in that file, or reads an installed skill's reference file at `~/.claude/skills/<name>/<file>.md`.
 
 Duplication between two files costs nothing at runtime, because skills load one at a time. Never split a file to remove text another file repeats -- the only cost is editing twice, and a shared file that must be read back is worse.
 
@@ -81,6 +83,8 @@ Duplication between two files costs nothing at runtime, because skills load one 
 Prose paragraphs, not bullets: bullets fragment context and strip the connectives that carry intent. Tables and code blocks are the exception, and are the right form for command references and templates.
 
 State a hard constraint as a violation clause rather than as plain prose, in the shape the Clause violation below fixes. Examples are specification; they settle the boundary that prose leaves soft.
+
+Write standing instructions, not steps to perform once. A rendered body enters the conversation as a single message and stays for the session, and Claude Code never re-reads the file on a later turn, so a rule phrased as work to do now stops applying the moment it is done. An `allowed-tools` grant is the exception that shows the shape: permissions clear on the next message while the instructions do not.
 
 Define the failure paths. A skill that forbids a fallback but never says what to do when its dependency is absent leaves nothing between a forbidden workaround and a dead stop, and the workaround is what happens.
 
@@ -104,11 +108,13 @@ Restrict generated output -- commits, PRs, issues, and files you write -- to ASC
 
 **Restatement violation:** a Role section paraphrasing the frontmatter description, which loads with the body anyway, or any constraint stated in both Workflow and Rules.
 
-**Model violation:** a `model` key in a SKILL.md -- skills run on whatever tier the session holds -- or an AGENT.md pinning `model` without `effort`.
+**Model violation:** a `model` or `effort` key in a SKILL.md, or an AGENT.md pinning `model` without `effort`. The skills spec permits both on a skill and this repo declines them, so invoking one never changes the tier or the cost of the session it runs in; that is a house rule rather than a platform limit, and the reason has to travel with it or someone reinstates the key on the grounds that the spec allows it.
 
 **Trigger violation:** a description that stops at what the skill does, or that names the artifact without the intent someone would arrive with. "Create a conventional commit from staged changes" alone is a violation, since nothing in it claims the prompt "commit this"; the same sentence followed by "Use when the user wants to commit staged changes with a properly formatted commit message" is acceptable.
 
 **Contract violation:** renaming, reordering, or removing a section or field another file reads back by name, without following every reader in the same change. `templates.md`'s `## Acceptance Criteria` is read by `/sdlc-implement` and compared by a signoff gate, so renaming it there alone is a violation; adding a section no reader indexes, or rewording the prose inside one, is not.
+
+**Substitution violation:** the arguments token or `CLAUDE_SKILL_DIR` written literally in body prose, where the runtime replaces it before anything reads the file, so a sentence about the token renders as the user's own prompt or as a path to whichever skill is loaded. Name either descriptively where a rule is about it, and write it literally only where the substitution is the point -- the arguments token in the final `## User Input` section, `CLAUDE_SKILL_DIR` in a path the skill actually reads.
 
 **Disclosure violation:** extracting a block every path through the skill reads, or pointing a cross-context reader at a repo-relative path rather than the installed one. Splitting out a body template the skill fills in itself is a violation, since the context that composes the body is the one that loaded the template; splitting out templates a delegated agent fills in is acceptable, since the context that loads them is forbidden from using them.
 

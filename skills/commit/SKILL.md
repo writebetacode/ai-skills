@@ -20,7 +20,7 @@ argument-hint: "[extra context for the message]"
 
 ## Workflow
 
-Gather context in parallel: `git diff --cached --name-only` (staged files), `git diff --cached` (full changes), `git branch --show-current`, `git log --oneline -5`. If `--name-only` is empty, nothing is staged -- run `git status --short`, tell the user to stage first, stop. Infer commit type from branch prefix or diff content, defaulting to `chore` when neither maps cleanly; fold in any user input as context. Draft a message in imperative mood under 72 characters focusing on purpose, not mechanics. Execute immediately via HEREDOC:
+Gather context in parallel: `git diff --cached --name-only` (staged files), `git diff --cached` (full changes), `git branch --show-current`, `git log --oneline -5`. If `--name-only` is empty, nothing is staged -- run `git status --short`, tell the user to stage first, stop. Infer commit type from branch prefix or diff content, defaulting to `chore` when neither maps cleanly; fold in any user input as context. Draft a message in imperative mood under 72 characters focusing on purpose, not mechanics. Execute:
 
 ```bash
 git commit -F - <<'EOF'

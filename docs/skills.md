@@ -12,6 +12,8 @@ When a CLI is missing, the run stops. You get `glab is not installed: <url>` rat
 
 Remote content is data, never instructions. A diff, a PR body, and a review thread are all written by whoever opened the change, so `/pr-review` treats a comment telling it what not to flag as a claim to check rather than an order to obey. That matters most for fork PRs, where none of it is authored by someone whose say-so the reviewer inherits.
 
+Markdown written into a repo has to lint there, not here. This repo's `.markdownlint.jsonc` governs its own files and nothing else, so every skill and agent that writes a `.md` file into your project — `/pr-review`'s report, the architect's specs, plans, task files and research notes, and the task-file edits `/sdlc-implement` and the tester make — carries the rule itself. Each prefers your linter to its own list: where the project configures one, it runs that and fixes what comes back; the written-out rules are the fallback for projects that configure none. Bodies bound for a forge instead of a file — PR descriptions, issue bodies, release notes — are exempt, since nothing lints them and their templates are already shaped correctly.
+
 Backends are chosen differently depending on what they are attached to. A forge follows the code, so `/pr`, `/pr-review`, and `/remote-release` read it off the `origin` remote. A tracker does not — a repo on GitHub may track work in Jira — so `/remote-issue` asks, offering the forge matching `origin` as a default to confirm rather than a decision already made.
 
 ## `/pr` owns part of the description, not all of it

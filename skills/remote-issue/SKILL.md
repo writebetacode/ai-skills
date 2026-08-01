@@ -10,7 +10,7 @@ One skill for all three trackers. The commands belong to the `gh`, `glab`, and `
 
 ## Tracker
 
-Ask which tracker unless `$ARGUMENTS` settles it -- a project key like `PROJ-123` or the word "jira" means Jira, "github" or "gh" means GitHub, "gitlab" or "glab" means GitLab. Never infer from the git remote: a repo on GitHub may track its work in Jira, and filing in the wrong tracker is not quietly undone. Offer the forge matching `origin` first, since it is the likelier answer, but as a default to confirm rather than a decision already made.
+Ask which tracker unless the arguments settle it -- a project key like `PROJ-123` or the word "jira" means Jira, "github" or "gh" means GitHub, "gitlab" or "glab" means GitLab. Never infer from the git remote: a repo on GitHub may track its work in Jira, and filing in the wrong tracker is not quietly undone. Offer the forge matching `origin` first, since it is the likelier answer, but as a default to confirm rather than a decision already made.
 
 | Tracker | Agent | Files a | Scoped by |
 | --- | --- | --- | --- |
@@ -24,9 +24,9 @@ Two failures stop the run rather than routing around it. If the agent cannot be 
 
 ## Workflow
 
-Parse `$ARGUMENTS` for a title, then prompt for what is missing, one field at a time. Required on every tracker: type, title, description, priority. Jira additionally requires a project key, and its work item type must be one that project defines -- `Epic`, `Story`, `Task`, `Bug`. Optional everywhere: labels, parent, and the body sections below.
+Parse the arguments for a title, then prompt for what is missing, one field at a time. Required on every tracker: type, title, description, priority. Jira additionally requires a project key, and its work item type must be one that project defines -- `Epic`, `Story`, `Task`, `Bug`. Optional everywhere: labels, parent, and the body sections below.
 
-Build the body from the template, omitting skipped sections. Show the finished title and body for confirmation or edits, then write the body to a temp file and dispatch `issue-create`. Display the key and URL from the agent's report.
+Build the body from the template, omitting skipped sections. Show the finished title and body for edits, then write the body to a temp file and dispatch `issue-create`. Display the key and URL from the agent's report.
 
 Where a field lands differs by tracker, because Jira models as fields what the forges leave to the body:
 
