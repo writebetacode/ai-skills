@@ -65,7 +65,7 @@ Every key `claude/settings.json` defines. Because the merge makes the repo the s
 | `spinnerTipsEnabled` | `false` | — | The stock tips compete with the custom `spinnerVerbs`. |
 | `spinnerVerbs` | `replace` + list | — | Cosmetic. `replace` rather than `append` so only these appear. |
 | `statusLine` | command | — | Registers `~/.claude/statusline.sh`; see below. |
-| `enabledPlugins` | 7 official | — | context7 for library docs, four LSPs, security-guidance, and skill-creator for its eval and benchmark harness. |
+| `enabledPlugins` | 6 official | — | context7 for library docs, four LSPs, and security-guidance. |
 | `skipAutoPermissionPrompt` | `true` | — | Records that the auto-mode dialog was accepted, so `defaultMode: auto` does not re-prompt on a fresh machine. |
 | `skipWorkflowUsageWarning` | `true` | — | Same idea for the multi-agent workflow usage warning. |
 

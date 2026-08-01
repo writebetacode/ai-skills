@@ -1,19 +1,19 @@
 ---
 name: skill-write
-description: Author or revise a SKILL.md or AGENT.md for this repo -- scoping questions, the frontmatter contract, and the token-efficiency rules that decide what earns a place in the file. Use when codifying a repetitive task into a skill, a specialized role into an agent, or when editing either.
+description: Author or revise a SKILL.md or AGENT.md for this repo -- scoping questions, the frontmatter contract, the description rules that decide whether a skill ever fires, and the token-efficiency rules that decide what earns a place in the file. Use when codifying a repetitive task into a skill, a specialized role into an agent, when editing either however small the change looks, or when a skill triggers on the wrong prompts.
 ---
 
 # Skill Write
 
 ## Workflow
 
-Establish which artifact is being written first -- frontmatter, output path, and questions all differ. Scope it by asking name, description, workflow steps, rules, and for an agent its tools, memory, model, and effort. Then write the file and run `task install && task verify`, confirming both exit 0. Close by reading back what the change added and checking it against the rules below: every other check here is aimed at what a change removed, so nothing but this pass looks at the new text.
+Establish which artifact is being written first -- frontmatter, output path, and questions all differ. Where the conversation already contains the workflow being codified, take the steps, tool names, and corrections from it and confirm them, rather than asking cold for what is already on screen. Scope the rest by asking name, description, workflow steps, rules, and for an agent its tools, memory, model, and effort. Then write the file and run `task install && task verify && task lint:md`, confirming all three exit 0 -- `lint:md` sits outside `verify` because it needs the network, so it never runs unless it is named. Close by reading back what the change added and checking it against the rules below: every other check here is aimed at what a change removed, so nothing but this pass looks at the new text.
 
 Update the docs in the same change. `CLAUDE.md` names which of the four owns what; a new skill or agent always touches `README.md`'s table plus whichever document covers its behaviour.
 
 ## File Format
 
-`skills/<name>/SKILL.md`, ending with `## User Input` and `$ARGUMENTS`. One file serves Claude Code and Gemini CLI both.
+`skills/<name>/SKILL.md`, ending with `## User Input` and `$ARGUMENTS`. One file serves Claude Code and Gemini CLI both. The directory name and the `name` field have to match, since together they are what makes the slash command resolve.
 
 ```yaml
 ---
@@ -35,9 +35,15 @@ effort: <low | medium | high | xhigh | max>
 ---
 ```
 
-Agents pin `model` and `effort` because they spawn cold with no session to inherit from. Weigh the model by task -- `opus` for design, architecture, and judgment; `sonnet` for routine coding and mechanical dispatch; `haiku` for read-only lookups -- and `effort` by reasoning load, `high` for most work, `xhigh` or `max` for subtle correctness. Scope `tools` narrowly; omit only to inherit every session tool. Withholding a tool is a real constraint, stronger than an instruction: an agent with no `Write` cannot author the payload it forwards.
+Agents pin `model` and `effort` because they spawn cold with no session to inherit from. Weigh the model by task -- `opus` for design, architecture, and judgment; `sonnet` for routine coding and mechanical dispatch; `haiku` for read-only lookups -- and `effort` by reasoning load, `high` for most work, `xhigh` or `max` for subtle correctness. `memory` is `none` on every agent here: each is spawned per task and re-reads its inputs, so nothing should outlive the spawn. Scope `tools` narrowly; omit only to inherit every session tool. Withholding a tool is a real constraint, stronger than an instruction: an agent with no `Write` cannot author the payload it forwards.
 
 Give an agent a one-line Identity -- the disposition it argues from when a call is close.
+
+## Triggering
+
+The description is the only part loaded before a skill fires, so it decides whether the skill is consulted at all and the body never gets a vote. Write it in two halves: what the skill does, then the contexts that should reach for it, in the words a user would type rather than the ones the skill uses internally. Skills under-fire far more often than they over-fire, so state the trigger wider than feels necessary and cover the prompts that describe the goal without naming the artifact.
+
+A description competes with its siblings, not with silence. Before calling one done, write three or four prompts a real user would type -- including near-misses belonging to a neighbouring skill -- and check that the description sorts them: "approve PR 12" has to reach `/pr-review` rather than `/pr`, and "log this as a bug" has to reach `/remote-issue` rather than `/pr`. A prompt that lands in both is fixed in the description, not left for the model to break the tie.
 
 ## Token Efficiency
 
@@ -56,6 +62,8 @@ Keep anything genuinely ambiguous between the categories -- losing capability co
 Duplication between two files costs nothing at runtime, because skills load one at a time. Never split a file to remove text another file repeats -- the only cost is editing twice, and a shared file that must be read back is worse.
 
 Extract a template into its own `<name>.md` beside `SKILL.md` in exactly one case: the context that loads the skill is not the context that fills the template in. Where they are the same, extraction buys a read and saves nothing. Point a cross-context reader at the installed path, `~/.claude/skills/<name>/<file>.md`, which resolves from any project directory.
+
+`task install` links every `*.md` in the skill's directory and nothing else, so a reference file is a flat `<name>.md` sibling. A `scripts/` or `assets/` directory is never installed and cannot be reached at runtime, so a skill needing repeated deterministic work states the commands instead of shipping a program.
 
 ## Writing Style
 
@@ -77,7 +85,7 @@ After an edit that was meant to shorten, diff the rule-bearing sentences -- `nev
 
 Always ask scoping questions one at a time, and keep asking until nothing material is unsettled. Write the file once it is, without pausing for approval of the draft.
 
-Target 100 lines, excluding tables and templates. Past that, check whether a section is derivable before deciding the skill is genuinely large.
+Target 100 lines, counting everything outside the frontmatter, tables, and fenced blocks. Past that, check whether a section is derivable before deciding the skill is genuinely large.
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
@@ -86,6 +94,8 @@ Restrict generated output -- commits, PRs, issues, and files you write -- to ASC
 **Restatement violation:** a Role section paraphrasing the frontmatter description, which loads with the body anyway, or any constraint stated in both Workflow and Rules.
 
 **Model violation:** a `model` key in a SKILL.md -- skills run on whatever tier the session holds -- or an AGENT.md pinning `model` without `effort`.
+
+**Trigger violation:** a description that stops at what the skill does, or that names the artifact without the intent someone would arrive with. "Create a conventional commit from staged changes" alone is a violation, since nothing in it claims the prompt "commit this"; the same sentence followed by "Use when the user wants to commit staged changes with a properly formatted commit message" is acceptable.
 
 ## User Input
 
