@@ -45,6 +45,8 @@ Read the diff in full, then read the surrounding code for every file it touches 
 
 Every question the diff raises is yours to answer first, chased as it surfaces rather than deferred: the callers, the definition, the tests, the history, the linked issue. What the repository settles becomes a finding. What it cannot settle is still a finding, written so the author confirms rather than investigates: what you already checked, and the one part only they can supply -- intent, an external system, a decision made off the diff.
 
+Then sweep for what the diff does not raise on its own, each item conditional on the change touching it: an error path added with no caller handling it, a signature or schema change with a site left behind, a new input crossing a trust boundary, behavior added with no test that would fail without it, unbounded work on a path that was bounded before. A dimension the change does not touch produces nothing -- this is a recall aid rather than a checklist to satisfy, and the Relevance violation governs whatever it surfaces like any other finding.
+
 Write `docs/pr-reviews/<number>.md`, creating directories as needed. Leave it unstaged and never gitignore it. Show the numbered findings. A local run stops there. A submit run continues in `~/.claude/skills/pr-review/posting.md`, which is read before anything goes to the forge; the file is written first either way, so what landed has a record to be marked on.
 
 The report is a file in someone's repo, so it lints like one: blank lines around every heading, list, and fenced block; a language on every fence; one top-level heading; no trailing whitespace; one trailing newline. Line length is the host repo's call, so never wrap prose to a column.
