@@ -1,6 +1,6 @@
 # ai-skills
 
-A collection of skills and agents for AI coding assistants that bring structured, opinionated workflows to everyday software development tasks.
+Opinionated skills and agents for Claude Code and Gemini CLI, covering the parts of everyday development that go better with a fixed procedure: commits, pull requests, code review, issues, releases, and a spec-driven SDLC flow.
 
 ## Quick start
 
@@ -12,58 +12,54 @@ cd ai-skills
 task install
 ```
 
-Everything installs by default. To opt out of specific skills or agents, or to skip a platform, see [Installation and configuration](docs/installation.md).
+Everything is symlinked into `~/.claude` and `~/.gemini`, so edits in the repo take effect without reinstalling. Everything installs by default — see [Installation](docs/installation.md) to opt out of pieces, and to review what the install writes to your Claude Code settings.
 
 ## Skills
 
-Every git-facing skill resolves the repo's default branch from `origin/HEAD` rather than assuming `main`, so they behave correctly on repos that default to `develop`, `master`, or `trunk`. No skill pins a model — each runs on whatever model your session is already using, so invoking a skill never silently changes tiers or costs. Agents do pin one, since they spawn fresh with no session to inherit from.
-
-| Command | Description |
+| Command | What it does |
 | --- | --- |
-| `/commit` | Stage-aware conventional commits — commits exactly what is staged, immediately |
-| `/skill-write` | Author or revise a SKILL.md or AGENT.md — the frontmatter contract, the description rules that decide whether a skill fires, and the token-efficiency and progressive-disclosure rules for what earns a place in the file |
-| `/pr` | Create or update pull requests and merge requests with structured descriptions, and move one between draft and ready, on GitHub or GitLab |
-| `/pr-review` | Review a PR or MR into a numbered `docs/pr-reviews/<number>.md` report, post selected findings back as inline comments, `--submit` the whole review with a verdict, or `--follow-up` on the threads it started |
-| `/remote-issue` | File a consistently-formatted GitHub or GitLab issue, or a Jira work item, prompting for the tracker and the fields it requires |
-| `/remote-release` | Tag the default branch and publish a GitHub or GitLab release, inferring the version from commit history and drafting notes in the repo's established voice |
+| `/commit` | Conventional commit from exactly what is staged, with no confirmation step |
+| `/pr` | Open or update a PR/MR with a structured description; move one between draft and ready |
+| `/pr-review` | Review a PR/MR into a numbered local report, then optionally post it as one review |
+| `/remote-issue` | File a GitHub or GitLab issue, or a Jira work item |
+| `/remote-release` | Tag the default branch and publish a release, with notes drafted from history |
+| `/skill-write` | Author or revise a SKILL.md or AGENT.md in this repo |
 
-`/pr`, `/pr-review`, `/remote-issue`, and `/remote-release` each serve every backend they support from one file, delegating every remote command to a per-CLI agent:
-
-| Agent | Model | Effort | Description |
-| --- | --- | --- | --- |
-| `gh` | sonnet | medium | Executes GitHub pull request, issue, and release operations through the `gh` CLI on a caller's work order — view, list, create, edit, review, merge, publish, delete |
-| `glab` | sonnet | medium | Executes GitLab merge request, issue, and release operations through the `glab` CLI on a caller's work order — view, list, create, edit, review, merge, publish, delete |
-| `acli` | sonnet | medium | Executes Jira work item operations through the Atlassian CLI on a caller's work order — view, search, create, edit, comment, transition, assign, delete |
-
-The body template has rules of its own, and `/pr-review` splits reviewing from posting — see [Skill behaviour](docs/skills.md).
+The four forge skills each drive every backend they support from a single file, dispatching remote commands to a per-CLI agent. [Skill behaviour](docs/skills.md) covers what that means in practice, and the handful of behaviours that surprise people.
 
 ## SDLC workflow
 
-A manifest-driven process from feature idea to merged code, run by three persistent agents. Full mechanics in [SDLC workflow](docs/sdlc.md).
+Three commands that take a feature idea to merged code through written specs and a test-first loop. Full detail in [SDLC workflow](docs/sdlc.md).
 
-| Command | Phase | Description |
+| Command | Phase | What it does |
 | --- | --- | --- |
-| `/sdlc-design` | 1 — Design | Turn an idea into specs, plans, tasks, and ADRs through strict one-at-a-time questioning routed to a persistent architect agent |
-| `/sdlc-implement` | 2 — Implement | Execute tasks with persistent tester and coder agents, batched TDD loop, and third-party spec-vs-code validation |
-| `/sdlc-complete` | 3 — Complete | Archive a finished project and clean up its local branches |
+| `/sdlc-design` | Design | One-question-at-a-time intake into specs, plans, tasks, and ADRs |
+| `/sdlc-implement` | Implement | Branch setup, batched red-green TDD, spec-vs-code validation, staged diff |
+| `/sdlc-complete` | Complete | Archive the plan folder and delete the branches it left behind |
 
-## Documentation
+## Agents
 
-- [Installation and configuration](docs/installation.md) — install, opt-outs, settings keys, status line, verification
-- [Skill behaviour](docs/skills.md) — the PR/MR body template, the per-CLI agent boundary, when a template earns its own file, and how `/pr-review` splits reviewing from posting
-- [SDLC workflow](docs/sdlc.md) — the three phases, the `plans/` layout, and the agents
+Agents run the CLIs that skills never call directly. They install to `~/.claude` only; Gemini CLI gets the skills but has nothing to dispatch to.
 
-## File layout
+| Agent | Model | Invoked by |
+| --- | --- | --- |
+| `gh` | sonnet | `/pr`, `/pr-review`, `/remote-issue`, `/remote-release` on GitHub |
+| `glab` | sonnet | the same four, on GitLab |
+| `acli` | sonnet | `/remote-issue`, on Jira |
+| `sdlc-architect` | opus | `/sdlc-design` |
+| `sdlc-tester` | sonnet | `/sdlc-implement` |
+| `sdlc-coder` | sonnet | `/sdlc-implement` |
+
+Skills pin no model and run on whatever tier your session is already using, so invoking one never silently changes cost. Agents pin a model and effort level because they spawn fresh, with no session to inherit from.
+
+## Layout
 
 ```text
-skills/                             # one SKILL.md per skill
-  <name>/SKILL.md
-  <name>/<reference>.md             # optional, read on demand (see docs/skills.md)
-agents/                             # one AGENT.md per agent
-  <name>/AGENT.md
-claude/                             # global claude code specific settings
-docs/                               # documentation
-.markdownlint.jsonc                 # Markdown rules for every file here (task lint:md)
+skills/<name>/SKILL.md      one per skill, plus optional reference files read on demand
+agents/<name>/AGENT.md      one per agent
+claude/                     settings.json and statusline.sh, merged on install
+docs/                       installation, skill behaviour, SDLC
+config.example.yml          copy to config.yml to choose what installs
 ```
 
 ## License
