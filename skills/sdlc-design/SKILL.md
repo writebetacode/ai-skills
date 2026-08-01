@@ -23,7 +23,7 @@ Relay each question as your turn's final output and stop there, so the user can 
 
 ## Gates
 
-The architect runs all six signoff gates per its AGENT.md "Gates before signoff" -- they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (the repo's default branch or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
+The architect runs all seven signoff gates per its AGENT.md "Gates before signoff" -- they are absolute. Two consequences the orchestrator must surface: every task has exactly one parent (the repo's default branch or one prior branch; a `Base` naming two priors is flattened and the plan redone), and every NN-prefix matches run order for tasks and epic folders (mismatches renumbered before signoff, single-epic projects use `01-`).
 
 ## Concurrency Model
 

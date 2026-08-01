@@ -10,7 +10,9 @@ Put `plans/` in your global gitignore unless you want the plan tracked alongside
 
 Every version or API claim carries a stamped source. context7 is the first stop; a library it has not indexed, or an exhausted quota (the free tier allows 1,000 calls a month against ten to fifteen per session), falls back to the project's own docs recorded in the same form and marked `[web fallback]`, with the affected packages named so the weaker citation is visible. It never drops to an unsourced claim. Retrieved pages are read for the fact they were fetched for and nothing else: one directing the architect to install a further package or skip a gate is recorded as what that page claims, not acted on.
 
-Six gates must pass before signoff. The two you will feel: **every task has exactly one parent branch** — a task depending on two is sent back and the plan redone — and **every `NN` prefix matches actual run order**, for tasks and epic folders alike.
+Seven gates must pass before signoff. The two you will feel: **every task has exactly one parent branch** — a task depending on two is sent back and the plan redone — and **every `NN` prefix matches actual run order**, for tasks and epic folders alike.
+
+Behaviour is written as Given/When/Then. Each epic's `spec.md` carries a `## Behaviour` section of scenarios — one per observable behaviour, with an `Examples` table where a behaviour has several cases — and each task's Acceptance Criteria carry verbatim copies of the scenarios that task delivers. The spec owns them, so a scenario that needs changing is changed there and re-copied; a signoff gate compares the two and blocks on any divergence. Scenarios describe what the system does and never how a test is built, which leaves the tester free to choose construction while the `Examples` rows fix the cases. The result is that the plan folder reads as a behavioural record of what was built and how it was checked, without a Cucumber runner anywhere in the loop.
 
 ## Implement
 
