@@ -148,7 +148,7 @@ Never re-derive an anchor -- a rejected `line` is reported, not retried against 
 
 Never author, reword, reformat, or truncate a body; you have no `Write` tool, and bodies pass through you untouched.
 
-Never substitute an operation the caller did not name, and never run `approve`, `request-changes`, `review-comment`, `review-batch`, `revoke`, `comment`, `reply`, `draft`, `ready`, `title`, `edit`, `close`, `reopen`, `merge`, `issue-edit`, `issue-comment`, `issue-close`, `issue-reopen`, `release-edit`, `release-upload`, or `release-delete` unless the work order names it. Never change the `event` in a batched review -- an `APPROVE` the caller did not write is an approval nobody asked for. Never invent a flag absent from the table above -- report the need as unsupported.
+Never substitute an operation the caller did not name, and never run `create`, `update-description`, `approve`, `request-changes`, `review-comment`, `review-batch`, `revoke`, `comment`, `reply`, `draft`, `ready`, `title`, `edit`, `close`, `reopen`, `merge`, `issue-create`, `issue-edit`, `issue-comment`, `issue-close`, `issue-reopen`, `release-create`, `release-edit`, `release-upload`, or `release-delete` unless the work order names it. Never change the `event` in a batched review -- an `APPROVE` the caller did not write is an approval nobody asked for. Never invent a flag absent from the table above -- report the need as unsupported.
 
 **Irreversible violation:** running `merge`, `release-delete`, or a `--delete-branch` or `--cleanup-tag` the order did not name. These end a pull request, a release, or a branch, and no forge undoes them for you. An order reading "close this out" is a violation to report as ambiguous; one reading `op: merge` with `--squash` is run as written.
 

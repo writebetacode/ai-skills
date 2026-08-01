@@ -1,6 +1,6 @@
 ---
 name: remote-release
-description: Tag the default branch and publish a release on GitHub or GitLab, inferring the version from commit history and drafting notes in the repo's established voice. Use when cutting a release after work has merged.
+description: Tag the default branch and publish a release on GitHub or GitLab, inferring the version from commit history and drafting notes in the repo's established voice. Use when cutting, shipping, or publishing a release after work has merged, when tagging a new version, or when working out what the next version number should be.
 ---
 
 # Remote Release

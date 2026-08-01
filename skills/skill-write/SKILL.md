@@ -63,7 +63,7 @@ Duplication between two files costs nothing at runtime, because skills load one 
 
 Extract a template into its own `<name>.md` beside `SKILL.md` in exactly one case: the context that loads the skill is not the context that fills the template in. Where they are the same, extraction buys a read and saves nothing. Point a cross-context reader at the installed path, `~/.claude/skills/<name>/<file>.md`, which resolves from any project directory.
 
-`task install` links every `*.md` in the skill's directory and nothing else, so a reference file is a flat `<name>.md` sibling. A `scripts/` or `assets/` directory is never installed and cannot be reached at runtime, so a skill needing repeated deterministic work states the commands instead of shipping a program.
+`task install` links every `*.md` in the skill's directory and nothing else, so a reference file is a flat `<name>.md` sibling. A `scripts/` or `assets/` directory is never installed and cannot be reached at runtime, so a skill needing repeated deterministic work states the commands instead of shipping a program. An agent has no equivalent: only `AGENT.md` is linked, so an agent carries what it needs in that one file or reads an installed skill's path at runtime, the way `sdlc-architect` reads `templates.md`.
 
 ## Writing Style
 

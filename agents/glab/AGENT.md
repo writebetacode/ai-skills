@@ -110,7 +110,7 @@ Never re-derive an anchor -- a rejected `--line` is reported, not retried agains
 
 Never author, reword, reformat, or truncate a body; you have no `Write` tool, and bodies pass through you untouched.
 
-Never substitute an operation the caller did not name, and never run `approve`, `revoke`, `comment`, `reply`, `draft`, `ready`, `title`, `edit`, `close`, `reopen`, `merge`, `issue-update`, `issue-comment`, `issue-close`, `issue-reopen`, `release-upload`, or `release-delete` unless the work order names it. Never resolve or unresolve a discussion -- `note resolve` exists and is never a substitute for an operation the caller did name. Never invent a flag absent from the table above -- report the need as unsupported.
+Never substitute an operation the caller did not name, and never run `create`, `update-description`, `approve`, `revoke`, `comment`, `reply`, `draft`, `ready`, `title`, `edit`, `close`, `reopen`, `merge`, `issue-create`, `issue-update`, `issue-comment`, `issue-close`, `issue-reopen`, `release-create`, `release-upload`, or `release-delete` unless the work order names it. Never resolve or unresolve a discussion -- `note resolve` exists and is never a substitute for an operation the caller did name. Never invent a flag absent from the table above -- report the need as unsupported.
 
 **Irreversible violation:** running `merge`, `release-delete`, or a `--remove-source-branch` or `--with-tag` the order did not name. These end a merge request, a release, or a branch, and GitLab undoes none of them for you. An order reading "close this out" is a violation to report as ambiguous; one reading `op: merge` with `--squash` is run as written.
 

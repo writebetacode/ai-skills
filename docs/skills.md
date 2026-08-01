@@ -36,6 +36,8 @@ Everything else stays where it is, by the same rule: `/pr`'s body template, `/re
 
 The architect reads `~/.claude/skills/sdlc-design/templates.md`, the installed path, which resolves from whatever project directory it is running in. It previously pointed at a repo-relative path that resolves nowhere but here, so it would have fallen back to reconstructing the format from memory — the last thing a template meant to be used verbatim should do.
 
+That direction is the only one available. `task install` links every `*.md` in a skill's directory, but only `AGENT.md` out of an agent's, so an agent cannot ship a reference file of its own — it either carries the material inline or reads an installed skill's path, as the architect does. An agent that outgrows its one file is a sign the material belongs to a skill.
+
 ## Markdown the skills write
 
 Two skills write Markdown files into someone's repository: `/pr-review` writes `docs/pr-reviews/<number>.md`, and `/sdlc-design`'s architect writes every artifact under `plans/`. Those land where a linter may already be running, so both carry the same short rule — blank lines around headings, lists, and tables; a language on every fence; one top-level heading; no trailing whitespace; one trailing newline. It is one sentence in each, stated where the authoring happens, by the rule above: neither context reads this document at runtime.

@@ -1,6 +1,6 @@
 ---
 name: sdlc-implement
-description: Execute a task from an implementation plan with integrated commits, PRs, TDD, and third-party validation, driven by persistent tester and coder agents. Use after /sdlc-design to implement tasks one at a time.
+description: Execute one task from an SDLC implementation plan -- branch setup, a batched red-green TDD loop through persistent tester and coder agents, third-party spec-vs-code validation, then a staged diff handed back for the user to commit and open a PR from. Use when building or coding the next task in a plan, resuming a task already part-done, or picking up where /sdlc-design left off.
 ---
 
 # Implement
