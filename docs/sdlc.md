@@ -14,7 +14,7 @@ Within an epic, tasks run linearly; across epics, disjoint dependency sets may r
 
 `/sdlc-implement` runs a persistent tester and coder through a batched TDD loop — tester writes an AC group's red tests, coder greens them, later batches learn from earlier ones — with the coordinator relaying every handoff, since subagents can only message `main`. It gates each task on its epic's dependencies being `Complete` in the manifest.
 
-After lint and a full-suite pass, the coordinator (not the tester) spawns a fresh sub-agent as an unbiased third-party spec-vs-code validator; the task approves only when the validator reports no drift. Full mechanics live in the two SKILL.md files and the tester/coder AGENT.md files. The spec, plan, task, and manifest formats live in `skills/sdlc-design/templates.md`, which the architect reads directly rather than the orchestrator loading them.
+After lint and a full-suite pass, the coordinator (not the tester) spawns a fresh sub-agent as an unbiased third-party spec-vs-code validator; the task approves only when the validator reports no drift. Full mechanics live in the two SKILL.md files and the tester/coder AGENT.md files. The epic list, spec, plan, task, and manifest formats live in `skills/sdlc-design/templates.md`, which the architect reads directly rather than the orchestrator loading them.
 
 ## Commands
 

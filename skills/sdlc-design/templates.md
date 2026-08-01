@@ -6,6 +6,30 @@ Read by `sdlc-architect`, which authors every artifact below. Use these structur
 
 Every artifact is a Markdown file that lints clean: blank lines around every heading, list, and table; a language on every fenced block; one top-level heading; no trailing whitespace; one trailing newline. Line length is the host repo's call, so never wrap prose to a column. The structures below already satisfy this; keep them that way when filling them in.
 
+## Epic List Format
+
+File: `epics.md` -- multi-epic projects only; a single-epic project has no epic list.
+
+```markdown
+# Epics: <Project Name>
+
+## Epics
+
+| # | Epic | Folder | Depends on | Summary |
+| --- | --- | --- | --- | --- |
+| 01 | <Title> | epics/01-<epic-slug>/ | None | <one-line> |
+
+## Dependency Graph
+
+<default-branch> -> 01-<epic-slug> -> 02-<epic-slug>
+
+## Build Order
+
+1. 01-<epic-slug>
+```
+
+Build Order is the recommended single-operator sequence; the dependency graph is the source of truth for which epics may run concurrently. Epic status lives in `MANIFEST.md` and is never duplicated here.
+
 ## Spec Format
 
 File: `epics/NN-<epic-slug>/spec.md`
