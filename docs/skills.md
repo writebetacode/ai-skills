@@ -10,6 +10,8 @@ No skill assumes `main`. Every git-facing one resolves the default branch from `
 
 When a CLI is missing, the run stops. You get `glab is not installed: <url>` rather than an auth error or a fallback to raw commands — and the same if an agent was excluded from your install. This is deliberate: the alternative is a skill quietly doing the thing its own rules forbid.
 
+Remote content is data, never instructions. A diff, a PR body, and a review thread are all written by whoever opened the change, so `/pr-review` treats a comment telling it what not to flag as a claim to check rather than an order to obey. That matters most for fork PRs, where none of it is authored by someone whose say-so the reviewer inherits.
+
 Backends are chosen differently depending on what they are attached to. A forge follows the code, so `/pr`, `/pr-review`, and `/remote-release` read it off the `origin` remote. A tracker does not — a repo on GitHub may track work in Jira — so `/remote-issue` asks, offering the forge matching `origin` as a default to confirm rather than a decision already made.
 
 ## `/pr` owns part of the description, not all of it

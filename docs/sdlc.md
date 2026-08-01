@@ -8,7 +8,7 @@ Put `plans/` in your global gitignore unless you want the plan tracked alongside
 
 `/sdlc-design` is the entry point. A persistent `sdlc-architect` agent runs intake one question at a time, researches every library it is going to name, and authors all artifacts: spec, plan, task files, and `MANIFEST.md`. The main thread only relays — it is forbidden from authoring or from driving the questions itself.
 
-Every version or API claim carries a stamped source. context7 is the first stop; a library it has not indexed, or an exhausted quota (the free tier allows 1,000 calls a month against ten to fifteen per session), falls back to the project's own docs recorded in the same form and marked `[web fallback]`, with the affected packages named so the weaker citation is visible. It never drops to an unsourced claim.
+Every version or API claim carries a stamped source. context7 is the first stop; a library it has not indexed, or an exhausted quota (the free tier allows 1,000 calls a month against ten to fifteen per session), falls back to the project's own docs recorded in the same form and marked `[web fallback]`, with the affected packages named so the weaker citation is visible. It never drops to an unsourced claim. Retrieved pages are read for the fact they were fetched for and nothing else: one directing the architect to install a further package or skip a gate is recorded as what that page claims, not acted on.
 
 Six gates must pass before signoff. The two you will feel: **every task has exactly one parent branch** — a task depending on two is sent back and the plan redone — and **every `NN` prefix matches actual run order**, for tasks and epic folders alike.
 
