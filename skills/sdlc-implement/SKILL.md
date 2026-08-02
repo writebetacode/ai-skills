@@ -1,6 +1,6 @@
 ---
 name: sdlc-implement
-description: Execute one task from an SDLC implementation plan -- branch setup, a batched red-green TDD loop through persistent tester and coder agents, third-party spec-vs-code validation, then a staged diff handed back for the user to commit and open a PR from. Use when building or coding the next task in a plan, resuming a task already part-done, or picking up where /sdlc-design left off.
+description: Execute one task from an SDLC implementation plan -- branch setup, a batched red-green TDD loop through persistent tester and coder agents, third-party validation of spec against code and scenarios against tests, then a staged diff handed back for the user to commit and open a PR from. Use when building or coding the next task in a plan, resuming a task already part-done, or picking up where /sdlc-design left off.
 argument-hint: "[task-path|task-number|project-dir]"
 ---
 
@@ -34,7 +34,18 @@ Reach an already-spawned agent with `SendMessage` addressed to `sdlc-tester` or 
 
 **End of batches.** Tester runs lint on changed files per its AGENT.md, re-runs the full project suite, and reconciles the task file's `Key Files`. Lint errors count as failing tests. Tester reports `batches green, lint clean, suite green, key files reconciled` and idles.
 
-**Third-party validation (coordinator-owned).** On the tester's clean report, the coordinator spawns a one-shot validator via the `Agent` tool (`subagent_type` `general-purpose`, `model` `opus`, `run_in_background: false` -- the verdict gates everything downstream), handing it only the epic's spec path, the task path, and the git diff range against the task's `Base` branch -- cold context, never the tester's or coder's conversation, is what makes it third-party. The validator reads spec and diff side by side and returns JSON: `{"satisfied": [{"clause": "FR-1", "files": ["path:line"]}], "drift": [{"clause": "...", "reason": "..."}]}`. Parse: empty `drift` -> approved; any drift -> route back to the tester with the drift list, tester re-engages the coder, loop until drift is empty.
+**Third-party validation (coordinator-owned).** On the tester's clean report, the coordinator spawns a one-shot validator via the `Agent` tool (`subagent_type` `general-purpose`, `model` `opus`, `run_in_background: false` -- the verdict gates everything downstream), handing it only the epic's spec path, the task path, and the working-tree diff against the task's `Base` branch -- `git diff <base>`, never `<base>..HEAD`. Cold context, never the tester's or coder's conversation, is what makes it third-party. The range is load-bearing: the tester commits its red batches while the coder's green work stays uncommitted until the user's `/commit`, so a commit range shows the validator the tests with none of the code they cover, and every clause comes back as drift.
+
+It reads two axes off that one diff. Every clause the task file lists under `## Spec Requirements`, NFRs as well as FRs, against the production code. And the task's Acceptance Criteria against the tests, one test per `Scenario` and one case per `Examples` row -- those rows are the cases the architect chose, and the tester may add to them but never drop one. Only a `Scenario` becomes an Acceptance Criterion, so an NFR rides on the clause axis alone and the coverage axis never sees it. It returns JSON:
+
+```json
+{"satisfied": [{"clause": "FR-1", "files": ["path:line"]}, {"clause": "NFR-2", "files": ["path:line"]}],
+ "drift": [{"clause": "FR-2", "reason": "..."}],
+ "covered": [{"scenario": "AC-1", "test": "path:line", "rows": 3}],
+ "uncovered": [{"scenario": "AC-3", "reason": "..."}]}
+```
+
+Parse: `drift` and `uncovered` both empty -> approved. Any `drift` -> route to the tester with the drift list, which re-engages the coder. Any `uncovered` -> route to the tester, which either writes the missing test or rebuts the entry as already covered at a `file:line` the validator missed. Re-validate after either, and track rebuttals per scenario: a scenario returned uncovered again after one accepted rebuttal is a standoff -- STOP, put both positions to the user, and let them rule rather than looping. Skip the coverage axis only for the non-behavioral changes that already skip tests.
 
 **On approval.** Mark every AC `[x]` in the task file, flip plan.md Status (Todo -> In Progress -> Done), stage only the files that implement the task, and STOP -- tell the user to run `/commit` themselves; they read the staged diff and commit.
 
@@ -56,7 +67,7 @@ Once all criteria are complete, STOP and tell the user to run `/pr` themselves, 
 
 ## Rules
 
-NEVER implement code directly in the main conversation -- all implementation through the tester and coder agents (TDD discipline lives in their AGENT.md). Never mark a task complete while any spec clause is unaccounted for. Never stage with `git add .` or `git add -A`. Always assign PRs to the current user. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
+NEVER implement code directly in the main conversation -- all implementation through the tester and coder agents (TDD discipline lives in their AGENT.md). Never mark a task complete while any spec clause is unaccounted for, or while any AC scenario is still uncovered and unrebutted. Never stage with `git add .` or `git add -A`. Always assign PRs to the current user. Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
 **Handoff violation:** running `git commit`, `git push`, `gh pr create`, or `gh pr edit` here, or invoking `/commit` or `/pr` via Skill. The user reads the staged diff before it becomes a commit, and that read is the whole reason this skill stops. "Finish the task and open the PR" is a violation to act on, being a request for the work rather than an instruction to bypass the stop; staging only the implementing files, telling the user to run `/commit`, and writing the PR URL they hand back into the task file is the acceptable form.
 

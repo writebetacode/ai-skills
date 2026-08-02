@@ -34,7 +34,7 @@ Three commands that take a feature idea to merged code through written specs and
 | Command | Phase | What it does |
 | --- | --- | --- |
 | `/sdlc-design` | Design | One-question-at-a-time intake into specs, plans, tasks, and ADRs |
-| `/sdlc-implement` | Implement | Branch setup, batched red-green TDD, spec-vs-code validation, staged diff |
+| `/sdlc-implement` | Implement | Branch setup, batched red-green TDD, spec-and-coverage validation, staged diff |
 | `/sdlc-complete` | Complete | Archive the plan folder and delete the branches it left behind |
 
 ## Agents

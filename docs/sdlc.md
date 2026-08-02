@@ -18,7 +18,7 @@ Behaviour is written as Given/When/Then. Each epic's `spec.md` carries a `## Beh
 
 `/sdlc-implement` runs one task. It checks that every epic the task's epic depends on is `Complete` before starting, sets up the branch, and then relays between two persistent agents: `sdlc-tester` writes a batch of red tests, `sdlc-coder` makes them green, and later batches are written knowing what earlier ones revealed. Subagents can only message `main`, which is why the coordinator sits in the middle of every handoff.
 
-After lint and a full-suite pass, the coordinator — not the tester — spawns a fresh agent with cold context as a third-party spec-vs-code validator. The task is approved only when that agent reports no drift.
+After lint and a full-suite pass, the coordinator — not the tester — spawns a fresh agent with cold context as a third-party validator. It reads two axes off the same diff: every spec clause the task lists, NFRs included, against the production code, and the task's acceptance scenarios against the tests, down to each `Examples` row. Only scenarios become acceptance criteria, so an NFR is caught by the first axis and never the second. The task is approved only when that agent reports no drift and no uncovered scenario. A scenario the tester believes is already covered can be rebutted once with a `file:line`; a second disagreement stops the run and comes to you rather than looping.
 
 It then stages the implementing files and stops. **You run `/commit` and `/pr` yourself**, because reading the staged diff before it becomes a commit is the point of the stop.
 
@@ -55,12 +55,12 @@ Each task drives one branch and one PR, stacked on the previous task's branch. `
 | Agent | Model | Effort | Role |
 | --- | --- | --- | --- |
 | `sdlc-architect` | opus | xhigh | intake, research, and every design artifact |
-| `sdlc-tester` | opus | high | red-first batches, full-suite reruns, drift rework |
+| `sdlc-tester` | opus | high | red-first batches, full-suite reruns, drift and coverage rework |
 | `sdlc-coder` | sonnet | high | smallest diff that greens the batch |
 
 Each is spawned once — per session for the architect, per task for the other two — and resumed with `SendMessage`, which restores its full transcript. That persistence is the point: the tester writing batch 2 still remembers what batch 1 revealed.
 
-Judgment-heavy roles run on `opus`: the architect, the one-shot validator, and the tester — which rules a coder's `scope-drift` as refinement or a requirements shift, confirms or downgrades `unbuildable`, and decides a spec sentence is too ambiguous to write against. Nothing downstream catches those: the validator reads spec against diff, so it sees the coder building the wrong thing but never judges whether the tests were worth passing. Greening a batch against tests already written is routine coding, so the coder runs on `sonnet`, which matters because it is the TDD loop's dominant token cost.
+Judgment-heavy roles run on `opus`: the architect, the one-shot validator, and the tester — which rules a coder's `scope-drift` as refinement or a requirements shift, confirms or downgrades `unbuildable`, and decides a spec sentence is too ambiguous to write against. The validator now checks that every scenario has a test, but all three of those calls are made before a test is written and leave no trace in the diff it reads. Greening a batch against tests already written is routine coding, so the coder runs on `sonnet`, which matters because it is the TDD loop's dominant token cost.
 
 If an agent cannot be spawned it is not installed, and the skill names it and stops. There is no fallback by design — `/sdlc-design` forbids authoring in the main thread and `/sdlc-implement` forbids implementing there, so degrading into a main-thread run would do exactly what those rules prevent. This is reachable in normal use: `config.yml` can exclude an agent while keeping its skill, and Gemini CLI receives the skills without any agents at all.
 
