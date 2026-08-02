@@ -88,8 +88,32 @@ tasks:
       - task: uninstall
       - task: install:claude
       - task: install:gemini
+      - task: install:lsp
       - |
         echo "INSTALLED run 'task verify' to check"
+
+  install:lsp:
+    internal: true
+    silent: true
+    desc: Install the language servers the *-lsp plugins expect, when Homebrew is present
+    cmds:
+      - |
+        # The *-lsp plugins in settings.json register a language server but never
+        # install one, so each sits inert until its binary is on PATH. Homebrew
+        # covers three of the four; typescript-language-server is left out because
+        # its formula depends on the typescript formula, which tracks TypeScript 7
+        # and no longer ships the tsserver.js the server loads -- install that one
+        # from npm instead. See docs/installation.md.
+        command -v brew >/dev/null 2>&1 || { echo "SKIP language servers (brew not found)"; exit 0; }
+        for bin in gopls lua-language-server rust-analyzer; do
+          if command -v "$bin" >/dev/null 2>&1; then
+            echo "SKIP $bin (already on PATH)"
+          elif brew install "$bin" >/dev/null 2>&1; then
+            echo "INSTALLED $bin"
+          else
+            echo "ERR brew install $bin failed (run it directly to see why)"
+          fi
+        done
 
   config:check:
     internal: true

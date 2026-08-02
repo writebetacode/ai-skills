@@ -87,11 +87,15 @@ Every key `claude/settings.json` defines. Verified against Claude Code 2.1.220; 
 | `spinnerTipsEnabled` | `false` | — | stock tips compete with `spinnerVerbs` |
 | `spinnerVerbs` | `replace` + list | — | cosmetic |
 | `statusLine` | command | — | registers `~/.claude/statusline.sh` |
-| `enabledPlugins` | 6 official | — | context7, four LSPs, security-guidance |
+| `enabledPlugins` | 7 official | — | context7, four LSPs, security-guidance, frontend-design |
 | `skipAutoPermissionPrompt` | `true` | — | records that the auto-mode dialog was accepted |
 | `skipWorkflowUsageWarning` | `true` | — | same, for the multi-agent usage warning |
 
 `askUserQuestionTimeout` is read from user settings only, which is where `task install` writes — copying it into a project `.claude/settings.json` would do nothing. The two `skip*` keys are acceptance flags rather than documented settings; treat them as implementation detail.
+
+The `*-lsp` plugins register a language server but do not install one, so `task install` installs `gopls`, `lua-language-server`, and `rust-analyzer` through Homebrew, skipping any already on `PATH` and skipping the step entirely when `brew` is absent. `task uninstall` leaves them: they are ordinary packages, not symlinks into this repo.
+
+TypeScript is the exception, and needs `npm install -g typescript-language-server`. Its Homebrew formula depends on the `typescript` formula, which tracks TypeScript 7 and its native port and so no longer ships the `tsserver.js` the server loads; the npm package pulls no compiler at all. The server reads TypeScript from the workspace first, so a project carrying `typescript` 5.x or 6.x in `devDependencies` needs nothing further, and one without a copy fails at `initialize` until given `npm install -D typescript@5`.
 
 ## Status line
 
