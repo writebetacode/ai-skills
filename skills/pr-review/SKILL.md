@@ -50,7 +50,7 @@ Then sweep for what the diff does not raise on its own, each item conditional on
 
 Write `docs/pr-reviews/<number>.md`, creating directories as needed. Leave it unstaged and never gitignore it. Show the numbered findings. A local run stops there. A submit run continues in `${CLAUDE_SKILL_DIR}/posting.md`, which is read before anything goes to the forge; the file is written first either way, so what landed has a record to be marked on.
 
-The report is a file in someone's repo, so it lints like one: blank lines around every heading, list, table, and fenced block; a language on every fence; one top-level heading; no consecutive blank lines; no trailing whitespace; one trailing newline. Line length is the host repo's call, so never wrap prose to a column. Where the repo configures a markdown linter -- a `.markdownlint*` file, or a lint script covering `.md` -- run it on the report and fix what it reports, since a linter that is actually present outranks the list above; that list is the whole contract only where the repo configures none.
+The report is a file in someone's repo, so it lints like one: blank lines around every heading, list, table, and fenced block; a language on every fence; one top-level heading; no consecutive blank lines; no trailing whitespace; one trailing newline. Line length is the host repo's call, so never wrap prose to a column -- the `markdownlint-disable` line in the template below is what keeps an unwrapped report clean under a default config, so it ships in the report rather than being trimmed as clutter. Where the repo configures a markdown linter -- a `.markdownlint*` file, or a lint script covering `.md` -- run it on the report and fix what it reports, since a linter that is actually present outranks the list above; that list is the whole contract only where the repo configures none.
 
 ## Findings
 
@@ -72,7 +72,7 @@ A finding the repository could not settle routes by consequence like any other: 
 ```markdown
 # <PR|MR> <#|!><number> -- <title>
 
-<!-- markdownlint-disable MD029 -- finding numbers are ids, not list positions -->
+<!-- markdownlint-disable MD013 MD029 MD034 -- prose is unwrapped; finding numbers are ids, not list positions; the PR URL is bare on purpose -->
 
 <source-branch> -> <target-branch> | @<author> | <state>
 <url>

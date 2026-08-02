@@ -32,6 +32,7 @@ Within an epic, tasks are strictly linear. Across epics, disjoint dependency set
 
 ```text
 plans/
+  .markdownlint.jsonc           # MD013 and MD033 off for the plans tree
   <project-slug>/
     MANIFEST.md                 # central control document, always present
     prd.md                      # optional -- WHAT users need, not HOW

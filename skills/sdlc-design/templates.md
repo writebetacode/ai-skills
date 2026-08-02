@@ -4,9 +4,9 @@ Read by `sdlc-architect`, which authors every artifact below. Use these structur
 
 `<default-branch>` takes the real branch name resolved at session start, never a literal `main`.
 
-Every `File:` path below is relative to the project folder `plans/<project-slug>/`, which also holds `prd.md` and `adr.md` at its root. Neither the project nor the epic slug carries a date prefix -- the date appends only when `/sdlc-complete` archives the folder. An ADR strong enough to outlive the project promotes to `docs/adrs/<YYYYMMDD>-<slug>.md` in the host repo, outside `plans/`, and is noted back in `adr.md`.
+Every `File:` path below is relative to the project folder `plans/<project-slug>/`, which also holds `prd.md` and `adr.md` at its root -- except the Lint Config Format, which sits a level above at `plans/` and says so. Neither the project nor the epic slug carries a date prefix -- the date appends only when `/sdlc-complete` archives the folder. An ADR strong enough to outlive the project promotes to `docs/adrs/<YYYYMMDD>-<slug>.md` in the host repo, outside `plans/`, and is noted back in `adr.md`.
 
-Every artifact here is a Markdown file, subject to the Markdown rule in your AGENT.md. The structures below already satisfy it; keep them that way when filling them in.
+Every artifact here but the lint config is a Markdown file, subject to the Markdown rule in your AGENT.md. The structures below already satisfy it; keep them that way when filling them in.
 
 ## Epic List Format
 
@@ -186,3 +186,20 @@ Spec Ready -> Planned -> In Progress (N/M) -> Complete
 
 ## Actionable Now
 ```
+
+## Lint Config Format
+
+File: `.markdownlint.jsonc`, at `plans/` rather than inside the project folder, so one file governs every project and everything `/sdlc-complete` archives beneath it. Write it when it is not already there, whatever the host repo configures elsewhere.
+
+```jsonc
+{
+  // MD013 (line-length) is off: prose is one line per paragraph, so an edit to
+  // a sentence is a one-line diff instead of a reflowed paragraph.
+  // MD033 (no-inline-html) is off: Gherkin placeholders in angle brackets are
+  // Examples-table substitutions, which markdownlint reads as HTML elements.
+  "MD013": false,
+  "MD033": false
+}
+```
+
+markdownlint resolves config per directory and the nearest file replaces the one above it rather than extending it, so this is the whole rule set for `plans/` -- defaults but for those two, in every repo alike -- while the rest of the host repo keeps the rules it already had.
