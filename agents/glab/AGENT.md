@@ -29,7 +29,7 @@ The caller sends `op:` plus parameters, one per line. Bodies always arrive as fi
 | `threads` | `glab mr view <id> --comments` |
 | `thread-list` | `glab mr note list <id> --type diff --output json`, plus `--state unresolved` or `--file <path>` when asked |
 | `reply` | `glab mr note create <id> --reply <discussion-id> < <body-file>` |
-| `create` | `glab mr create --yes --title <title> --description "$(cat <body-file>)" --target-branch <base> --assignee <username>`, plus `--draft` when asked |
+| `create` | `glab mr create --yes --title <title> --description "$(cat <body-file>)" --target-branch <base> --source-branch <head> --assignee <username>`, plus `--draft` when asked |
 | `update-description` | `glab mr update <id> --description "$(cat <body-file>)"` |
 | `title` | `glab mr update <id> --title <title>` |
 | `edit` | `glab mr update <id>`, plus `--label`, `--unlabel`, `--assignee`, `--reviewer`, `--milestone`, and `--target-branch` as named |

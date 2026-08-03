@@ -29,7 +29,7 @@ The caller sends `op:` plus parameters, one per line. Bodies always arrive as fi
 | `threads` | `gh pr view <id> --comments` |
 | `thread-list` | `gh api repos/{owner}/{repo}/pulls/<n>/comments --jq '.[] \| {id,path,line,in_reply_to_id,user:.user.login,body}'` |
 | `reply` | `gh api --method POST repos/{owner}/{repo}/pulls/<n>/comments/<comment-id>/replies -F body=@<body-file>` |
-| `create` | `gh pr create --title <title> --body-file <body-file> --base <base> --assignee @me`, plus `--draft` when asked |
+| `create` | `gh pr create --title <title> --body-file <body-file> --base <base> --head <head> --assignee @me`, plus `--draft` when asked |
 | `update-description` | `gh pr edit <id> --body-file <body-file>` |
 | `title` | `gh pr edit <id> --title <title>` |
 | `edit` | `gh pr edit <id>`, plus `--add-label`, `--remove-label`, `--add-assignee`, `--remove-assignee`, `--add-reviewer`, `--remove-reviewer`, `--milestone`, and `--base` as named |
