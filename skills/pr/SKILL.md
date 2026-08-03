@@ -1,36 +1,37 @@
 ---
 name: pr
-description: Create or update a pull request or merge request with a human-readable title and structured description, on GitHub or GitLab, and move an existing one between draft and ready. Use when the user wants to open or update a PR or MR for the current branch, or to mark one as draft or ready for review.
+description: Create or update a pull request or merge request with a human-readable title and structured description, on GitHub or GitLab, and move an existing one between draft and ready. Use when the user wants to open or update a PR or MR for work on the current branch, or to mark one as draft or ready for review. This is the pre-merge step: "ready" here means ready for a reviewer, never ready to publish a release.
 argument-hint: "[target-branch] [draft]"
+allowed-tools: "Bash(gh auth status:*), Bash(gh repo view:*), Bash(gh pr view:*), Bash(gh pr list:*), Bash(gh issue view:*), Bash(gh api user:*), Bash(glab auth status:*), Bash(glab repo view:*), Bash(glab mr view:*), Bash(glab mr list:*), Bash(glab issue view:*), Bash(glab api user:*), Bash(jq -r .username:*)"
 ---
 
 # PR
 
-One skill for both forges. The commands belong to the `gh` and `glab` agents; what follows is host-agnostic.
+One skill for both forges. What follows is host-agnostic; the commands live in the host's reference file.
 
 ## Host
 
-Resolve the forge from the `origin` remote and dispatch every remote operation to that host's agent -- `gh` for GitHub, `glab` for GitLab -- via the `Agent` tool, resuming it with `SendMessage` within a run. Where a self-hosted URL settles nothing, ask each available agent for `repo-id` and take the one that resolves; if both do or neither does, ask the user rather than guessing. Say "pull request" or "merge request" to match the host once resolved.
+Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` for GitHub or `${CLAUDE_SKILL_DIR}/gitlab.md` for GitLab before running anything -- it carries the command for every operation named below, and an operation named here is never run from memory. Where that path arrives unexpanded the runtime is not Claude Code: read the file of that name from this skill's own directory instead -- `~/.gemini/skills/pr/<file>.md` under Gemini CLI -- rather than treating the reference as missing. Where a self-hosted URL settles nothing, read both files and run each CLI's `repo-id`, taking the one that resolves; if both do or neither does, ask the user rather than guessing. Say "pull request" or "merge request" to match the host once resolved.
 
-Two failures stop the run rather than routing around it. If the agent cannot be spawned, it is not installed: name it and say so. If it reports the CLI missing, tell the user which CLI to install, with the URL it gave. Never fall back to running the command here in either case.
+A missing CLI stops the run rather than being routed around: tell the user which one to install, with the URL from the reference file, and never reach for the other forge's CLI or a raw `curl` against the API.
 
-Send `op:` and its parameters one per line, and pass every description as a file path -- write the composed body to a temp file outside the repo. Bytes must never travel as prose in a message; that is what keeps a description byte-exact through the handoff.
+Pass every description as a file path -- write the composed body to a temp file outside the repo and let the CLI read it. Retyping body text into a command is what breaks a description that has to arrive byte-exact.
 
 ## Workflow
 
-Dispatch `auth` first; stop on failure. Gather in parallel: current branch, remote URL, `whoami`, and the branch's PR/MR state via `view`. Warn on uncommitted changes.
+Run `auth` first; stop on failure. Gather in parallel: current branch, remote URL, `whoami`, and the branch's PR/MR state via `view`. Warn on uncommitted changes.
 
 Resolve the target branch from arguments, or auto-detect by matching branch-name prefix against other local branches, falling back to `git merge-base` against the repo's default branch -- resolve it via `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), or `git remote show origin` parsed for `HEAD branch:` if that ref is missing. Never assume `main`: the repo may default to `develop`, `master`, or `trunk`.
 
-The head is the current branch gathered above, and travels to `create` by name rather than being left to the CLI default. Both forges default it to whatever is checked out, which is silently wrong the moment the session has moved on -- and a stacked run has several sibling branches alive at once, so a PR opened from the wrong one still looks right. Naming it also costs `gh` the prompt it would otherwise raise to push an unpushed branch, so a head the remote does not have comes back as an agent error: report it and say the branch needs pushing, rather than pushing on the user's behalf.
+The head is the current branch gathered above, and travels to `create` by name rather than being left to the CLI default. Both forges default it to whatever is checked out, which is silently wrong the moment the session has moved on -- and a stacked run has several sibling branches alive at once, so a PR opened from the wrong one still looks right. Naming it also costs `gh` the prompt it would otherwise raise to push an unpushed branch, so a head the remote does not have comes back as an error: report it and say the branch needs pushing, rather than pushing on the user's behalf.
 
-Draft a human-readable title under 70 characters covering the combined changes. Compose the description from the template, write it to a temp file, then dispatch `create` with the title, body path, base, head, and username -- adding draft when "draft" appears in the arguments -- or `update-description` following the Update Path below. An update redrafts the title too, against the combined changes as they now stand: where it differs from the one `view` reported, dispatch `title` alongside the description. Display the URL from the agent's report.
+Draft a human-readable title under 70 characters covering the combined changes. Compose the description from the template, write it to a temp file, then run `create` with the title, body path, base, head, and username -- adding draft when "draft" appears in the arguments -- or `update-description` following the Update Path below. An update redrafts the title too, against the combined changes as they now stand: where it differs from the one `view` reported, run `title` alongside the description. Display the URL the CLI returns.
 
-Dispatch `draft` or `ready` only when the request asks for the move: "mark it ready", "back to draft". `view` already reported the current state, so a move that would change nothing is reported instead of dispatched. Where the same request also revises the description, update first and toggle after, since marking ready is what puts the body in front of reviewers.
+Run `draft` or `ready` only when the request asks for the move: "mark it ready", "back to draft". `view` already reported the current state, so a move that would change nothing is reported instead of run. Where the same request also revises the description, update first and toggle after, since marking ready is what puts the body in front of reviewers.
 
 ## Update Path
 
-Updating replaces the description wholesale, and reviewer bots, teammates, and prior manual edits all write into that same field. You own the fenced region and nothing else. Dispatch `description` to fetch the current text, then locate your region, in this order:
+Updating replaces the description wholesale, and reviewer bots, teammates, and prior manual edits all write into that same field. You own the fenced region and nothing else. Run `description` to fetch the current text, then locate your region, in this order:
 
 1. **Both markers present** -- replace everything between them.
 2. **Markers absent or unpaired** -- find the contiguous run of template sections from the first `## Tickets` heading and replace that run in place. A previous update owned it whether it predates the markers or lost them since. An unpaired opener never acts as a boundary; a hand-deleted closer would otherwise swallow the rest of the description.
@@ -79,11 +80,11 @@ Use this exact structure, fence markers included. Omit Breaking Changes and Depe
 
 ## Rules
 
-Always assign to the current user: `@me` on GitHub, a `whoami` username on GitLab, which has no `@me`. The agent owns that difference -- dispatch the assignee it asks for and never hardcode a name.
+Always assign to the current user: `@me` on GitHub, a `whoami` username on GitLab, which has no `@me`. The reference file owns that difference -- pass the assignee it names and never hardcode one.
 
 Never reference a host-native issue without validating it via `issue-view` first. Jira references are informational only -- neither forge closes a Jira issue on merge, so never apply a closing keyword (`Closes`, `Fixes`, `Resolves`) to a Jira key.
 
-Never compose a remote command here -- an operation the agent's table does not cover is reported as unsupported, not worked around with a raw CLI call.
+Never compose a remote command from memory -- every one comes from the host's reference file, and an operation it does not cover is reported as unsupported rather than improvised.
 
 A toggle the forge refuses is reported as it stands, never simulated by other means: converting to draft is plan-dependent on GitHub.
 
