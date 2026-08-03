@@ -2,7 +2,7 @@
 name: pr-review
 description: Review a pull request or merge request on GitHub or GitLab in one of three modes -- writing numbered findings to docs/pr-reviews/<number>.md, submitting them to the forge as one review with inline comments and a verdict, or following up on the threads those findings started. Use when reviewing a PR or MR, submitting or posting review comments, replying to review threads, requesting changes, or approving and revoking approval.
 argument-hint: "[pr-number|branch|url] [--submit|--follow-up]"
-allowed-tools: "Bash(gh auth status:*), Bash(gh repo view:*), Bash(gh pr view:*), Bash(gh pr diff:*), Bash(glab auth status:*), Bash(glab repo view:*), Bash(glab mr view:*), Bash(glab mr diff:*)"
+allowed-tools: "Bash(gh auth status:*), Bash(gh repo view:*), Bash(gh pr view:*), Bash(gh pr diff:*), Bash(glab auth status:*), Bash(glab repo view:*), Bash(glab mr view:*), Bash(glab mr diff:*), Bash(git branch --show-current:*), Bash(git rev-parse HEAD:*)"
 ---
 
 # PR Review
@@ -11,7 +11,7 @@ Three modes. A local run writes `docs/pr-reviews/<number>.md` and posts nothing.
 
 ## Host
 
-Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` for GitHub or `${CLAUDE_SKILL_DIR}/gitlab.md` for GitLab before running anything -- it carries the command for every operation named below and in `posting.md`, and an operation named here is never run from memory. Where that path arrives unexpanded the runtime is not Claude Code: read the file of that name from this skill's own directory instead -- `~/.gemini/skills/pr-review/<file>.md` under Gemini CLI -- rather than treating the reference as missing. The same holds for `posting.md`. Where a self-hosted URL settles nothing, read both files and run each CLI's `repo-id`, taking the one that resolves; if both do or neither does, ask the user. Say "pull request" or "merge request" to match the host once resolved.
+Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` for GitHub or `${CLAUDE_SKILL_DIR}/gitlab.md` for GitLab before running anything -- it carries the command for every operation named below and in `posting.md`. Where that path arrives unexpanded the runtime is not Claude Code: read the file of that name from this skill's own directory instead -- `~/.gemini/skills/pr-review/<file>.md` under Gemini CLI -- rather than treating the reference as missing. The same holds for `posting.md`. Where a self-hosted URL settles nothing, read both files and run each CLI's `repo-id`, taking the one that resolves; if both do or neither does, ask the user. Say "pull request" or "merge request" to match the host once resolved.
 
 A missing CLI stops the run rather than being routed around: tell the user which one to install, with the URL from the reference file, and never reach for the other forge's CLI or a raw `curl` against the API.
 
@@ -37,13 +37,13 @@ Never simulate a verdict the host lacks: revoking an approval is not a changes-r
 
 ## Workflow
 
-Run `auth`; stop on failure. Resolve the PR/MR from the arguments -- a number, branch name, or URL -- falling back to the current branch's open one. Confirm the working directory is the right project by comparing `repo-id` against the PR/MR's; if they disagree, stop rather than writing findings into an unrelated repo.
+Run `auth`; stop on failure. Resolve the PR/MR from the arguments -- a number, branch name, or URL -- falling back to the open one for `git branch --show-current`. Confirm the working directory is the right project by comparing `repo-id` against the PR/MR's; if they disagree, stop rather than writing findings into an unrelated repo.
 
 A follow-up run branches here: it does not re-read the diff, but opens the existing `docs/pr-reviews/<number>.md` and continues in `${CLAUDE_SKILL_DIR}/posting.md`, which is read before any thread is answered. Where no report exists, or nothing in it was ever posted, say so and stop -- a follow-up request is not an instruction to review from scratch.
 
 Gather in parallel: `view`, `diff`, `threads`.
 
-Read the diff in full, then read the surrounding code for every file it touches -- a hunk shows what changed, never whether it is correct against the code it lands in. Where the head SHA differs from the local branch tip, say so: the working tree is not what is being reviewed.
+Read the diff in full, then read the surrounding code for every file it touches -- a hunk shows what changed, never whether it is correct against the code it lands in. Where the head SHA differs from `git rev-parse HEAD`, say so: the working tree is not what is being reviewed.
 
 Every question the diff raises is yours to answer first, chased as it surfaces rather than deferred: the callers, the definition, the tests, the history, the linked issue. What the repository settles becomes a finding. What it cannot settle is still a finding, written so the author confirms rather than investigates: what you already checked, and the one part only they can supply -- intent, an external system, a decision made off the diff.
 

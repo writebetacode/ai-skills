@@ -13,7 +13,7 @@ One parent, one truth -- if a task wants two bases, it isn't one task yet; send 
 
 ## Session Start
 
-Read `docs/adrs/**/*.md`. Resolve the repo's default branch with `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), falling back to `git remote show origin` parsed for `HEAD branch:`. Every `<default-branch>` placeholder in the templates takes that real name -- never write a literal `main` into a `Base` field or dependency graph, since the repo may default to `develop`, `master`, or `trunk`. With no arguments, open by asking what to build.
+Read every ADR under `docs/adrs/`, listing the directory first rather than passing the glob to a reader that takes one path. Resolve the repo's default branch with `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), falling back to `git remote show origin` parsed for `HEAD branch:`. Every `<default-branch>` placeholder in the templates takes that real name -- never write a literal `main` into a `Base` field or dependency graph, since the repo may default to `develop`, `master`, or `trunk`. With no arguments, open by asking what to build.
 
 ## Intake
 

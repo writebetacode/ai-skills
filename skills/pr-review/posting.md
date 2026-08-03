@@ -10,7 +10,7 @@ Compare the section's SHA against the current head first. If they differ the aut
 
 Write every body to a temp file outside the repo. On GitHub the review is one call -- `review-batch`, carrying the head SHA, the event, a summary body, and one entry per anchored finding -- so it arrives as a single notification and lands whole or not at all. A finding with no line anchor cannot ride in that array and goes into the summary body instead, named by its number. On GitLab there is no batch: run one `comment` per finding, keyed by finding number, with the anchor you recorded -- a line in the new version, a removed line, a whole file, or no file anchor -- and the verdict separately afterwards.
 
-The event follows the report's Verdict: changes needed submits `REQUEST_CHANGES`, comment only submits `COMMENT`. Approve is the exception -- it submits `COMMENT` and reports that the approval is waiting to be named, unless the request that started the run named it.
+On GitHub the review event follows the report's Verdict: changes needed submits `REQUEST_CHANGES`, comment only submits `COMMENT`. GitLab has no event to set -- changes needed posts the summary as a note and reports the state unsupported, per the verdict table in `SKILL.md`. Approve is the exception on both -- the summary goes up as a comment or a note and the approval is reported as waiting to be named, unless the request that started the run named it.
 
 The body is the finding's summary line, bolded, with its number, then the discussion:
 

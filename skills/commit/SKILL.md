@@ -2,6 +2,7 @@
 name: commit
 description: Create a conventional commit from staged changes. Use when the user wants to commit staged changes with a properly formatted commit message.
 argument-hint: "[extra context for the message]"
+allowed-tools: "Bash(git diff --cached:*), Bash(git branch --show-current:*), Bash(git log --oneline:*), Bash(git status --short:*)"
 ---
 
 # Commit
@@ -25,8 +26,12 @@ Gather context in parallel: `git diff --cached --name-only` (staged files), `git
 ```bash
 git commit -F - <<'EOF'
 <type>: <message>
+
+[optional body]
 EOF
 ```
+
+A hook that rejects the commit stops the run: report its own output and what it objected to, and never retry with `--no-verify`. A hook that rewrites files instead leaves the commit made and the rewritten copies unstaged -- say so, since the next commit inherits them.
 
 ## Rules
 
