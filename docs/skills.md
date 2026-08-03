@@ -24,6 +24,16 @@ Bodies bound for a forge instead of a file — PR descriptions, issue bodies, re
 
 Backends are chosen differently depending on what they are attached to. A forge follows the code, so `/pr`, `/pr-review`, and `/remote-release` read it off the `origin` remote. A tracker does not — a repo on GitHub may track work in Jira — so `/remote-issue` asks, offering the forge matching `origin` as a default to confirm rather than a decision already made.
 
+## Why the long skills stay in one file
+
+`/sdlc-design` is 293 lines and `/pr-review` is 136, which looks like two skills overdue for splitting into sibling files. The target they are actually measured against counts prose only — everything outside frontmatter, tables, and fenced blocks — and by that count they are 57 lines and 41. Most of `/sdlc-design` is template: 166 lines of fence and 65 blanks.
+
+Splitting a block out trades tokens for a `Read` round-trip and the chance the model skips it and works from memory instead, so it pays only where a path you can name provably never reaches the block, and only above roughly 1,000 tokens — below that the pointer prose and the round-trip eat the saving. `/pr-review`'s Findings section and report template come to 3,211 bytes, about 803 tokens, which is under the floor. `posting.md` is the split that does pay, because a local run never posts and so never reads it.
+
+`/sdlc-design`'s artifact templates are the one block over the floor, at 5,819 bytes or about 1,455 tokens, and they stay inline anyway for three independent reasons. No named path skips them: both of the skill's modes author artifacts, and a mid-flight revision overwrites task files and appends new ones, needing the Task File Format exactly as a fresh run does. The skill composes from those templates itself, which the authoring rules name outright as the case not to split — the context that loads a template it fills in is the context that uses it. And they are byte-exact contracts, `## Acceptance Criteria` among them, read back by `/sdlc-implement` and compared word for word by the scenario-fidelity gate, where a skipped read becomes a reconstruction from memory.
+
+Having the skill re-read the templates to confirm they are current does not rescue the split. Confirming on use means reading the file on every authoring run, and every completed design run authors, so the tokens arrive regardless and the round-trip is pure cost. Compaction points the same way: an invoked skill is re-attached after a summary keeping its first 5,000 tokens, so an inline template survives a compaction that could summarize a file read out of the transcript entirely.
+
 ## `/pr` owns part of the description, not all of it
 
 The body it writes is wrapped in `<!-- pr-body:start -->` / `<!-- pr-body:end -->`. On update it rewrites only what sits between those markers. Everything outside is preserved byte-for-byte where it sits: reviewer-bot summaries, other tooling's generated blocks, and anything you typed yourself.
