@@ -11,10 +11,8 @@ exclude:
     # - pr-review
     # - remote-issue
   agents:
-    # - sdlc-tester
-    # - sdlc-coder
-    # - glab
-    # - acli
+    # No agents ship in this repo today; the key stays for ones you add.
+    # - some-agent
 
 # Per-platform opt-out. Set to false to skip that platform entirely.
 platforms:

@@ -2,6 +2,7 @@
 name: pr-review
 description: Review a pull request or merge request on GitHub or GitLab in one of three modes -- writing numbered findings to docs/pr-reviews/<number>.md, submitting them to the forge as one review with inline comments and a verdict, or following up on the threads those findings started. Use when reviewing a PR or MR, submitting or posting review comments, replying to review threads, requesting changes, or approving and revoking approval.
 argument-hint: "[pr-number|branch|url] [--submit|--follow-up]"
+allowed-tools: "Bash(gh auth status:*), Bash(gh repo view:*), Bash(gh pr view:*), Bash(gh pr diff:*), Bash(glab auth status:*), Bash(glab repo view:*), Bash(glab mr view:*), Bash(glab mr diff:*)"
 ---
 
 # PR Review
@@ -10,13 +11,13 @@ Three modes. A local run writes `docs/pr-reviews/<number>.md` and posts nothing.
 
 ## Host
 
-Resolve the forge from the `origin` remote and dispatch every remote operation to that host's agent -- `gh` for GitHub, `glab` for GitLab -- via the `Agent` tool, resuming it with `SendMessage` within a run. Where a self-hosted URL settles nothing, ask each available agent for `repo-id` and take the one that resolves; if both do or neither does, ask the user. Say "pull request" or "merge request" to match the host once resolved.
+Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` for GitHub or `${CLAUDE_SKILL_DIR}/gitlab.md` for GitLab before running anything -- it carries the command for every operation named below and in `posting.md`, and an operation named here is never run from memory. Where a self-hosted URL settles nothing, run each CLI's `repo-id` and take the one that resolves; if both do or neither does, ask the user. Say "pull request" or "merge request" to match the host once resolved.
 
-Two failures stop the run rather than routing around it. If the agent cannot be spawned, it is not installed: name it and say so. If it reports the CLI missing, tell the user which CLI to install, with the URL it gave. Never fall back to running the command here in either case.
+A missing CLI stops the run rather than being routed around: tell the user which one to install, with the URL from the reference file, and never reach for the other forge's CLI or a raw `curl` against the API.
 
-Send `op:` and its parameters one per line. Every comment body travels as a file path, never as prose in a message: the summary line, the anchor, and any suggestion block have to arrive byte-exact.
+Every comment body travels as a file path written outside the repo, never retyped into a command: the summary line, the anchor, and any suggestion block have to arrive byte-exact.
 
-The agent owns the commands; this skill owns what the comment says -- including the suggestion dialect, which is a property of the body rather than the invocation:
+The reference file owns the commands; this skill owns what the comment says -- including the suggestion dialect, which is a property of the body rather than the invocation:
 
 | Host | Suggestion fence | Range |
 | --- | --- | --- |
@@ -36,11 +37,11 @@ Never simulate a verdict the host lacks: revoking an approval is not a changes-r
 
 ## Workflow
 
-Dispatch `auth`; stop on failure. Resolve the PR/MR from the arguments -- a number, branch name, or URL -- falling back to the current branch's open one. Confirm the working directory is the right project by comparing `repo-id` against the PR/MR's; if they disagree, stop rather than writing findings into an unrelated repo.
+Run `auth`; stop on failure. Resolve the PR/MR from the arguments -- a number, branch name, or URL -- falling back to the current branch's open one. Confirm the working directory is the right project by comparing `repo-id` against the PR/MR's; if they disagree, stop rather than writing findings into an unrelated repo.
 
 A follow-up run branches here: it does not re-read the diff, but opens the existing `docs/pr-reviews/<number>.md` and continues in `${CLAUDE_SKILL_DIR}/posting.md`, which is read before any thread is answered. Where no report exists, or nothing in it was ever posted, say so and stop -- a follow-up request is not an instruction to review from scratch.
 
-Gather in parallel via the agent: `view`, `diff`, `threads`.
+Gather in parallel: `view`, `diff`, `threads`.
 
 Read the diff in full, then read the surrounding code for every file it touches -- a hunk shows what changed, never whether it is correct against the code it lands in. Where the head SHA differs from the local branch tip, say so: the working tree is not what is being reviewed.
 
@@ -111,11 +112,11 @@ The author reads these without the context that produced them, and they outlive 
 
 ## Approval
 
-Approve and revoke run on explicit request only, pinned to the head SHA you read -- as the event of a submit run, or as `approve` and `revoke` dispatched on their own. GitLab records approval against that SHA; GitHub has no revoke, and dismissal needs the review id and elevated access, so the agent may report it unsupported. Say that approval is recorded against the user's account and endorses an AI-produced review, and never approve over unresolved Should-change findings without confirmation.
+Approve and revoke run on explicit request only, pinned to the head SHA you read -- as the event of a submit run, or as `approve` and `revoke` run on their own. GitLab records approval against that SHA; GitHub has no revoke, and dismissal needs the review id and elevated access, so it may come back unsupported. Say that approval is recorded against the user's account and endorses an AI-produced review, and never approve over unresolved Should-change findings without confirmation.
 
 ## Rules
 
-Never compose a remote command here -- an operation the agent's table does not cover is reported as unsupported, not worked around with a raw CLI call.
+Never compose a remote command from memory -- every one comes from the host's reference file, and an operation it does not cover is reported as unsupported rather than improvised.
 
 Never invent a line number, file path, or consequence. Never claim anything was run or tested; describe inspected code as inspected. Review the diff on its merits, not the author's.
 

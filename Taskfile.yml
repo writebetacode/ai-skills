@@ -285,6 +285,7 @@ tasks:
         {{.CONFIG_READER}}
         platform_enabled claude || exit 0
         for dir in agents/*/; do
+          [ -d "$dir" ] || continue
           name=$(basename "$dir")
           if is_excluded "$name" agents; then echo "SKIP $name agent (excluded)"; continue; fi
           mkdir -p "$HOME/.claude/agents/$name"
@@ -507,6 +508,7 @@ tasks:
           fi
         fi
         for dir in agents/*/; do
+          [ -d "$dir" ] || continue
           name=$(basename "$dir")
           if is_excluded "$name" agents; then
             absent "$HOME/.claude/agents/$name/AGENT.md"
