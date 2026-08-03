@@ -11,7 +11,7 @@ Three modes. A local run writes `docs/pr-reviews/<number>.md` and posts nothing.
 
 ## Host
 
-Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` for GitHub or `${CLAUDE_SKILL_DIR}/gitlab.md` for GitLab before running anything -- it carries the command for every operation named below and in `posting.md`, and an operation named here is never run from memory. Where a self-hosted URL settles nothing, run each CLI's `repo-id` and take the one that resolves; if both do or neither does, ask the user. Say "pull request" or "merge request" to match the host once resolved.
+Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` for GitHub or `${CLAUDE_SKILL_DIR}/gitlab.md` for GitLab before running anything -- it carries the command for every operation named below and in `posting.md`, and an operation named here is never run from memory. Where that path arrives unexpanded the runtime is not Claude Code: read the file of that name from this skill's own directory instead -- `~/.gemini/skills/pr-review/<file>.md` under Gemini CLI -- rather than treating the reference as missing. The same holds for `posting.md`. Where a self-hosted URL settles nothing, read both files and run each CLI's `repo-id`, taking the one that resolves; if both do or neither does, ask the user. Say "pull request" or "merge request" to match the host once resolved.
 
 A missing CLI stops the run rather than being routed around: tell the user which one to install, with the URL from the reference file, and never reach for the other forge's CLI or a raw `curl` against the API.
 

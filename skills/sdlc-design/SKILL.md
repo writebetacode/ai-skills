@@ -2,7 +2,7 @@
 name: sdlc-design
 description: Turn an idea into specs, plans, task files, and ADRs through one-question-at-a-time intake, sourced research, and seven signoff gates. Use when starting a new feature that needs a written plan before implementation, when decomposing work into epics and stacked tasks, or when a mid-flight revision forces the plan back onto the table.
 argument-hint: "[what to build | project-dir]"
-allowed-tools: "Bash(git symbolic-ref:*), Bash(git remote show:*), Bash(git log:*), Bash(git branch:*), Bash(git status:*)"
+allowed-tools: "Bash(git symbolic-ref:*), Bash(git remote show:*), Bash(git log:*), Bash(git branch --list:*), Bash(git status:*)"
 ---
 
 # Design
@@ -39,7 +39,7 @@ Author every design artifact from the templates below, filled in verbatim -- per
 
 Seven gates, all absolute, no exceptions. **Scenario fidelity:** every scenario in a task's Acceptance Criteria matches its `## Behaviour` source in the epic spec word for word -- name, steps, and `Examples` rows -- and every scenario in `## Behaviour` is claimed by exactly one task; the spec owns them and the task file carries a copy, so a divergence is corrected in the spec and re-copied rather than reconciled in place. **Stack-linearity:** every task names exactly one parent, the resolved default branch or one prior task branch; flag by name and block any task depending on two prior branches until it is flattened. **NN-ordering:** every task NN-prefix matches actual run order -- 01 first, 02 second, no gaps, no reorderings -- and the same holds for epic folders, with single-epic projects using `01-`. **Graph cross-check:** the prose sections agree with the dependency graph, and any seam where they disagree is flagged. **AC sanity:** reject an AC prescribing test infrastructure ("tests connect to the DB directly") without a sanctioned integration strategy, or duplicating existing project code. **PRD wiring:** no `prd.md` left uncited by a `spec.md` -- wire per FR or delete. **ADR coverage:** every cross-cutting decision recorded in `adr.md` or `docs/adrs/` before signoff.
 
-Signoff generates `MANIFEST.md` from the template and records signoff in the plan. End with: "Design complete. Run `/sdlc-implement` to begin."
+Before signoff, write `plans/.markdownlint.jsonc` per the Lint Config Format where it is not already there: markdownlint's defaults flag the unwrapped prose and the Gherkin placeholders this flow writes on purpose, and wrapping the prose to answer them is the one fix that is never available. Signoff then generates `MANIFEST.md` from the template and records signoff in the plan. End with: "Design complete. Run `/sdlc-implement` to begin."
 
 ## Concurrency Model
 
@@ -257,7 +257,7 @@ Spec Ready -> Planned -> In Progress (N/M) -> Complete
 
 ### Lint Config Format
 
-File: `.markdownlint.jsonc`, at `plans/` rather than inside the project folder, so one file governs every project and everything `/sdlc-complete` archives beneath it. Write it when it is not already there, whatever the host repo configures elsewhere.
+File: `.markdownlint.jsonc`, at `plans/` rather than inside the project folder, so one file governs every project and everything `/sdlc-complete` archives beneath it -- written there whatever the host repo configures elsewhere.
 
 ```jsonc
 {

@@ -31,7 +31,7 @@ There is no `--priority` flag -- priority reaches Jira through `--from-json` or 
 
 Authentication is per Atlassian account and site. If `auth` reports no account, or one for a site other than the one being filed against, stop and report -- `acli jira auth login` and `acli jira auth switch` are the user's to run.
 
-`edit`, `transition`, `assign`, and `delete` prompt for confirmation without `--yes` and hang a non-interactive run. Each also accepts `--jql` and `--filter`, which apply the operation to *every* work item the query returns. On `comment create`, `--body-file` is `-F` and takes plain text or ADF; `--edit-last` rewrites the previous comment instead of adding one, so it goes only where the user asks for it.
+`edit`, `transition`, `assign`, and `delete` prompt for confirmation without `--yes` and hang a non-interactive run. `--status` on `transition` is the target status name as that project's workflow defines it, and a status the workflow lacks is rejected -- report that rather than retrying against a name picked here. Each also accepts `--jql` and `--filter`, which apply the operation to *every* work item the query returns. On `comment create`, `--body-file` is `-F` and takes plain text or ADF; `--edit-last` rewrites the previous comment instead of adding one, so it goes only where the user asks for it.
 
 **Verification note.** These commands are transcribed from `acli` 1.3.22-stable. If an invocation is rejected as unknown the local version differs: report the CLI's own error verbatim rather than substituting a flag that looks close.
 

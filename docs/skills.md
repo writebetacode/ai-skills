@@ -8,7 +8,9 @@ No skill assumes `main`. Every git-facing one resolves the default branch from `
 
 `/pr`, `/pr-review`, `/remote-issue`, and `/remote-release` carry no remote commands in their own bodies. Each resolves the forge or tracker first, then reads that CLI's reference file — `github.md`, `gitlab.md`, or `jira.md`, beside the `SKILL.md` — which owns the flags, JSON fields, and anchor semantics for one CLI. Nothing is composed from memory, and only the CLI you are actually using is ever loaded. Bodies still travel as file paths rather than being retyped into a command, so a description or a review comment arrives byte-exact.
 
-Those commands run in your session, under your permission rules, which is why each of the four pre-approves its read-only operations — `auth`, `view`, `diff`, `list` — in `allowed-tools` and leaves every create, edit, comment, merge, and delete to prompt as usual.
+Those commands run in your session, under your permission rules, which is why each of the four pre-approves its read-only operations — `auth`, `view`, `diff`, `list` — in `allowed-tools` and leaves every create, edit, comment, and delete to prompt as usual. That grant covers only the turn you invoked the skill in, which is the turn the reconnaissance happens in; a submit or a follow-up you ask for later prompts like anything else.
+
+The per-CLI reference file is found through a path Claude Code expands to wherever the skill is installed. Gemini CLI does not expand it, so each of the four falls back to reading that file from its own directory — the run still works, but this is the one place the two platforms are not identical.
 
 When a CLI is missing, the run stops. You get `glab is not installed: <url>` rather than an auth error or a fallback to `curl` against the API, or to the other forge's CLI. This is deliberate: the alternative is a skill quietly doing the thing its own rules forbid.
 

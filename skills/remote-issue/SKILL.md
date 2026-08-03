@@ -2,7 +2,7 @@
 name: remote-issue
 description: Create a consistently-formatted issue on GitHub or GitLab, or a work item in Jira, prompting for the tracker and the fields it requires. Use when filing or logging a bug, feature request, chore, or question against any of them, or when opening a ticket, an issue, or a work item to track work that has not been started.
 argument-hint: "[title]"
-allowed-tools: "Bash(gh auth status:*), Bash(gh repo view:*), Bash(gh issue view:*), Bash(gh api user:*), Bash(glab auth status:*), Bash(glab repo view:*), Bash(glab issue view:*), Bash(glab api user:*), Bash(acli jira auth status:*), Bash(acli jira workitem view:*), Bash(jq:*)"
+allowed-tools: "Bash(gh auth status:*), Bash(gh repo view:*), Bash(gh issue view:*), Bash(gh api user:*), Bash(glab auth status:*), Bash(glab repo view:*), Bash(glab issue view:*), Bash(glab api user:*), Bash(acli jira auth status:*), Bash(acli jira workitem view:*), Bash(jq -r .username:*)"
 ---
 
 # Remote Issue
@@ -19,7 +19,7 @@ Ask which tracker unless the arguments settle it -- a project key like `PROJ-123
 | GitLab | `glab` | `${CLAUDE_SKILL_DIR}/gitlab.md` | issue | the working directory's project |
 | Jira | `acli` | `${CLAUDE_SKILL_DIR}/jira.md` | work item | a project key, unrelated to the working directory |
 
-Read the chosen tracker's reference file before running anything -- it carries the command for every operation named below, and an operation named here is never run from memory. Run `auth` and stop on failure. Pass the description as a file path: write the composed body to a temp file outside the repo and let the CLI read it, rather than retyping it into a command.
+Read the chosen tracker's reference file, at the path the table above gives for it, before running anything -- it carries the command for every operation named below, and an operation named here is never run from memory. Where that path arrives unexpanded the runtime is not Claude Code: read the file of that name from this skill's own directory instead -- `~/.gemini/skills/remote-issue/<file>.md` under Gemini CLI -- rather than treating the reference as missing. Run `auth` and stop on failure. Pass the description as a file path: write the composed body to a temp file outside the repo and let the CLI read it, rather than retyping it into a command.
 
 A missing CLI stops the run rather than being routed around: tell the user which one to install, with the URL from the reference file, and never substitute another tracker's CLI or a raw `curl` against the API.
 

@@ -1,6 +1,6 @@
 ---
 name: remote-release
-description: Tag the default branch and publish a release on GitHub or GitLab, inferring the version from commit history and drafting notes in the repo's established voice. Use when cutting, shipping, or publishing a release after work has merged, when tagging a new version, or when working out what the next version number should be.
+description: Tag the default branch and publish a release on GitHub or GitLab, inferring the version from commit history and drafting notes in the repo's established voice. Use when cutting, shipping, or publishing a release, when tagging a new version, or when working out what the next version number should be. This is the post-merge step, run on the default branch rather than on a feature branch whose PR is still open.
 argument-hint: "[version]"
 allowed-tools: "Bash(gh auth status:*), Bash(gh repo view:*), Bash(gh release list:*), Bash(gh release view:*), Bash(glab auth status:*), Bash(glab repo view:*), Bash(glab release list:*), Bash(glab release view:*)"
 ---
@@ -11,7 +11,7 @@ One skill for both forges. What follows is host-agnostic; the commands live in t
 
 ## Host
 
-Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` for GitHub or `${CLAUDE_SKILL_DIR}/gitlab.md` for GitLab before running anything -- it carries the command for every operation named below, and an operation named here is never run from memory. Where a self-hosted URL settles nothing, run each CLI's `repo-id` and take the one that resolves; if both do or neither does, ask the user.
+Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` for GitHub or `${CLAUDE_SKILL_DIR}/gitlab.md` for GitLab before running anything -- it carries the command for every operation named below, and an operation named here is never run from memory. Where that path arrives unexpanded the runtime is not Claude Code: read the file of that name from this skill's own directory instead -- `~/.gemini/skills/remote-release/<file>.md` under Gemini CLI -- rather than treating the reference as missing. Where a self-hosted URL settles nothing, read both files and run each CLI's `repo-id`, taking the one that resolves; if both do or neither does, ask the user.
 
 A missing CLI stops the run rather than being routed around: tell the user which one to install, with the URL from the reference file, never substitute the other forge's CLI or a raw `curl` against the API, and never tag or push on the way to a release that cannot then be published.
 
