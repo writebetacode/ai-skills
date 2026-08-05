@@ -43,7 +43,7 @@ gh api repos/{owner}/{repo}/pulls/<n>/comments \
 
 Comments post immediately, each its own thread, with no CLI-side double-post guard. A stale `commit_id` is rejected rather than relocated: if `<head-sha>` is not the PR's current `headRefOid`, stop and report rather than posting, since the anchors were read against a diff that is no longer current.
 
-`reply` has no `gh` subcommand and its endpoint is transcribed from the REST reference rather than from `gh --help`; report the API's own error verbatim rather than substituting a path that looks close. That listing carries no resolution state -- resolved and unresolved threads are a GraphQL concept on GitHub -- so report the state as unavailable rather than inferring it.
+`reply` has no `gh` subcommand and its endpoint is transcribed from the REST reference rather than from `gh --help`; report the API's own error verbatim rather than substituting a path that looks close. That same reference, rather than an observed run, is the source for two behaviours stated elsewhere in this file -- a stale `commit_id` being rejected instead of relocated, above, and one bad entry failing an entire batched review, under Batched Review -- since neither can be exercised without posting to a real PR. Report what the API actually returns if either differs, and never retry around it. That listing carries no resolution state -- resolved and unresolved threads are a GraphQL concept on GitHub -- so report the state as unavailable rather than inferring it.
 
 ## Batched Review
 
@@ -64,6 +64,16 @@ gh api --method POST repos/{owner}/{repo}/pulls/<n>/reviews --input <json-file>
   ]
 }
 ```
+
+`--input` is the one path where a body does not travel as a file: it goes inside a JSON string. Bodies carry newlines, backticks, fenced evidence, and sometimes a suggestion block, so build that file with `jq --rawfile`, one per body, and never type a body into the JSON by hand:
+
+```sh
+jq -n --rawfile summary <summary-file> --rawfile b2 <body-file-2> \
+  '{commit_id:"<head-sha>", event:"COMMENT", body:$summary,
+    comments:[{path:"<path>", line:12, side:"RIGHT", body:$b2}]}' > <json-file>
+```
+
+`--rawfile` reads the file as one string and escapes it, so what arrives is the file's bytes -- checked byte-for-byte through jq 1.8.2 on a body carrying a fence, a tab, and embedded double quotes. Where `jq` is absent, say so and post the findings one at a time with `comment` rather than hand-escaping the payload.
 
 Every entry in `comments[]` needs a path and a line: `subject_type=file` is not accepted here, so a file-level or unanchored finding belongs in `body`. One rejected entry fails the whole review -- report it and stop, never resubmit without the offending comment, since a review missing a finding the report listed is not the review that was ordered.
 

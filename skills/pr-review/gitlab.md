@@ -24,6 +24,7 @@ Comment anchoring, by what the finding recorded:
 
 ```sh
 glab mr note create <id> --file <path> --line <n> < body.md      # line in the new version
+glab mr note create <id> --file <path> --line <a>:<b> < body.md  # range in the new version
 glab mr note create <id> --file <path> --old-line <n> < body.md  # removed line
 glab mr note create <id> --file <path> < body.md                 # whole file
 glab mr note create <id> < body.md                               # no file anchor
