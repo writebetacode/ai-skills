@@ -61,13 +61,14 @@ Prompting every time:
 | Rule | Why |
 | --- | --- |
 | `git branch -d`, `git branch -D` | prompts per branch even though `git branch *` is allowed; backs up `/sdlc-complete`'s own confirmation |
-| `git worktree remove --force`, `-f` | plain `remove` already refuses to discard changes, so only the forcing form asks |
 | `gh pr review`, `gh pr comment`, `glab mr note create`, `glab mr approve`, `glab mr revoke` | outward-facing and attributed to your account |
 | `gh pr close/reopen`, `gh issue comment/edit/close/reopen`, `gh release edit/upload` | change the state of something that already exists |
 | `glab mr close/reopen`, `glab issue note/update/close/reopen`, `glab release upload` | the GitLab equivalents |
 | `acli jira workitem comment create/edit/transition/assign` | the Jira equivalents |
 
-Allowed: read-only git and forge queries — including the `git merge-tree` check `/sdlc-complete` runs before it proposes deleting a branch, and the `git symbolic-ref` every default-branch resolution starts from — plus `git fetch` and plain `git worktree add`/`remove`, which is how `/pr-review` checks a PR out at `/tmp/pr-review-<number>` without touching your branch, plus `git commit` and `git push`, the create paths for PRs, issues, and releases (the skills confirm their content with you before dispatching), Go and pnpm build/test tooling, and `--version`/`--help` probes for the twelve CLIs this repo drives.
+Allowed: read-only git and forge queries — including the `git merge-tree` check `/sdlc-complete` runs before it proposes deleting a branch, and the `git symbolic-ref` every default-branch resolution starts from — plus `git fetch` and every `git worktree` subcommand, which is how `/pr-review` checks a PR out at `/tmp/pr-review-<number>` without touching your branch, plus `git commit` and `git push`, the create paths for PRs, issues, and releases (the skills confirm their content with you before dispatching), Go and pnpm build/test tooling, and `--version`/`--help` probes for the twelve CLIs this repo drives.
+
+`git worktree` is allowed whole, forcing form included. That is a deliberate loosening rather than an oversight: `git worktree remove --force` discards uncommitted work in a worktree with no reflog entry, and it used to sit in `ask` for exactly that reason. Nothing in this repo runs it — `/pr-review` forbids forcing outright, on the grounds that a worktree git refuses to remove is one something has written to — so the guard now rests on the skill rather than the harness. Put both `Bash(git worktree remove --force *)` and `Bash(git worktree remove -f *)` back into `ask` if you want the prompt.
 
 One asymmetry to know about: a blanket `Bash(gh api *)` sits in `allow` and covers GitHub's anchored-comment endpoint, so GitHub inline review comments do not prompt where GitLab's do. Narrow or remove that entry if you want them to match.
 

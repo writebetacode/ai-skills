@@ -314,8 +314,6 @@
       "Bash(git branch -D)",
       "Bash(git branch -d *)",
       "Bash(git branch -d)",
-      "Bash(git worktree remove --force *)",
-      "Bash(git worktree remove -f *)",
       "Bash(glab mr note create *)",
       "Bash(glab mr approve *)",
       "Bash(glab mr revoke *)",

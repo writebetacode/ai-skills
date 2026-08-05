@@ -26,7 +26,7 @@ Backends are chosen differently depending on what they are attached to. A forge 
 
 ## Why the long skills stay in one file
 
-`/sdlc-design` is 293 lines and `/pr-review` is 180, which looks like two skills overdue for splitting into sibling files. The target they are actually measured against counts prose only — everything outside frontmatter, tables, and fenced blocks — and by that count they are 57 lines and 51. Most of `/sdlc-design` is template: 166 lines of fence and 65 blanks.
+`/sdlc-design` is 293 lines and `/pr-review` is 182, which looks like two skills overdue for splitting into sibling files. The target they are actually measured against counts prose only — everything outside frontmatter, tables, and fenced blocks — and by that count they are 57 lines and 52. Most of `/sdlc-design` is template: 166 lines of fence and 65 blanks.
 
 Splitting a block out trades tokens for a `Read` round-trip and the chance the model skips it and works from memory instead, so it pays only where a path you can name provably never reaches the block, and only above roughly 1,000 tokens — below that the pointer prose and the round-trip eat the saving. `/pr-review`'s Findings section and report template come to 5,268 bytes, about 1,317 tokens, which clears the floor and still stays inline: no mode skips it, since local and submit runs both write findings and a follow-up run marks them, and the skill fills the template in itself rather than handing it to anything else — the case the authoring rules name outright as the one not to split. `posting.md` is the split that does pay, because a local run never posts and so never reads it.
 
@@ -46,9 +46,11 @@ If the markers are gone entirely — Markdown pipelines do strip HTML comments �
 
 ## `/pr-review` separates reviewing from posting
 
-Three modes, and local is the default. A local run writes numbered findings to `docs/pr-reviews/<number>.md` in the repo the PR belongs to and posts nothing; the file is left unstaged and never gitignored, since whether review notes belong in a repo's history is your call. A submit run writes that same file first, then sends the findings up as one review. A follow-up run reads the threads back and answers them.
+Three modes, and local is the default. A local run writes numbered findings to `docs/pr-reviews/<number>.md` in the repo you ran the command from and posts nothing; the file is left unstaged and never gitignored, since whether review notes belong in a repo's history is your call. A submit run writes that same file first, then sends the findings up as one review. A follow-up run reads the threads back and answers them.
 
 Every mode reviews a checkout, not your working tree. The skill fetches the PR's head ref — `refs/pull/<n>/head` on GitHub, `refs/merge-requests/<iid>/head` on GitLab, both served by the base project, so a fork needs no extra remote — and adds a detached worktree at `/tmp/pr-review-<number>`, removed when the run ends. Your branch, working tree, and stash are never touched, and no finding can cite a line that only exists in whatever you had checked out at the time. A checkout that fails stops the run rather than falling back to reading the diff alone.
+
+The report never follows the code into that checkout. The repo root is recorded from `git rev-parse --show-toplevel` before the worktree exists — inside one, that command answers with the worktree — so the file lands in the working copy you opened, unstaged, and outlives the run that wrote it. It has to: the report is deliberately unstaged and therefore exists in no checkout of any revision, so a follow-up run that went looking for it in the worktree would find nothing and conclude there was no review to follow up on.
 
 That checkout is what the report quotes from. Each finding carries the code it rests on in a fenced block labelled `<file>:<line-range>` — the lines it names, plus the caller, the definition, or the stale test the claim depends on. Where the evidence is an absence, the finding names the search that came back empty. Posted comments carry the off-diff quotes only, since the inline comment already sits on the line it is about.
 
