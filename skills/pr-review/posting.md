@@ -29,7 +29,7 @@ The body is the finding's summary line, bolded, with its number, then the discus
 ```
 ````
 
-The comment already sits on its own line, so drop the report's quote of the anchored lines and carry the quotes the author cannot see from the thread -- the caller, the definition, the test that would still pass -- byte-identical to the report's and with the same `<file>:<line-range>` label. A finding whose evidence is only the anchored lines posts with no quote block at all, and one with no line anchor carries its quotes into the summary body alongside its number.
+The comment already sits on its own line, so drop the report's quote of the anchored lines and carry the quotes the author cannot see from the thread -- the caller, the definition, the test that would still pass, the guideline the finding cites -- byte-identical to the report's and with the same `<file>:<line-range>` label. A finding whose evidence is only the anchored lines posts with no quote block at all, and one with no line anchor carries its quotes into the summary body alongside its number.
 
 A suggestion block replaces exactly the anchored range and is one click from being committed, so it must be complete, correctly indented, and valid where it lands. Offer one only where you have read the replaced lines and the fix is unambiguous; use prose for anything needing judgment, touching multiple sites, or inferring intent. Use the host's fence from the table in `SKILL.md`.
 
