@@ -38,6 +38,8 @@ Having the skill re-read the templates to confirm they are current does not resc
 
 The body it writes is wrapped in `<!-- pr-body:start -->` / `<!-- pr-body:end -->`. On update it rewrites only what sits between those markers. Everything outside is preserved byte-for-byte where it sits: reviewer-bot summaries, other tooling's generated blocks, and anything you typed yourself.
 
+The ownership runs both ways: the skill also writes nothing of its own outside the markers, on create or on update. A trailing `## Notes for Reviewers` section, or any other commentary aimed at the reviewer, is off-limits — what would go in one goes in Summary or Why. One left there by a teammate or a bot is preserved like any other outside content.
+
 The rule is positional, not name-based — content survives because of where it is, not because the skill recognized it. Markers are matched on the token alone, so spacing changed in transit does not break recognition, and `mr-body:*` is accepted as a legacy equivalent and rewritten to the canonical form.
 
 If the markers are gone entirely — Markdown pipelines do strip HTML comments — the skill finds the contiguous run of `Tickets`, `Summary`, `Why`, `Changes` and replaces that in place instead. It inserts a fresh body at the top only when no template-shaped run exists anywhere, which is what stops a lost marker from producing two bodies.
