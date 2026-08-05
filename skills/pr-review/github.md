@@ -10,6 +10,7 @@ Every comment body travels as a file path -- the summary line, the anchor, and a
 | `repo-id` | `gh repo view --json nameWithOwner --jq .nameWithOwner` |
 | `view` | `gh pr view <id> --json number,title,body,author,headRefName,baseRefName,headRefOid,state,isDraft,url` |
 | `diff` | `gh pr diff <id>` |
+| `fetch-ref` | `git fetch origin refs/pull/<n>/head` |
 | `threads` | `gh pr view <id> --comments` |
 | `thread-list` | `gh api repos/{owner}/{repo}/pulls/<n>/comments --jq '.[] \| {id,path,line,in_reply_to_id,user:.user.login,body}'` |
 | `reply` | `gh api --method POST repos/{owner}/{repo}/pulls/<n>/comments/<comment-id>/replies -F body=@<body-file>` |
@@ -37,6 +38,8 @@ gh api repos/{owner}/{repo}/pulls/<n>/comments \
 `{owner}` and `{repo}` are placeholders `gh api` fills from the working directory -- pass them literally. `-F` types its value and reads from a file when it starts with `@`; `-f` is always a raw string. So `line` and `start_line` take `-F`, `side` takes `-f`.
 
 `gh pr diff` has no `--raw`; plain is the unified diff. `--json` fields are camelCase and the head SHA is `headRefOid`.
+
+`refs/pull/<n>/head` is served by the base repo and is the PR's own head commit rather than a preview of the merge, so a PR opened from a fork fetches through `origin` with no fork remote added. FETCH_HEAD after that fetch equals `headRefOid`; check the SHA out by name anyway, since any later fetch overwrites FETCH_HEAD.
 
 Comments post immediately, each its own thread, with no CLI-side double-post guard. A stale `commit_id` is rejected rather than relocated: if `<head-sha>` is not the PR's current `headRefOid`, stop and report rather than posting, since the anchors were read against a diff that is no longer current.
 

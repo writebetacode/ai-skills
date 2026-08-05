@@ -10,6 +10,7 @@ Every comment body travels as a file path -- the summary line, the anchor, and a
 | `repo-id` | `glab repo view --output json --jq .path_with_namespace` |
 | `view` | `glab mr view <id> --output json --jq '{iid,title,description,author:.author.username,source:.source_branch,target:.target_branch,sha,state,draft,web_url}'` |
 | `diff` | `glab mr diff <id> --raw` |
+| `fetch-ref` | `git fetch origin refs/merge-requests/<iid>/head` |
 | `threads` | `glab mr view <id> --comments` |
 | `thread-list` | `glab mr note list <id> --type diff --output json`, plus `--state unresolved` or `--file <path>` when asked |
 | `reply` | `glab mr note create <id> --reply <discussion-id> < <body-file>` |
@@ -31,6 +32,8 @@ glab mr note create <id> < body.md                               # no file ancho
 ## Flags That Bite
 
 `glab mr note` and every one of its subcommands are marked EXPERIMENTAL by the CLI, so report the tool's own error verbatim when one fails rather than reaching for a flag that looks close. On `note list`, `-F` is `--output` and pairs with `--jq`; `--state` takes `all`, `resolved`, or `unresolved`, and `--type` takes `all`, `general`, `diff`, or `system`. `--reply` accepts a full discussion ID or a prefix of at least 8 characters, and passing a shorter one is an error to report rather than a prefix to pad. `--line` takes a single number or a range written `10:15`.
+
+`refs/merge-requests/<iid>/head` is served by the project itself and is the MR's own head commit, so an MR from a fork fetches through `origin` with no fork remote added. That namespace is transcribed from GitLab's published reference rather than from a CLI, so a fetch that fails reports git's own error and stops the run; never guess a neighbouring ref name.
 
 `glab mr approve` takes no body flag: an approval carries no message, so a summary meant to be recorded goes up as a separate `comment` first.
 

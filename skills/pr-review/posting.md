@@ -6,7 +6,7 @@ Read on entering either mode from the Workflow in `SKILL.md`. Host resolution, t
 
 Two ways in. A submit run sends every finding at once; a later request naming findings -- "post 2 and 5", "send the should-changes" -- sends only those, and an ambiguous selection is asked about before anything goes up.
 
-Compare the section's SHA against the current head first. If they differ the author has pushed since, and every anchor must be re-read against the new diff before anything goes up: a stale head is refused rather than relocating a comment onto whatever now sits at that line.
+Compare the section's SHA against the current head first. If they differ the author has pushed since, and every anchor and quoted line must be re-read against the new diff in a worktree at the new head before anything goes up: a stale head is refused rather than relocating a comment onto whatever now sits at that line.
 
 Write every body to a temp file outside the repo. On GitHub the review is one call -- `review-batch`, carrying the head SHA, the event, a summary body, and one entry per anchored finding -- so it arrives as a single notification and lands whole or not at all. A finding with no line anchor cannot ride in that array and goes into the summary body instead, named by its number. On GitLab there is no batch: run one `comment` per finding, keyed by finding number, with the anchor you recorded -- a line in the new version, a removed line, a whole file, or no file anchor -- and the verdict separately afterwards.
 
@@ -19,10 +19,17 @@ The body is the finding's summary line, bolded, with its number, then the discus
 
 <what you observed, the consequence, and what would resolve it>
 
+```go
+// src/handler.go:41 -- <what this site establishes>
+<the off-diff lines the claim rests on>
+```
+
 ```suggestion
 <replacement line(s)>
 ```
 ````
+
+The comment already sits on its own line, so drop the report's quote of the anchored lines and carry the quotes the author cannot see from the thread -- the caller, the definition, the test that would still pass -- byte-identical to the report's and with the same `<file>:<line-range>` label. A finding whose evidence is only the anchored lines posts with no quote block at all, and one with no line anchor carries its quotes into the summary body alongside its number.
 
 A suggestion block replaces exactly the anchored range and is one click from being committed, so it must be complete, correctly indented, and valid where it lands. Offer one only where you have read the replaced lines and the fix is unambiguous; use prose for anything needing judgment, touching multiple sites, or inferring intent. Use the host's fence from the table in `SKILL.md`.
 
@@ -34,6 +41,6 @@ Run `thread-list` and resolve every thread against the report: by the id recorde
 
 Report each finding's thread as replied, unresolved, or resolved, quoting what came back. Resolution state is not uniform: GitLab reports it, and GitHub's comment listing does not carry it, so say the state is unavailable rather than inferring it from a reply.
 
-Then do the work the reply asks for. A reply pointing at code is checked against that code before answering, so an author who says the deadline comes from the handler gets a response that has read the handler; the investigation obligation is the same one the review ran under, and a reply the repository settles is answered rather than deferred. A finding the reply resolves is marked `(settled in thread)` in place and recommended for resolution.
+Then do the work the reply asks for. A reply pointing at code is checked against that code in the worktree before answering, and quoted back the same way a finding quotes, so an author who says the deadline comes from the handler gets a response carrying the handler's own lines; the investigation obligation is the same one the review ran under, and a reply the repository settles is answered rather than deferred. A finding the reply resolves is marked `(settled in thread)` in place and recommended for resolution.
 
 Replies post only on a request naming which threads to answer, one `reply` per thread id, bodies written to a temp file outside the repo like any other. Never resolve, unresolve, or delete a thread: resolution is the author's signal that they acted on it, and closing it here erases the record that anyone disagreed.

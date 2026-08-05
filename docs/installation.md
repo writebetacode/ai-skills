@@ -67,7 +67,7 @@ Prompting every time:
 | `glab mr close/reopen`, `glab issue note/update/close/reopen`, `glab release upload` | the GitLab equivalents |
 | `acli jira workitem comment create/edit/transition/assign` | the Jira equivalents |
 
-Allowed: read-only git and forge queries — including the `git merge-tree` check `/sdlc-complete` runs before it proposes deleting a branch, and the `git symbolic-ref` every default-branch resolution starts from — plus `git commit` and `git push`, the create paths for PRs, issues, and releases (the skills confirm their content with you before dispatching), Go and pnpm build/test tooling, and `--version`/`--help` probes for the twelve CLIs this repo drives.
+Allowed: read-only git and forge queries — including the `git merge-tree` check `/sdlc-complete` runs before it proposes deleting a branch, and the `git symbolic-ref` every default-branch resolution starts from — plus `git fetch` and plain `git worktree add`/`remove`, which is how `/pr-review` checks a PR out at `/tmp/pr-review-<number>` without touching your branch, plus `git commit` and `git push`, the create paths for PRs, issues, and releases (the skills confirm their content with you before dispatching), Go and pnpm build/test tooling, and `--version`/`--help` probes for the twelve CLIs this repo drives.
 
 One asymmetry to know about: a blanket `Bash(gh api *)` sits in `allow` and covers GitHub's anchored-comment endpoint, so GitHub inline review comments do not prompt where GitLab's do. Narrow or remove that entry if you want them to match.
 
