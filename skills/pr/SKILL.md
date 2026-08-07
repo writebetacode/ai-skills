@@ -2,7 +2,7 @@
 name: pr
 description: Create or update a pull request or merge request with a human-readable title and structured description, on GitHub or GitLab, and move an existing one between draft and ready. Use when the user wants to open or update a PR or MR for work on the current branch, or to mark one as draft or ready for review. This is the pre-merge step: "ready" here means ready for a reviewer, never ready to publish a release.
 argument-hint: "[target-branch] [draft]"
-allowed-tools: "Bash(gh auth status:*), Bash(gh repo view:*), Bash(gh pr view:*), Bash(gh pr list:*), Bash(gh issue view:*), Bash(gh api user:*), Bash(glab auth status:*), Bash(glab repo view:*), Bash(glab mr view:*), Bash(glab mr list:*), Bash(glab issue view:*), Bash(glab api user:*), Bash(jq -r .username:*), Bash(git symbolic-ref:*), Bash(git remote show:*), Bash(git branch --show-current:*), Bash(git merge-base:*), Bash(git status --short:*)"
+allowed-tools: "Bash(git ls-remote --heads origin:*), Bash(gh auth status:*), Bash(gh repo view:*), Bash(gh pr view:*), Bash(gh pr list:*), Bash(gh issue view:*), Bash(gh api user:*), Bash(glab auth status:*), Bash(glab repo view:*), Bash(glab mr view:*), Bash(glab mr list:*), Bash(glab issue view:*), Bash(glab api user:*), Bash(jq -r .username:*), Bash(git symbolic-ref:*), Bash(git remote show:*), Bash(git branch --show-current:*), Bash(git merge-base:*), Bash(git status --short:*)"
 ---
 
 # PR
@@ -23,7 +23,7 @@ Run `auth` first; stop on failure. Gather in parallel: `git branch --show-curren
 
 Resolve the target branch from arguments, or auto-detect by matching branch-name prefix against other local branches, falling back to `git merge-base` against the repo's default branch -- resolve it via `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), or `git remote show origin` parsed for `HEAD branch:` if that ref is missing. Never assume `main`: the repo may default to `develop`, `master`, or `trunk`.
 
-The head is the current branch gathered above, and travels to `create` by name rather than being left to the CLI default. Both forges default it to whatever is checked out, which is silently wrong the moment the session has moved on -- and a stacked run has several sibling branches alive at once, so a PR opened from the wrong one still looks right. Naming it also costs `gh` the prompt it would otherwise raise to push an unpushed branch, so a head the remote does not have comes back as an error: report it and say the branch needs pushing, rather than pushing on the user's behalf.
+The head is the current branch gathered above, and travels to `create` by name rather than being left to the CLI default. Both forges default it to whatever is checked out, which is silently wrong the moment the session has moved on -- and a stacked run has several sibling branches alive at once, so a PR opened from the wrong one still looks right. Naming it also costs `gh` the prompt it would otherwise raise to push an unpushed branch, so the skill pushes for itself: read the remote head with `git ls-remote --heads origin <head>`, and where that comes back empty or carrying a SHA other than the local one, run `git push -u origin <head>` before `create` or `update-description`. A create against a head the remote lacks fails outright, and an update against a stale one describes commits the reviewer cannot see.
 
 Draft a human-readable title under 70 characters covering the combined changes. Compose the description from the template, write it to a temp file, then run `create` with the title, body path, base, head, and username -- adding draft when "draft" appears in the arguments -- or `update-description` following the Update Path below. An update redrafts the title too, against the combined changes as they now stand: where it differs from the one `view` reported, run `title` alongside the description. Display the URL the CLI returns.
 
@@ -89,6 +89,8 @@ Never compose a remote command from memory -- every one comes from the host's re
 A toggle the forge refuses is reported as it stands, never simulated by other means: converting to draft is plan-dependent on GitHub.
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
+
+**Push violation:** forcing a head onto the remote, or pushing any branch but the head. `git push -u origin <head>` refused as non-fast-forward means the remote branch carries commits the local one does not: report the refusal and stop, since `--force` and `--force-with-lease` discard whatever a teammate or a rebase put there. That same `git push -u origin <head>` against a branch the remote lacks, or one it has behind the local head, is acceptable.
 
 **Title violation:** any title that is not a plain-English, human-readable sentence -- raw branch names, ticket slugs, kebab-case, or machine-style identifiers must be rewritten before create/update. `fix/auth-token-refresh` or `PROJ-123` are violations, as is a `Draft:` prefix written here to mark state the `draft` operation owns; "Fix authentication token refresh on expired sessions" is acceptable.
 

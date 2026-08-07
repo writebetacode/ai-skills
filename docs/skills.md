@@ -34,6 +34,10 @@ Splitting a block out trades tokens for a `Read` round-trip and the chance the m
 
 Having the skill re-read the templates to confirm they are current does not rescue the split. Confirming on use means reading the file on every authoring run, and every completed design run authors, so the tokens arrive regardless and the round-trip is pure cost. Compaction points the same way: an invoked skill is re-attached after a summary keeping its first 5,000 tokens, so an inline template survives a compaction that could summarize a file read out of the transcript entirely.
 
+## `/pr` pushes the head branch
+
+It names the head explicitly rather than letting the CLI default to whatever is checked out, which is what keeps a stacked run from opening a PR off the wrong sibling branch — but it also costs `gh` the prompt it would otherwise raise to push an unpushed branch. So the skill pushes itself: it compares the head against `git ls-remote --heads origin` and runs `git push -u origin <head>` when the remote is missing the branch or sitting behind it, since a create against an absent head fails and an update against a stale one describes commits the reviewer cannot see. It never forces — a non-fast-forward refusal means the remote has commits you do not, and that is reported rather than overwritten.
+
 ## `/pr` owns part of the description, not all of it
 
 The body it writes is wrapped in `<!-- pr-body:start -->` / `<!-- pr-body:end -->`. On update it rewrites only what sits between those markers. Everything outside is preserved byte-for-byte where it sits: reviewer-bot summaries, other tooling's generated blocks, and anything you typed yourself.

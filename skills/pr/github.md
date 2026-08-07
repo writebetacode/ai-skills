@@ -30,7 +30,7 @@ Converting to draft is plan-dependent: `gh pr ready --undo` is refused on accoun
 
 On `edit`, the label, assignee, and reviewer flags are add/remove pairs rather than a replacing set, so removing one means naming it in `--remove-*`; `--milestone` does replace, and `--remove-milestone` clears it.
 
-Naming `--head` costs `gh` the prompt it would otherwise raise to push an unpushed branch, so a head the remote does not have comes back as an error: report it and say the branch needs pushing, rather than pushing on the user's behalf.
+Naming `--head` costs `gh` the prompt it would otherwise raise to push an unpushed branch, so a head the remote does not have comes back as an error rather than a prompt -- which is why `SKILL.md` has the branch pushed before `create` runs.
 
 Report the CLI's own error rather than retrying a failed command with different flags, and never invent a flag absent from the table above -- an operation it does not cover is unsupported.
 
