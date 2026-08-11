@@ -12,12 +12,12 @@ Write every body to a temp file outside the repo. On GitHub the review is one ca
 
 On GitHub the review event follows the report's Verdict: changes needed submits `REQUEST_CHANGES`, comment only submits `COMMENT`. GitLab has no event to set -- changes needed posts the summary as a note and reports the state unsupported, per the verdict table in `SKILL.md`. Approve is the exception on both -- the summary goes up as a comment or a note and the approval is reported as waiting to be named, unless the request that started the run named it.
 
-The body is the finding's summary line, bolded, with its number, then the discussion:
+The body is the finding's summary line, bolded, with its number, then the discussion carried across verbatim from the report. Never re-expand it for the forge: the two-sentence cap is what the author reads, and the thread is where anything longer belongs once they ask.
 
 ````markdown
 **issue (blocking): the handle is never closed on the error path** (2)
 
-<what you observed, the consequence, and what would resolve it>
+<the finding's two sentences, as written in the report>
 
 ```go
 // src/handler.go:41 -- <what this site establishes>
@@ -41,6 +41,6 @@ Run `thread-list` and resolve every thread against the report: by the id recorde
 
 Report each finding's thread as replied, unresolved, or resolved, quoting what came back. Resolution state is not uniform: GitLab reports it, and GitHub's comment listing does not carry it, so say the state is unavailable rather than inferring it from a reply.
 
-Then do the work the reply asks for. A reply pointing at code is checked against that code in the worktree before answering, and quoted back the same way a finding quotes, so an author who says the deadline comes from the handler gets a response carrying the handler's own lines; the investigation obligation is the same one the review ran under, and a reply the repository settles is answered rather than deferred. A finding the reply resolves is marked `(settled in thread)` in place and recommended for resolution.
+Then do the work the reply asks for. A reply pointing at code is checked against that code in the worktree before answering, and quoted back the same way a finding quotes, so an author who says the deadline comes from the handler gets a response carrying the handler's own lines; the investigation obligation is the same one the review ran under, and a reply the repository settles is answered rather than deferred. A finding the reply resolves is marked `(settled in thread)` in place and recommended for resolution. A reply holds to the two-sentence cap a finding does, with its quotes uncounted: the author is mid-thread and reading on a phone as often as not.
 
 Replies post only on a request naming which threads to answer, one `reply` per thread id, bodies written to a temp file outside the repo like any other. Never resolve, unresolve, or delete a thread: resolution is the author's signal that they acted on it, and closing it here erases the record that anyone disagreed.

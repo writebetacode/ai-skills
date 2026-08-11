@@ -27,6 +27,8 @@ Run `auth`; stop on failure. Resolve the default branch via `git symbolic-ref --
 
 **Draft the notes.** Read the commits and their diffs and group them by theme rather than listing them mechanically, matching the section structure of recent releases. Draft a title in the voice of existing release titles, preserving any prefix convention. Where recent releases carry a section on what was and was not verified, write one honestly: name what was actually exercised and what was only inspected. Show version, title, and full body, and let the user edit.
 
+Length follows the same rule as structure -- the repo's own releases set it, and are matched even where they run long. Where there is nothing to match, on a first release or against past notes too inconsistent to read a convention from, the default is one sentence of context, then one line per grouped item, plus the verification section where it applies and the changelog link below.
+
 **Close with the changelog range.** End the body with a compare link from the previous tag to the new one, matching the form recent releases use -- typically `**Full Changelog**: <compare-url>` as the last line. The previous tag is the one the version was inferred against, so the range covers exactly the commits described above it. Derive the base URL from `git remote get-url origin`, converting an SSH remote (`git@host:owner/repo.git`) to `https://host/owner/repo`, then build the path for the host:
 
 | Host | Compare URL |

@@ -75,7 +75,9 @@ The repo's written rules outrank your judgement, in both directions. A rule the 
 
 Every finding carries the code it rests on, quoted from the worktree rather than described: the lines it names, and each further site the claim depends on -- the caller that breaks, the definition that contradicts it, the test that would still pass. Each block is fenced with the file's language and labelled `<file>:<line-range>` -- in that language's comment syntax on the first line inside the fence, or on the line above it where the language has no comments -- and holds only lines actually read. Where the evidence is an absence -- no caller, no test, no handler -- name what was searched and what came back, since there is nothing to quote.
 
-Number every finding and never reuse a number -- numbers are how the user selects what to post. State the issue in one sentence and name its concrete consequence: what breaks, under what condition. A finding with no consequence to name is dropped, not demoted. Anchor only to lines you have read, and to the whole range where the evidence block spans one rather than to its first line -- clipped to what the diff carries, since a host rejects an anchor reaching outside it, and the part left over stays in the body as a quote. A finding with no anchor is written without one.
+Number every finding and never reuse a number -- numbers are how the user selects what to post. State the issue in one sentence and name its concrete consequence: what breaks, under what condition.
+
+Every finding's prose totals at most two sentences, counted across all of its blocks: what breaks and under what condition, plus at most one more where a second quote needs saying what it establishes. Quoted code does not count against that -- it is the fastest part of a finding to read, and the part the two sentences rest on. A finding with no consequence to name is dropped, not demoted. Anchor only to lines you have read, and to the whole range where the evidence block spans one rather than to its first line -- clipped to what the diff carries, since a host rejects an anchor reaching outside it, and the part left over stays in the body as a quote. A finding with no anchor is written without one.
 
 Write each summary line once, in the voice below: posting reuses it verbatim. Labels follow [Conventional Comments](https://conventionalcomments.org/), and the section decides which are available and what decoration follows:
 
@@ -109,14 +111,14 @@ A finding the repository could not settle routes by consequence like any other: 
    <the lines the finding names, as they stand in the worktree>
    ```
 
-   <correctness, security, data loss, or breakage, and its consequence>
+   <correctness, security, data loss, or breakage, and its consequence -- one sentence>
 
    ```<lang>
    <comment> <other-file>:<line-range>
    <the further site the claim depends on: the caller, the definition, the stale test>
    ```
 
-   <what that site establishes -- why the quoted code makes the consequence follow>
+   <what that site establishes -- one sentence, and the second of the two>
 
 2. issue (blocking): <subject> -- `<file>:<line|line-range>`
 
@@ -125,7 +127,7 @@ A finding the repository could not settle routes by consequence like any other: 
    <the lines the finding names>
    ```
 
-   <unsettled: what must hold, what breaks if it does not, and what you checked to get this far>
+   <unsettled: what must hold, what breaks if it does not, and what you checked to get this far -- two sentences>
 
 ### Could change
 
@@ -136,7 +138,7 @@ A finding the repository could not settle routes by consequence like any other: 
    <the lines the finding names>
    ```
 
-   <improvement the author may decline, and what it buys>
+   <improvement the author may decline, and what it buys -- two sentences at most>
 
 ### Verdict
 
@@ -176,6 +178,8 @@ Never invent a line number, file path, quoted line, or consequence. Never claim 
 **Evidence violation:** a finding whose claim rests on code it does not quote, or a quote reconstructed from the diff rather than read out of the worktree. Paraphrasing a caller as "the caller ignores the error" without the caller's own lines beside it is a violation; quoting them, or naming the search that found no caller at all, is the finding.
 
 **Numbering violation:** a finding written without a number, or a number reused for a different finding, must be corrected before the report is shown.
+
+**Length violation:** a finding carrying more than two sentences of prose, in the report or in what goes up to the forge, or a Verdict past two sentences. Quoted code is exempt and never trimmed to make room. A finding needing a third sentence to be believed is one whose evidence is doing too little: quote the site the argument would have described, and cut the argument.
 
 **Scope violation:** submitting, posting, replying, approving, or revoking without an explicit user instruction naming the action. "Review this PR" is never such an instruction, and neither is a report whose Verdict reads approve; "post 2 and 5", "submit the review", and "approve it" are.
 

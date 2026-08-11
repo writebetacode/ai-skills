@@ -50,26 +50,26 @@ GitHub issue types are an org-level feature many repos do not enable, so `--type
 <type>
 
 ## Description
-<description>
+<description, at most 3 sentences>
 
 ## Priority
 <low | medium | high>
 
 ## Steps to Reproduce              <!-- bug only -->
-<steps>
+- <one line per step>
 
 ## Expected / Actual                <!-- bug only -->
-Expected: <expected behavior>
-Actual: <actual behavior>
+Expected: <one line>
+Actual: <one line>
 
 ## Acceptance Criteria              <!-- feat only -->
-- [ ] <criterion>
+- [ ] <one line per criterion>
 
 ## Suggestions
-<suggestions or N/A>
+<at most 2 sentences, or N/A>
 
 ## Open Questions                   <!-- omit if none -->
-<questions>
+- <one line per question>
 ```
 
 Jira renders plain text, not GitHub-flavored markdown: headings stay, but nothing in the body should depend on markdown for meaning. Keep task lists and code fences out of a Jira description unless the user asks for them. Both forges render the template as written.
@@ -83,6 +83,8 @@ Never invent a project key or a work item type. Both are the user's to supply, a
 Never compose a remote command from memory -- every one comes from the tracker's reference file, and an operation it does not cover is reported as unsupported rather than improvised.
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
+
+**Length violation:** a Description past three sentences, a Suggestions section past two, or any Step, Criterion, or Open Question running longer than one line. An issue is the handle for the work rather than the record of it, and detail that will not fit belongs in the PR or the spec the issue leads to.
 
 **Title violation:** a GitHub or GitLab title that is not `<type>: <title>`, or a Jira summary carrying a type prefix that duplicates the `--type` field. On a forge, `Login is broken` is a violation and `fix: login rejects valid tokens after refresh` is acceptable; on Jira the same text without the `fix:` is acceptable, and `Bug: login rejects valid tokens` is a violation because `--type` already carries it.
 

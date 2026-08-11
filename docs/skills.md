@@ -22,6 +22,10 @@ Those written-out rules cover structure, and they deliberately leave prose unwra
 
 Bodies bound for a forge instead of a file — PR descriptions, issue bodies, release notes — are exempt, since nothing lints them and their templates are already shaped correctly.
 
+Everything these skills put in front of a person is capped, because the reader is skimming and the writer is not. A PR Summary gets two sentences — it absorbed the old `## Why` section — and its Changes list gets ten one-line bullets. A review finding gets two sentences of prose on top of the code it quotes, and those same two are what go up to the forge and into any reply on the thread. An issue Description gets three sentences, with one line for each step, criterion, and open question. Quoted code is exempt wherever it appears: it is the fastest part of a finding to read, and trimming it only pushes the argument back into prose. `/remote-release` is capped differently, because your repo's own release history sets length there as it already sets structure — the default of a one-sentence intro over one-line items applies only where there is no history to match.
+
+Two things sit outside all of that. `/sdlc-design`'s specs, plans, task files, ADRs, and research notes are reference documents someone opens for the detail, and they stay as long as they need to be. `/human-writer` is the general case pulled out on its own: it settles who reads a piece, what they already know, and what they do next, then drafts or cuts to a budget — five sentences for a summary, five lines for a message, no cap for a doc someone returns to. It refuses to tighten the SDLC artifacts for the same reason they are exempt here, and it hands back what it dropped rather than the shorter text alone.
+
 Backends are chosen differently depending on what they are attached to. A forge follows the code, so `/pr`, `/pr-review`, and `/remote-release` read it off the `origin` remote. A tracker does not — a repo on GitHub may track work in Jira — so `/remote-issue` asks, offering the forge matching `origin` as a default to confirm rather than a decision already made.
 
 ## Why the long skills stay in one file
@@ -42,11 +46,11 @@ It names the head explicitly rather than letting the CLI default to whatever is 
 
 The body it writes is wrapped in `<!-- pr-body:start -->` / `<!-- pr-body:end -->`. On update it rewrites only what sits between those markers. Everything outside is preserved byte-for-byte where it sits: reviewer-bot summaries, other tooling's generated blocks, and anything you typed yourself.
 
-The ownership runs both ways: the skill also writes nothing of its own outside the markers, on create or on update. A trailing `## Notes for Reviewers` section, or any other commentary aimed at the reviewer, is off-limits — what would go in one goes in Summary or Why. One left there by a teammate or a bot is preserved like any other outside content.
+The ownership runs both ways: the skill also writes nothing of its own outside the markers, on create or on update. A trailing `## Notes for Reviewers` section, or any other commentary aimed at the reviewer, is off-limits — what would go in one goes in Summary. One left there by a teammate or a bot is preserved like any other outside content.
 
 The rule is positional, not name-based — content survives because of where it is, not because the skill recognized it. Markers are matched on the token alone, so spacing changed in transit does not break recognition, and `mr-body:*` is accepted as a legacy equivalent and rewritten to the canonical form.
 
-If the markers are gone entirely — Markdown pipelines do strip HTML comments — the skill finds the contiguous run of `Tickets`, `Summary`, `Why`, `Changes` and replaces that in place instead. It inserts a fresh body at the top only when no template-shaped run exists anywhere, which is what stops a lost marker from producing two bodies.
+If the markers are gone entirely — Markdown pipelines do strip HTML comments — the skill finds the contiguous run of `Tickets`, `Summary`, `Changes` — plus a `Why` section left by an earlier version of the template — and replaces that run in place instead. It inserts a fresh body at the top only when no template-shaped run exists anywhere, which is what stops a lost marker from producing two bodies.
 
 ## `/pr-review` separates reviewing from posting
 
