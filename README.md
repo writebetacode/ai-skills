@@ -24,7 +24,6 @@ Everything is symlinked into `~/.claude` and `~/.gemini`, so edits in the repo t
 | `/remote-issue` | File a GitHub or GitLab issue, or a Jira work item |
 | `/remote-release` | Tag the default branch and publish a release, with notes drafted from history |
 | `/skill-write` | Author or revise any file under `skills/` or `agents/` in this repo, including the reference files and templates beside them |
-| `/human-writer` | Draft or tighten writing someone else has to read -- messages, updates, summaries, documentation -- against a named audience, a length budget, and a tone that stays neutral |
 
 The four forge skills each drive every backend they support from one skill body, reading the chosen CLI's command reference on demand and running it in your own session. [Skill behaviour](docs/skills.md) covers what that means in practice, and the handful of behaviours that surprise people.
 
