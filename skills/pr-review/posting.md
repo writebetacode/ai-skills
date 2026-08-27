@@ -4,7 +4,7 @@ Read on entering either mode from the Workflow in `SKILL.md`. Host resolution, t
 
 ## Submit
 
-Two ways in. A submit run sends every finding at once; a later request naming findings -- "post 2 and 5", "send the should-changes" -- sends only those, and an ambiguous selection is asked about before anything goes up. What goes up is findings and the Verdict; the report's Further review section stays behind in the file, per the Further review violation in `SKILL.md`. A finding marked `(also raised in thread <id>)` is held back too and named as held, since the point already has a thread -- it goes up only where the request names its number.
+Two ways in. A submit run sends every finding at once; a later request naming findings -- "post 2 and 5", "send the should-changes" -- sends only those, and an ambiguous selection is asked about before anything goes up. What goes up is findings and the Verdict; the report's Further review and Withdrawn in audit sections stay behind in the file, per the Further review and Withdrawal violations in `SKILL.md`. A finding marked `(also raised in thread <id>)` is held back too and named as held, since the point already has a thread -- it goes up only where the request names its number.
 
 Compare the section's SHA against the current head first. If they differ the author has pushed since, and every anchor and quoted line must be re-read against the new diff, in the checkout the review left standing once it is moved to the new head, before anything goes up: a stale head is refused rather than relocating a comment onto whatever now sits at that line.
 

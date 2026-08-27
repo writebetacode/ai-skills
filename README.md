@@ -20,7 +20,7 @@ Everything is symlinked into `~/.claude` and `~/.gemini`, so edits in the repo t
 | --- | --- |
 | `/commit` | Conventional commit from exactly what is staged, with no confirmation step |
 | `/pr` | Open or update a PR/MR with a structured description; move one between draft and ready |
-| `/pr-review` | Review a PR/MR into a numbered local report, then optionally post it as one review |
+| `/pr-review` | Review a PR/MR into a numbered local report, audited by a cold-context third party before you see it, then optionally post it as one review |
 | `/remote-issue` | File a GitHub or GitLab issue, or a Jira work item |
 | `/remote-release` | Tag the default branch and publish a release, with notes drafted from history |
 | `/skill-write` | Author or revise any file under `skills/` or `agents/` in this repo, including the reference files and templates beside them |
