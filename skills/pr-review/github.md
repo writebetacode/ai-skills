@@ -1,8 +1,8 @@
 # GitHub Commands
 
-Read when the forge resolves to GitHub. The suggestion fence, the verdict mapping, finding numbering, and the Voice rules are already loaded from `SKILL.md` and are not repeated here.
+Read when the forge resolves to GitHub. The verdict mapping, finding numbering, and the Voice rules are already loaded from `SKILL.md` and are not repeated here.
 
-Every comment body travels as a file path -- the summary line, the anchor, and any suggestion block have to arrive byte-exact, so write each body to a temp file outside the repo and let `--body-file` or `@<path>` pass the bytes.
+Every comment body travels as a file path -- the summary line, the ask, the anchor, and any quote have to arrive byte-exact, so write each body to a temp file outside the repo and let `--body-file` or `@<path>` pass the bytes.
 
 | Operation | Command |
 | --- | --- |
@@ -12,6 +12,7 @@ Every comment body travels as a file path -- the summary line, the anchor, and a
 | `diff` | `gh pr diff <id>` |
 | `fetch-ref` | `git fetch origin refs/pull/<n>/head` |
 | `threads` | `gh pr view <id> --comments` |
+| `comment-list` | `gh api repos/{owner}/{repo}/issues/<n>/comments --jq '.[] \| {id,user:.user.login,html_url,body}'` |
 | `thread-list` | `gh api repos/{owner}/{repo}/pulls/<n>/comments --jq '.[] \| {id,path,line,in_reply_to_id,user:.user.login,body}'` |
 | `reply` | `gh api --method POST repos/{owner}/{repo}/pulls/<n>/comments/<comment-id>/replies -F body=@<body-file>` |
 | `comment` | see anchoring below |
@@ -43,7 +44,7 @@ gh api repos/{owner}/{repo}/pulls/<n>/comments \
 
 Comments post immediately, each its own thread, with no CLI-side double-post guard. A stale `commit_id` is rejected rather than relocated: if `<head-sha>` is not the PR's current `headRefOid`, stop and report rather than posting, since the anchors were read against a diff that is no longer current.
 
-`reply` has no `gh` subcommand and its endpoint is transcribed from the REST reference rather than from `gh --help`; report the API's own error verbatim rather than substituting a path that looks close. That same reference, rather than an observed run, is the source for two behaviours stated elsewhere in this file -- a stale `commit_id` being rejected instead of relocated, above, and one bad entry failing an entire batched review, under Batched Review -- since neither can be exercised without posting to a real PR. Report what the API actually returns if either differs, and never retry around it. That listing carries no resolution state -- resolved and unresolved threads are a GraphQL concept on GitHub -- so report the state as unavailable rather than inferring it.
+`reply` has no `gh` subcommand and its endpoint is transcribed from the REST reference rather than from `gh --help`; report the API's own error verbatim rather than substituting a path that looks close. That same reference, rather than an observed run, is the source for two behaviours stated elsewhere in this file -- a stale `commit_id` being rejected instead of relocated, above, and one bad entry failing an entire batched review, under Batched Review -- since neither can be exercised without posting to a real PR. Report what the API actually returns if either differs, and never retry around it. `reply` takes the id of a thread's first comment -- the entry `thread-list` returns with a null `in_reply_to_id` -- per that same reference. `comment-list` returns the PR's general conversation comments, which have no reply endpoint, so a finding linked to one is linked by its `html_url` rather than threaded; the endpoint was confirmed against `gh` 2.100.0 on a read. The review-comment listing carries no resolution state -- resolved and unresolved threads are a GraphQL concept on GitHub -- so report the state as unavailable rather than inferring it.
 
 ## Batched Review
 
@@ -65,7 +66,7 @@ gh api --method POST repos/{owner}/{repo}/pulls/<n>/reviews --input <json-file>
 }
 ```
 
-`--input` is the one path where a body does not travel as a file: it goes inside a JSON string. Bodies carry newlines, backticks, fenced evidence, and sometimes a suggestion block, so build that file with `jq --rawfile`, one per body, and never type a body into the JSON by hand:
+`--input` is the one path where a body does not travel as a file: it goes inside a JSON string. Bodies carry newlines, backticks, and sometimes a fenced quote, so build that file with `jq --rawfile`, one per body, and never type a body into the JSON by hand:
 
 ```sh
 jq -n --rawfile summary <summary-file> --rawfile b2 <body-file-2> \

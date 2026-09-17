@@ -1,8 +1,8 @@
 # GitLab Commands
 
-Read when the forge resolves to GitLab. The suggestion fence, the verdict mapping, finding numbering, and the Voice rules are already loaded from `SKILL.md` and are not repeated here.
+Read when the forge resolves to GitLab. The verdict mapping, finding numbering, and the Voice rules are already loaded from `SKILL.md` and are not repeated here.
 
-Every comment body travels as a file path -- the summary line, the anchor, and any suggestion block have to arrive byte-exact, so write each body to a temp file outside the repo and let stdin redirection pass the bytes.
+Every comment body travels as a file path -- the summary line, the ask, the anchor, and any quote have to arrive byte-exact, so write each body to a temp file outside the repo and let stdin redirection pass the bytes.
 
 | Operation | Command |
 | --- | --- |
@@ -12,6 +12,7 @@ Every comment body travels as a file path -- the summary line, the anchor, and a
 | `diff` | `glab mr diff <id> --raw` |
 | `fetch-ref` | `git fetch origin refs/merge-requests/<iid>/head` |
 | `threads` | `glab mr view <id> --comments` |
+| `comment-list` | `glab mr note list <id> --type general --output json` |
 | `thread-list` | `glab mr note list <id> --type diff --output json`, plus `--state unresolved` or `--file <path>` when asked |
 | `reply` | `glab mr note create <id> --reply <discussion-id> < <body-file>` |
 | `comment` | see anchoring below |
@@ -32,7 +33,7 @@ glab mr note create <id> < body.md                               # no file ancho
 
 ## Flags That Bite
 
-`glab mr note` and every one of its subcommands are marked EXPERIMENTAL by the CLI, so report the tool's own error verbatim when one fails rather than reaching for a flag that looks close. On `note list`, `-F` is `--output` and pairs with `--jq`; `--state` takes `all`, `resolved`, or `unresolved`, and `--type` takes `all`, `general`, `diff`, or `system`. `--reply` accepts a full discussion ID or a prefix of at least 8 characters, and passing a shorter one is an error to report rather than a prefix to pad. `--line` takes a single number or a range written `10:15`.
+`glab mr note` and every one of its subcommands are marked EXPERIMENTAL by the CLI, so report the tool's own error verbatim when one fails rather than reaching for a flag that looks close. On `note list`, `-F` is `--output` and pairs with `--jq`; `--state` takes `all`, `resolved`, or `unresolved`, and `--type` takes `all`, `general`, `diff`, or `system`. Each discussion object's `id` is the full discussion ID, and general discussions take a `reply` the same as diff ones, so a finding linked to either replies in place. `--reply` accepts a full discussion ID or a prefix of at least 8 characters, and passing a shorter one is an error to report rather than a prefix to pad. `--line` takes a single number or a range written `10:15`.
 
 `refs/merge-requests/<iid>/head` is served by the project itself and is the MR's own head commit, so an MR from a fork fetches through `origin` with no fork remote added. That namespace is transcribed from GitLab's published reference rather than from a CLI, so a fetch that fails reports git's own error and stops the run; never guess a neighbouring ref name.
 
