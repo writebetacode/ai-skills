@@ -2,7 +2,7 @@
 
 Read when the forge resolves to GitHub. The verdict mapping, finding numbering, and the Voice rules are already loaded from `SKILL.md` and are not repeated here.
 
-Every comment body travels as a file path -- the summary line, the ask, the anchor, and any quote have to arrive byte-exact, so write each body to a temp file outside the repo and let `--body-file` or `@<path>` pass the bytes.
+Write each comment body to a temp file outside the repo and let `--body-file` or `@<path>` pass the bytes.
 
 | Operation | Command |
 | --- | --- |
@@ -17,9 +17,7 @@ Every comment body travels as a file path -- the summary line, the ask, the anch
 | `reply` | `gh api --method POST repos/{owner}/{repo}/pulls/<n>/comments/<comment-id>/replies -F body=@<body-file>` |
 | `comment` | see anchoring below |
 | `review-batch` | see Batched Review below |
-| `approve` | `gh pr review <id> --approve --body-file <body-file>` |
-| `request-changes` | `gh pr review <id> --request-changes --body-file <body-file>` |
-| `review-comment` | `gh pr review <id> --comment --body-file <body-file>` |
+| `approve` | `gh pr review <id> --approve` |
 | `revoke` | no CLI equivalent -- see Dismissal below |
 
 Anchored comments have no first-class command and go through the API. `commit_id` is required and must be the head SHA that was read:
@@ -29,14 +27,13 @@ Anchored comments have no first-class command and go through the API. `commit_id
 gh api repos/{owner}/{repo}/pulls/<n>/comments \
   -f commit_id=<head-sha> -f path=<path> -F line=<n> -f side=RIGHT -F body=@<body-file>
 
-# multi-line range: add -F start_line=<n> -f start_side=RIGHT
 # whole file:       drop line/side, add -f subject_type=file
 # no file anchor:   gh pr comment <id> --body-file <body-file>
 ```
 
 ## Flags That Bite
 
-`{owner}` and `{repo}` are placeholders `gh api` fills from the working directory -- pass them literally. `-F` types its value and reads from a file when it starts with `@`; `-f` is always a raw string. So `line` and `start_line` take `-F`, `side` takes `-f`.
+`{owner}` and `{repo}` are placeholders `gh api` fills from the working directory -- pass them literally. `-F` types its value and reads from a file when it starts with `@`; `-f` is always a raw string. So `line` takes `-F`, `side` takes `-f`. Every comment is anchored to one line, so `start_line` and `start_side` are never passed.
 
 `gh pr diff` has no `--raw`; plain is the unified diff. `--json` fields are camelCase and the head SHA is `headRefOid`.
 
@@ -48,7 +45,7 @@ Comments post immediately, each its own thread, with no CLI-side double-post gua
 
 ## Batched Review
 
-One review carrying every inline comment and the verdict, in a single call:
+One review carrying every anchored comment and the verdict, in a single call, with no `body`:
 
 ```sh
 gh api --method POST repos/{owner}/{repo}/pulls/<n>/reviews --input <json-file>
@@ -58,10 +55,8 @@ gh api --method POST repos/{owner}/{repo}/pulls/<n>/reviews --input <json-file>
 {
   "commit_id": "<head-sha>",
   "event": "APPROVE | REQUEST_CHANGES | COMMENT",
-  "body": "<summary>",
   "comments": [
-    {"path": "<path>", "line": 12, "side": "RIGHT", "body": "<text>"},
-    {"path": "<path>", "start_line": 10, "start_side": "RIGHT", "line": 12, "side": "RIGHT", "body": "<text>"}
+    {"path": "<path>", "line": 12, "side": "RIGHT", "body": "<text>"}
   ]
 }
 ```
@@ -69,14 +64,14 @@ gh api --method POST repos/{owner}/{repo}/pulls/<n>/reviews --input <json-file>
 `--input` is the one path where a body does not travel as a file: it goes inside a JSON string. Bodies carry newlines, backticks, and sometimes a fenced quote, so build that file with `jq --rawfile`, one per body, and never type a body into the JSON by hand:
 
 ```sh
-jq -n --rawfile summary <summary-file> --rawfile b2 <body-file-2> \
-  '{commit_id:"<head-sha>", event:"COMMENT", body:$summary,
+jq -n --rawfile b2 <body-file-2> \
+  '{commit_id:"<head-sha>", event:"COMMENT",
     comments:[{path:"<path>", line:12, side:"RIGHT", body:$b2}]}' > <json-file>
 ```
 
 `--rawfile` reads the file as one string and escapes it, so what arrives is the file's bytes -- checked byte-for-byte through jq 1.8.2 on a body carrying a fence, a tab, and embedded double quotes. Where `jq` is absent, say so and post the findings one at a time with `comment` rather than hand-escaping the payload.
 
-Every entry in `comments[]` needs a path and a line: `subject_type=file` is not accepted here, so a file-level or unanchored finding belongs in `body`. One rejected entry fails the whole review -- report it and stop, never resubmit without the offending comment, since a review missing a finding the report listed is not the review that was ordered.
+Every entry in `comments[]` needs a path and a line: `subject_type=file` is not accepted here, so a file-level or unanchored finding posts on its own through `comment` once the review has landed, never in `body`. The REST reference lists `body` as required for `REQUEST_CHANGES` and `COMMENT`, and whether a non-empty `comments[]` satisfies that has not been exercised against a real PR: where the API rejects the missing body, report its error and stop, and never add a summary to get past it. One rejected entry fails the whole review -- report it and stop, never resubmit without the offending comment, since a review missing a finding the report listed is not the review that was ordered.
 
 ## Dismissal
 
