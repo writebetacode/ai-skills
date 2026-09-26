@@ -61,7 +61,7 @@ Prompting every time:
 | Rule | Why |
 | --- | --- |
 | `git branch -d`, `git branch -D` | prompts per branch even though `git branch *` is allowed; backs up `/sdlc-complete`'s own confirmation |
-| `gh pr review`, `gh pr comment`, `glab mr note create`, `glab mr approve`, `glab mr revoke` | outward-facing and attributed to your account |
+| `gh pr review`, `glab mr approve`, `glab mr revoke` | set a review verdict attributed to your account |
 | `gh pr close/reopen`, `gh issue comment/edit/close/reopen`, `gh release edit/upload` | change the state of something that already exists |
 | `glab mr close/reopen`, `glab issue note/update/close/reopen`, `glab release upload` | the GitLab equivalents |
 | `acli jira workitem comment create/edit/transition/assign` | the Jira equivalents |
@@ -70,7 +70,7 @@ Allowed: read-only git and forge queries — including the `git merge-tree` chec
 
 `git worktree` is allowed whole, forcing form included. That is a deliberate loosening rather than an oversight: `git worktree remove --force` discards uncommitted work in a worktree with no reflog entry, and it used to sit in `ask` for exactly that reason. Nothing in this repo runs it — `/pr-review` forbids forcing outright, on the grounds that a worktree git refuses to remove is one something has written to — so the guard now rests on the skill rather than the harness. Put both `Bash(git worktree remove --force *)` and `Bash(git worktree remove -f *)` back into `ask` if you want the prompt.
 
-One asymmetry to know about: a blanket `Bash(gh api *)` sits in `allow` and covers GitHub's anchored-comment endpoint, so GitHub inline review comments do not prompt where GitLab's do. Narrow or remove that entry if you want them to match.
+Posting review comments does not prompt on either forge. `glab mr note create` and `gh pr comment` are allowed, and on GitHub the blanket `Bash(gh api *)` covers the batched review, anchored comments, and thread replies. The guard is `/pr-review`'s own rule that nothing posts without a request naming what to post. Approving and revoking still prompt. Put `Bash(glab mr note create *)` and `Bash(gh pr comment *)` back into `ask`, or narrow `Bash(gh api *)`, if you want a prompt per comment.
 
 ## Settings keys
 
