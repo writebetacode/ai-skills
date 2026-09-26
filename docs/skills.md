@@ -42,6 +42,10 @@ Having the skill re-read the templates to confirm they are current does not resc
 
 It names the head explicitly rather than letting the CLI default to whatever is checked out, which is what keeps a stacked run from opening a PR off the wrong sibling branch — but it also costs `gh` the prompt it would otherwise raise to push an unpushed branch. So the skill pushes itself: it compares the head against `git ls-remote --heads origin` and runs `git push -u origin <head>` when the remote is missing the branch or sitting behind it, since a create against an absent head fails and an update against a stale one describes commits the reviewer cannot see. It never forces — a non-fast-forward refusal means the remote has commits you do not, and that is reported rather than overwritten.
 
+## `/pr` titles follow Conventional Commits
+
+A title reads `<type>(<ticket>): <description>`, using the same types `/commit` does, with the ticket the body's Tickets section links as the scope: `fix(PROJ-123): refresh auth tokens on expired sessions`, or `fix(#42): ...` for an issue on the forge itself. With no ticket the scope is dropped rather than filled with a component name, so `feat: add retry to webhook delivery` is the whole title. An update redrafts the title against the branch as it now stands, so a PR opened under an older free-text title picks the format up the next time `/pr` touches it.
+
 ## `/pr` owns part of the description, not all of it
 
 The body it writes is wrapped in `<!-- pr-body:start -->` / `<!-- pr-body:end -->`. On update it rewrites only what sits between those markers. Everything outside is preserved byte-for-byte where it sits: reviewer-bot summaries, other tooling's generated blocks, and anything you typed yourself.
