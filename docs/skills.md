@@ -52,7 +52,7 @@ The ownership runs both ways: the skill also writes nothing of its own outside t
 
 The rule is positional, not name-based — content survives because of where it is, not because the skill recognized it. Markers are matched on the token alone, so spacing changed in transit does not break recognition, and `mr-body:*` is accepted as a legacy equivalent and rewritten to the canonical form.
 
-If the markers are gone entirely — Markdown pipelines do strip HTML comments — the skill finds the contiguous run of `Tickets`, `Summary`, `Changes` — plus a `Why` section left by an earlier version of the template — and replaces that run in place instead. It inserts a fresh body at the top only when no template-shaped run exists anywhere, which is what stops a lost marker from producing two bodies.
+If the markers are gone entirely — Markdown pipelines do strip HTML comments — the skill finds the contiguous run of `Tickets`, `Summary`, `Changes` — plus any `Why`, `Breaking Changes`, or `Dependencies` section left by an earlier version of the template — and replaces that run in place instead. It inserts a fresh body at the top only when no template-shaped run exists anywhere, which is what stops a lost marker from producing two bodies.
 
 ## `/pr-review` separates reviewing from posting
 
