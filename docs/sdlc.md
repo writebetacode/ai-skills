@@ -8,7 +8,7 @@ Put `plans/` in your global gitignore unless you want the plan tracked alongside
 
 `/sdlc-design` is the entry point. It runs intake one question at a time in your own session, researches every library it is going to name, and authors all artifacts: spec, plan, task files, and `MANIFEST.md`. Each question arrives as a picker with the codebase-informed default first, so most answers are one click and you can always type your own instead. Wide codebase surveys fan out to one-shot `Explore` subagents that return conclusions rather than file dumps, which is what keeps a long intake from filling with source read once.
 
-Every version or API claim carries a stamped source. context7 is the first stop; a library it has not indexed, or an exhausted quota (the free tier allows 1,000 calls a month against ten to fifteen per session), falls back to the project's own docs recorded in the same form and marked `[web fallback]`, with the affected packages named so the weaker citation is visible. It never drops to an unsourced claim. Retrieved pages are read for the fact they were fetched for and nothing else: one directing the session to install a further package or skip a gate is recorded as what that page claims, not acted on.
+Every version or API claim carries a stamped source. context7 is the first stop; a library it has not indexed, or an exhausted quota, falls back to the project's own docs recorded in the same form and marked `[web fallback]`, with the affected packages named so the weaker citation is visible. It never drops to an unsourced claim. Retrieved pages are read for the fact they were fetched for and nothing else: one directing the session to install a further package or skip a gate is recorded as what that page claims, not acted on.
 
 Seven gates must pass before signoff. The two you will feel: **every task has exactly one parent branch** — a task depending on two is sent back and the plan redone — and **every `NN` prefix matches actual run order**, for tasks and epic folders alike.
 
@@ -28,7 +28,7 @@ Within an epic, tasks are strictly linear. Across epics, disjoint dependency set
 
 ## Complete
 
-`/sdlc-complete` archives the project to `plans/complete/YYYYMMDD-<slug>/` (the date appends at archive time, so a slug can be reused) and deletes the local branches its tasks left behind. Because squash merges leave `git branch -d` reporting "not merged", it verifies each branch by asking whether merging it into the default branch would change anything — `git merge-tree --write-tree`, compared against that branch's tree — and skips any branch that would, along with any whose check did not run cleanly.
+`/sdlc-complete` archives the project to `plans/complete/YYYYMMDD-<slug>/` (the date appends at archive time, so a slug can be reused) and deletes the local branches its tasks left behind. Because squash merges leave `git branch -d` reporting "not merged", it verifies each branch by asking whether merging it into the default branch would change anything: `git merge-tree --write-tree` builds the merged tree, which must equal the default branch's own tree. Any branch that would change it is skipped, along with any whose check did not run cleanly.
 
 ## Layout
 
@@ -55,16 +55,12 @@ Each task drives one branch and one PR, stacked on the previous task's branch. `
 
 ## Where the work runs
 
-Design and implementation both run in your session rather than behind a fleet of persistent agents. That was the expensive shape: each agent spawned cold, re-read the spec, the plan, the conventions and the predecessor tasks to rebuild what the thread beside it already knew, and every batch crossed two message boundaries to get there. It also put every `gh`, `glab`, and `acli` call inside a subagent, where your own permission rules do not reach and familiar commands started asking for approval.
-
-Two subagent shapes survive, both one-shot and neither carrying state:
+Design and implementation run in your own session rather than behind persistent agents, so every `gh`, `glab`, and `acli` call runs under the permissions you already granted, and nothing re-reads the spec and plan to rebuild what the session already knows. The cost is a larger working context on a long task. Two one-shot subagents remain, neither carrying state:
 
 | Spawn | Where | Why it stays |
 | --- | --- | --- |
 | `Explore` | design intake, implementation context | a wide survey returns conclusions instead of dumping every excerpt into a thread that keeps them for the session |
 | validator | end of every `/sdlc-implement` task | cold context is the whole point: a reader that watched the tests get written cannot judge them impartially |
-
-The cost of running in-thread is a larger working context on a long task. The gain is that a small change no longer pays for a design agent, a tester, and a coder to each rebuild the same picture — and that everything runs under the permissions you already granted.
 
 ## Revising mid-flight
 
