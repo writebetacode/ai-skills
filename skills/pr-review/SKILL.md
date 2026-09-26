@@ -108,7 +108,7 @@ An unwritten convention counts when the repo visibly does a thing one way (one r
 3. **Summary:** one paragraph of one to four sentences a newcomer can follow: what you saw, what breaks, and when, citing every site inline as `<file>:<line>` or `<file>:<line-range>` (`<repo>/` prefixed outside the worktree), each actually read in the worktree. For evidence of absence (no caller, test, or handler), name the search and its result. No consequence to name means drop it, not demote it.
 4. **Example:** `**Example:**` then one fenced block in the anchored file's language, at most eight lines, walking one realistic input through the cited code with each result as a comment. Realistic means the diff's own names and plausible values: an id shaped like the repo's, a real-looking date or email, an empty list, a duplicate row. Trace it by reading, not running, so each step follows from the cited lines. A `typo`'s example is the text as rendered.
 
-Anchor each finding, in the report and on the forge, to exactly one line you have read and the diff carries (a host rejects an anchor outside it): the one the claim is most about. Cite other lines in the summary, since GitLab quotes every anchored line into the thread. An older report's range anchor posts on its most relevant line. Unanchored findings are written without one.
+Anchor each finding, in the report and on the forge, to exactly one line you have read and the diff carries (a host rejects an anchor outside it): the one the claim is most about. Cite other lines in the summary, since GitLab quotes every anchored line into the thread. Unanchored findings are written without one.
 
 Write all four parts once, in the Voice below; posting reuses them verbatim. Labels follow [Conventional Comments](https://conventionalcomments.org/):
 
@@ -175,8 +175,6 @@ A re-review rewrites the file in place:
 - Re-read each active finding against the new head, updating moved references. One the head fixes moves to Resolved as `Fixed in <short-sha>` with its number and any thread id.
 - Add new findings after the active ones.
 - Mark `(linked to thread <id>)` or `(linked to comment <url>)` where a finding joins a conversation, and `(posted <YYYY-MM-DD>, thread <id>)` when a post succeeds.
-- Read the older `(also raised in thread <id>)` as `(linked to thread <id>)`.
-- Rewrite an older layout (a section per SHA, findings as a numbered list, ` -- ` between label and anchor, `(resolved in ...)` or `(settled in thread)` in place, a Further review or Verdict section) into this one, keeping every number and reporting every Further review entry back.
 
 ## Audit
 
@@ -258,7 +256,9 @@ Approve and revoke run only on explicit request, pinned to the head SHA you read
 
 **Example violation:** no example, or one using placeholder data, quoting the cited lines back instead of walking an input through them, or showing the code after a fix. `process(foo) // -> error` and a block repeating the anchored lines are violations; `parseDueDate("2024-02-30") // -> 2024-03-01, no error raised`, beside a summary saying invalid dates roll over, is acceptable.
 
-**Numbering violation:** a finding without a `## [N]` heading, written as a list item, or with a number reused or changed after writing. Fix it before showing the report.
+**Numbering violation:** a finding this run writes without a `## [N]` heading or as a list item, or any number reused or changed after writing. Fix it before showing the report.
+
+**Layout violation:** rewriting, reformatting, or posting from an existing report that doesn't match the template: findings not under `## [N]` headings, a section the template doesn't have, or a marker other than `(linked to thread <id>)`, `(linked to comment <url>)`, and `(posted <YYYY-MM-DD>, thread <id>)`. Leave the file untouched, name it and what doesn't match, and stop; the user decides what happens to it. A report that matches the template, `<!-- unaudited -->` line included, is re-reviewed, followed up, and posted from as usual.
 
 **Length violation:** a summary past one paragraph or four sentences, or an example past eight lines, in the report or on the forge; the ask doesn't count. If a fifth sentence is needed to be believed, cite the site the argument describes and cut the argument.
 

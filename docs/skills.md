@@ -42,7 +42,7 @@ It names the head explicitly rather than letting the CLI default to whatever is 
 
 ## `/pr` titles follow Conventional Commits
 
-A title reads `<type>(<ticket>): <description>`, using the same types `/commit` does, with the ticket the body's Tickets section links as the scope: `fix(PROJ-123): refresh auth tokens on expired sessions`, or `fix(#42): ...` for an issue on the forge itself. With no ticket the scope is dropped rather than filled with a component name, so `feat: add retry to webhook delivery` is the whole title. An update redrafts the title against the branch as it now stands, so a PR opened under an older free-text title picks the format up the next time `/pr` touches it. On GitLab that redraft leaves a draft MR a draft: GitLab stores draft state as a `Draft:` title prefix, which a bare `glab mr update --title` drops, so the comparison ignores the prefix and the title update carries `--draft` to keep it.
+A title reads `<type>(<ticket>): <description>`, using the same types `/commit` does, with the ticket the body's Tickets section links as the scope: `fix(PROJ-123): refresh auth tokens on expired sessions`, or `fix(#42): ...` for an issue on the forge itself. With no ticket the scope is dropped rather than filled with a component name, so `feat: add retry to webhook delivery` is the whole title. An update redrafts the title against the branch as it now stands. On GitLab that redraft leaves a draft MR a draft: GitLab stores draft state as a `Draft:` title prefix, which a bare `glab mr update --title` drops, so the comparison ignores the prefix and the title update carries `--draft` to keep it.
 
 ## `/pr` owns part of the description, not all of it
 
@@ -50,9 +50,9 @@ The body it writes is wrapped in `<!-- pr-body:start -->` / `<!-- pr-body:end --
 
 The ownership runs both ways: the skill also writes nothing of its own outside the markers, on create or on update. A trailing `## Notes for Reviewers` section, or any other commentary aimed at the reviewer, is off-limits — what would go in one goes in Summary. One left there by a teammate or a bot is preserved like any other outside content.
 
-The rule is positional, not name-based — content survives because of where it is, not because the skill recognized it. Markers are matched on the token alone, so spacing changed in transit does not break recognition, and `mr-body:*` is accepted as a legacy equivalent and rewritten to the canonical form.
+The rule is positional, not name-based — content survives because of where it is, not because the skill recognized it. Markers are matched on the token alone, so spacing changed in transit does not break recognition.
 
-If the markers are gone entirely — Markdown pipelines do strip HTML comments — the skill finds the contiguous run of `Tickets`, `Summary`, `Changes` — plus any `Why`, `Breaking Changes`, or `Dependencies` section left by an earlier version of the template — and replaces that run in place instead. It inserts a fresh body at the top only when no template-shaped run exists anywhere, which is what stops a lost marker from producing two bodies.
+If the markers are gone entirely — Markdown pipelines do strip HTML comments — the skill finds the contiguous run of `Tickets`, `Summary`, and `Changes` and replaces that run in place instead. It inserts a fresh body at the top only when no template-shaped run exists anywhere, which is what stops a lost marker from producing two bodies.
 
 ## `/pr-review` separates reviewing from posting
 
@@ -64,7 +64,7 @@ The review follows the change past the files it touches: call sites of a changed
 
 A finding has to trace to the change and be backed by the code it cites. It is phrased as a question and never proposes a fix, so the skill posts no suggestion blocks. How the code is written is not a finding unless the repo's written rules say so, or the repo already does the same job another way at two or more existing sites. Your `CONTRIBUTING.md`, `CLAUDE.md`, and similar files move the bar in both directions, with two exceptions: rules your linter already enforces are left to CI, and a guideline file the PR itself edits is reviewed rather than obeyed, so a fork cannot relax the rules it is judged by.
 
-Each finding is its own `## [N]` heading anchored to a single line, because GitLab quotes every anchored line into the thread. Numbers never change and are never reused: a fixed finding moves to Resolved with its number, which keeps "post 3" and the marker on an already-posted comment pointing at the same finding. A re-review rewrites the file in place.
+Each finding is its own `## [N]` heading anchored to a single line, because GitLab quotes every anchored line into the thread. Numbers never change and are never reused: a fixed finding moves to Resolved with its number, which keeps "post 3" and the marker on an already-posted comment pointing at the same finding. A re-review rewrites the file in place, but only a file in the current layout: a report in any other shape is never rewritten or posted from, so an older review keeps its history exactly as written, and the skill tells you what doesn't match and stops.
 
 Existing review comments are read last, once the findings are settled, so the review is an independent reading rather than a response to someone else's. A comment making the same point as a finding is linked to it, and the finding posts as a reply in that thread. Every other comment about the code, skipping thanks, bot output, the author's replies, and its own posts, becomes a finding of its own, researched in the worktree, so even a concern the code clears gets an answer citing the lines that clear it.
 

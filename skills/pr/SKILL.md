@@ -32,10 +32,10 @@ Run `draft` or `ready` only when asked ("mark it ready", "back to draft"). If `v
 An update replaces the whole description, which bots, teammates, and manual edits also write into. You own only the fenced region. Fetch the current text with `description`, then find your region, first match wins:
 
 1. **Both markers present:** replace everything between them.
-2. **Markers missing or unpaired:** replace, in place, the contiguous run of template sections starting at the first `## Tickets`, including any `## Why`, `## Breaking Changes`, or `## Dependencies` from an older template. An unpaired opener is never a boundary; a deleted closer would otherwise swallow the rest.
+2. **Markers missing or unpaired:** replace, in place, the contiguous run of template sections starting at the first `## Tickets`. An unpaired opener is never a boundary; a deleted closer would otherwise swallow the rest.
 3. **Neither:** insert at the top. Only here, since inserting beside a template-shaped run creates two bodies that later updates compound.
 
-Match markers on the token alone (`pr-body:start`, `pr-body:end`), ignoring whitespace inside the comment, since serializers respace HTML comments. `mr-body:start` and `mr-body:end` are legacy equivalents; rewrite them to the canonical token on the next update.
+Match markers on the token alone (`pr-body:start`, `pr-body:end`), ignoring whitespace inside the comment, since serializers respace HTML comments.
 
 Everything outside your region stays byte-for-byte in place, whoever wrote it: never reword, summarize, reformat, template-conform, move, or regenerate it. When a boundary is unclear, keep content rather than drop it; a duplicated line is fixable, deleted review feedback isn't. Never skip an update or leave the description stale to avoid an awkward layout.
 
@@ -78,7 +78,7 @@ Use this exact structure, markers included. The reviewer has the diff, so the bo
 
 **Title violation:** a title off `<type>(<ticket>): <description>`, or `<type>: <description>` when there is no ticket: a missing or unlisted type, a ticket the Tickets section doesn't link, a scope other than the ticket, or a description that is a raw branch name, ticket slug, kebab-case, or other machine-style identifier; rewrite it before create/update. `fix/auth-token-refresh`, `PROJ-123`, "Fix authentication token refresh on expired sessions", `feat(auth): refresh expired tokens`, and `fix(PROJ-123): PROJ-123` are violations, and so is a `Draft:` prefix, since the `draft` operation owns that state. `fix(PROJ-123): refresh auth tokens on expired sessions`, `fix(#42): stop double-charging empty carts`, and, with no ticket, `feat: add retry to webhook delivery` are acceptable.
 
-**Body violation:** a fenced region off the template, which is Tickets, Summary, and Changes in that order in the given markdown. Freeform prose, generic layouts, and invented sections are violations to correct before create/update, `## Test Plan` and a reinstated `## Why`, `## Breaking Changes`, or `## Dependencies` included, as is a region opening at `## Summary` without `## Tickets`. Tickets, Summary, and Changes in that order, and nothing else, is acceptable. This covers the fenced region alone: content outside it that you didn't write is never a violation and is never trimmed or reshaped to fit.
+**Body violation:** a fenced region off the template, which is Tickets, Summary, and Changes in that order in the given markdown. Freeform prose, generic layouts, and invented sections are violations to correct before create/update, `## Test Plan`, `## Why`, and `## Breaking Changes` included, as is a region opening at `## Summary` without `## Tickets`. Tickets, Summary, and Changes in that order, and nothing else, is acceptable. This covers the fenced region alone: content outside it that you didn't write is never a violation and is never trimmed or reshaped to fit.
 
 **Fence violation:** writing any content of your own outside the markers, on create or update. A `## Notes for Reviewers` section below `pr-body:end`, or any other note to the reviewer, is a violation; it belongs in Summary. A section of that name left by a teammate or bot is kept as written, not claimed.
 

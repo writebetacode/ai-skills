@@ -6,7 +6,7 @@ Read on entering submit, post-named, or follow-up mode from `SKILL.md`'s Review 
 
 **What goes up.** A submit run sends every active finding; a request naming findings ("post 2 and 5", "send the blocking ones") sends only those, asking first if the selection is ambiguous. Only the findings post, one comment each, plus the Verdict as the review event on GitHub.
 
-- `(linked to thread <id>)`, or the older `(also raised in thread <id>)`: post as a `reply` in that thread, same body as a new comment.
+- `(linked to thread <id>)`: post as a `reply` in that thread, same body as a new comment.
 - `(linked to comment <url>)`: post as an ordinary comment; its summary already points back.
 
 **Stale head.** Compare the `Reviewed at` SHA with the current head first. If they differ, move the worktree to the new head and re-read every anchor, reference, and example against the new diff before posting. Never post against a stale head by moving a comment onto whatever now sits at that line.
@@ -44,8 +44,8 @@ cartTotal({ items: [], coupon: "SAVE10" })
 Run `thread-list` and match every thread against the report, Resolved entries included, trying in order:
 
 1. the id recorded beside a finding;
-2. the `<!-- pr-review:finding-<N> -->` marker in its body (missing on older reviews, and stripped by some Markdown pipelines);
-3. its heading and ask, or heading alone for a report from before findings had an ask.
+2. the `<!-- pr-review:finding-<N> -->` marker in its body (some Markdown pipelines strip it);
+3. its heading and ask.
 
 A thread matching nothing belongs to someone else: report it as context, never answer it. In a thread a finding joined as a reply, only what came after that reply is answered; earlier posts are context. A thread matching two findings is reported as ambiguous, not assigned.
 
