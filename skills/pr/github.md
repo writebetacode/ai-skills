@@ -1,6 +1,6 @@
 # GitHub Commands
 
-Read this when the forge is GitHub. `SKILL.md` is already loaded. Bodies go through `--body-file`.
+Read when the forge is GitHub; `SKILL.md` is already loaded. Bodies go through `--body-file`.
 
 | Operation | Command |
 | --- | --- |
@@ -22,14 +22,10 @@ Read this when the forge is GitHub. `SKILL.md` is already loaded. Bodies go thro
 
 ## Flags That Bite
 
-`--json` fields are camelCase, and the head SHA is `headRefOid`. `--assignee @me` works, so no username lookup is needed.
-
-Converting to draft depends on the plan: some accounts refuse `gh pr ready --undo` even though `gh pr ready` works.
-
-On `edit`, labels, assignees, and reviewers are add/remove pairs, so removing one means naming it in `--remove-*`. `--milestone` replaces, and `--remove-milestone` clears it.
-
-With `--head` named, `gh` doesn't offer to push an unpushed branch. A head missing from the remote comes back as an error, which is why the head is pushed before `create`.
-
-If a command fails, report the CLI's own error instead of retrying with different flags. Never use a flag that isn't in the table.
-
-If `gh` is missing (`command not found`, exit 127), that is not an auth failure. Tell the user to install it from <https://cli.github.com> and stop.
+- `--json` fields are camelCase; the head SHA is `headRefOid`.
+- `--assignee @me` works, so no username lookup is needed.
+- Converting to draft is plan-dependent: `gh pr ready --undo` can be refused where `gh pr ready` works.
+- On `edit`, labels, assignees, and reviewers are add/remove pairs; `--milestone` replaces, `--remove-milestone` clears.
+- With `--head` named, `gh` won't offer to push, so a head missing from the remote is an error; hence the push before `create`.
+- On failure, report the CLI's own error rather than retrying with other flags, and never use a flag missing from the table.
+- `gh` missing (`command not found`, exit 127) isn't an auth failure: tell the user to install it from <https://cli.github.com> and stop.

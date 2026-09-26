@@ -1,20 +1,23 @@
 # Submitting and Following Up
 
-Read this when entering submit or follow-up mode from the Workflow in `SKILL.md`. `SKILL.md` and the host's `github.md` or `gitlab.md` are already loaded.
+Read on entering submit, post-named, or follow-up mode from `SKILL.md`'s Review section. `SKILL.md` and the host's `github.md` or `gitlab.md` are already loaded.
 
 ## Submit
 
-A submit run sends every active finding. A later request naming findings ("post 2 and 5", "send the blocking ones") sends only those. If the selection is ambiguous, ask before sending anything. What gets posted is the findings, one comment each, plus the Verdict as the review event on GitHub, and nothing else. A finding marked `(linked to thread <id>)` (or the older `(also raised in thread <id>)`) is posted as a `reply` in that thread, with the same body a new comment would have. A finding marked `(linked to comment <url>)` posts as an ordinary comment, since its summary already points back to that comment.
+**What goes up.** A submit run sends every active finding; a request naming findings ("post 2 and 5", "send the blocking ones") sends only those, asking first if the selection is ambiguous. Only the findings post, one comment each, plus the Verdict as the review event on GitHub.
 
-First compare the SHA on the report's `Reviewed at` line with the current head. If they differ, the author has pushed since. Move the worktree to the new head and re-read every anchor, reference, and example against the new diff before posting. Never post against a stale head by moving a comment onto whatever is now at that line.
+- `(linked to thread <id>)`, or the older `(also raised in thread <id>)`: post as a `reply` in that thread, same body as a new comment.
+- `(linked to comment <url>)`: post as an ordinary comment; its summary already points back.
 
-On GitHub the review is one `review-batch` call carrying the head SHA, the event, and one entry per anchored finding, with no review body, so it arrives as one notification and lands whole or not at all. Unanchored and linked findings can't go in that array (every entry needs a path and a line, and none can name a thread). Once the review has landed, post each of them separately: an unanchored finding as a `comment` with no file anchor, a linked one as a `reply`. If the review was rejected, post none of them. If no finding has a line anchor, there's no review to carry the event: post each separately and report the verdict as not set. On GitLab there is no batch: run one `reply` per linked finding and one `comment` per other finding, using the recorded anchor (a line in the new version, a removed line, a whole file, or no file anchor).
+**Stale head.** Compare the `Reviewed at` SHA with the current head first. If they differ, move the worktree to the new head and re-read every anchor, reference, and example against the new diff before posting. Never post against a stale head by moving a comment onto whatever now sits at that line.
 
-The event follows the verdict table in `SKILL.md`, except for approve. Unless the request that started the run named approval, post the findings under `COMMENT` on GitHub and report the approval as waiting for the user to ask for it.
+**GitHub.** One `review-batch` call carries the head SHA, the event, and one entry per anchored finding, with no review body, so it lands as one notification, whole or not at all. Entries need a path and a line and can't name a thread, so once the review lands, post the rest separately: unanchored findings as a `comment` with no file anchor, linked ones as a `reply`. If the review was rejected, post none of them. If no finding has a line anchor, there's no review to carry the event: post each separately and report the verdict as not set.
 
-The body is the finding's heading without `## [N]`, in bold, then its ask, summary, and example, copied word for word from the report in that order. The marker line under the heading stays in the file.
+**GitLab.** No batch: one `reply` per linked finding and one `comment` per other finding, with the recorded anchor (new-version line, removed line, whole file, or none).
 
-The finding number means nothing to people reading the PR, so it only goes in `<!-- pr-review:finding-<N> -->` on the body's first line. Both forges hide it when rendering and keep it in the API body.
+**Event.** Follows `SKILL.md`'s verdict table, except approve: unless the request that started the run named approval, post under `COMMENT` on GitHub and report the approval as waiting to be asked for.
+
+**Body.** The finding's heading without `## [N]`, in bold, then its ask, summary, and example copied verbatim from the report. The marker line stays in the file. The number means nothing to PR readers, so it rides only in `<!-- pr-review:finding-<N> -->` on the first line, which both forges hide when rendering and keep in the API body.
 
 ````markdown
 <!-- pr-review:finding-2 -->
@@ -32,16 +35,22 @@ cartTotal({ items: [], coupon: "SAVE10" })
 ```
 ````
 
-Mark the file per finding: `(posted <YYYY-MM-DD>, thread <id>)` only for a finding that actually posted. A follow-up run uses that id to find the thread. A linked reply records the thread it joined. A batched review returns the review id but not each comment's id, so run `thread-list` afterwards and match threads to findings by the `<!-- pr-review:finding-<N> -->` marker. Neither forge prevents double-posting an anchored comment, so if you can't match a result to a finding, check `thread-list` before retrying anything.
+**Recording.** Mark each finding `(posted <YYYY-MM-DD>, thread <id>)` only on its own success; follow-up runs find threads by that id. A linked reply records the thread it joined. A batched review returns only the review id, so run `thread-list` afterwards and match threads to findings by their marker. Neither forge prevents double-posting an anchored comment, so check `thread-list` before retrying anything you can't match.
 
-**Number visibility violation:** a finding number appearing in the visible text of anything posted, a comment body or a thread reply, instead of only inside the marker. A body opening ``**issue (blocking): `src/handler.go:44`** [2]`` is a violation, and so is a reply opening "as finding 3 noted". The same body under `<!-- pr-review:finding-2 -->`, and a reply that refers to the other point by what it says, are acceptable.
+**Number visibility violation:** a finding number in the visible text of a posted comment or reply instead of only inside the marker. A body opening ``**issue (blocking): `src/handler.go:44`** [2]`` is a violation, as is a reply opening "as finding 3 noted"; the same body under `<!-- pr-review:finding-2 -->`, and a reply naming the other point by what it says, are acceptable.
 
 ## Follow Up
 
-Run `thread-list` and match every thread against the report, Resolved entries included. Match first by the id recorded next to a finding. If none was recorded (a review posted before ids were kept), match by the `<!-- pr-review:finding-<N> -->` marker in its body, and if the marker is missing (older reviews, or Markdown pipelines that strip HTML comments), by its heading and ask. A report from before findings had an ask matches on heading alone. A thread that matches nothing belongs to someone else: report it as context and never answer it as if it were yours. In a thread a finding joined as a reply, everything before that reply is context, and only what came after is answered. If a thread matches two findings, report it as ambiguous and don't assign it.
+Run `thread-list` and match every thread against the report, Resolved entries included, trying in order:
 
-Report each active finding's thread as replied, unresolved, or resolved, quoting the reply. GitLab reports resolution state, but GitHub's comment listing doesn't. On GitHub, say the state is unavailable instead of guessing it from a reply.
+1. the id recorded beside a finding;
+2. the `<!-- pr-review:finding-<N> -->` marker in its body (missing on older reviews, and stripped by some Markdown pipelines);
+3. its heading and ask, or heading alone for a report from before findings had an ask.
 
-Then do the work each reply asks for. If a reply points at code, check that code in the worktree before answering and cite it by `<file>:<line>`, so an author who says the deadline comes from the handler gets an answer naming the handler's lines. Answer replies the repository settles instead of putting them off. When a reply resolves a finding, move it to Resolved as `Settled in thread <id>.`, keeping its number, and recommend resolving the thread. Keep a reply to two sentences, not counting any code block, in the finding's voice. The author is often reading on a phone.
+A thread matching nothing belongs to someone else: report it as context, never answer it. In a thread a finding joined as a reply, only what came after that reply is answered; earlier posts are context. A thread matching two findings is reported as ambiguous, not assigned.
 
-Post replies only when a request names which threads to answer, one `reply` per thread id. Never resolve, unresolve, or delete a thread. Resolution is the author's signal that they acted, and closing it here erases the record that anyone disagreed.
+Report each active finding's thread as replied, unresolved, or resolved, quoting the reply. GitLab reports resolution state; GitHub's listing doesn't, so say it's unavailable rather than guess.
+
+Then do the work each reply asks for. Check code a reply points at in the worktree before answering, and cite it by `<file>:<line>`, so an author saying the deadline comes from the handler gets an answer naming the handler's lines. Answer what the repository settles rather than deferring it. A reply that resolves a finding moves it to Resolved as `Settled in thread <id>.`, number kept, with the thread recommended for resolution. Replies are at most two sentences, code blocks uncounted, in the finding's voice; the author is often on a phone.
+
+Post replies only when a request names which threads to answer, one `reply` per thread id. Never resolve, unresolve, or delete a thread: resolution is the author's signal that they acted, and closing it erases the record that anyone disagreed.

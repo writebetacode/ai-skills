@@ -1,6 +1,6 @@
 # GitLab Commands
 
-Read this when the forge is GitLab. `SKILL.md` is already loaded. `glab` doesn't read description files, so bodies go through `"$(cat <path>)"` from the temp file.
+Read when the forge is GitLab; `SKILL.md` is already loaded. `glab` reads no description file, so bodies go through `"$(cat <path>)"` from the temp file.
 
 | Operation | Command |
 | --- | --- |
@@ -21,16 +21,10 @@ Read this when the forge is GitLab. `SKILL.md` is already loaded. `glab` doesn't
 
 ## Flags That Bite
 
-`--yes` is required on create. Without it, `glab` waits for an interactive confirmation and the run hangs.
-
-`glab` has no `@me`, so the assignee is the username from `whoami`. `glab api` has no `--jq` flag, so pipe it through `jq`. There is no `whoami` subcommand.
-
-`--wip` is an alias for `--draft`, not a third state. GitLab stores draft as a `Draft:` title prefix, so the title from `view` includes it. Read the state from `.draft`.
-
-On `mr update`, an unprefixed `--assignee` or `--reviewer` *replaces* the whole set and drops everyone else. Prefix with `+` to add and `!` or `-` to remove. `--label` adds and `--unlabel` removes; there is no replacing form.
-
-`-F` is `--output` on `mr list` and means something else on other commands, so use long flag forms everywhere. List and view take `--output json` with `--jq`, not a `--json` field list.
-
-If a command fails, report the CLI's own error instead of retrying with different flags. Never use a flag that isn't in the table.
-
-If `glab` is missing (`command not found`, exit 127), that is not an auth failure. Tell the user to install it from <https://gitlab.com/gitlab-org/cli> and stop.
+- `--yes` is required on create, or `glab` waits for confirmation and hangs.
+- No `@me`: the assignee is the `whoami` username. `glab api` has no `--jq`, so pipe through `jq`; there's no `whoami` subcommand.
+- `--wip` is an alias for `--draft`, not a third state. Draft is stored as a `Draft:` title prefix, so `view`'s title includes it; read state from `.draft`.
+- On `mr update`, an unprefixed `--assignee` or `--reviewer` *replaces* the whole set. Prefix `+` to add, `!` or `-` to remove. `--label` adds and `--unlabel` removes; there's no replacing form.
+- `-F` is `--output` on `mr list` and something else elsewhere; use long flags everywhere. List and view take `--output json` with `--jq`, not a `--json` field list.
+- On failure, report the CLI's own error rather than retrying with other flags, and never use a flag missing from the table.
+- `glab` missing (`command not found`, exit 127) isn't an auth failure: tell the user to install it from <https://gitlab.com/gitlab-org/cli> and stop.

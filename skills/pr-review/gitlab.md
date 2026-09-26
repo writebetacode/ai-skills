@@ -1,6 +1,6 @@
 # GitLab Commands
 
-Read this when the forge is GitLab. `SKILL.md` is already loaded. Bodies go in through stdin redirection from the temp file.
+Read when the forge is GitLab; `SKILL.md` is already loaded. Bodies go in by stdin redirection from the temp file.
 
 | Operation | Command |
 | --- | --- |
@@ -19,7 +19,7 @@ Read this when the forge is GitLab. `SKILL.md` is already loaded. Bodies go in t
 | `request-changes` | no CLI equivalent -- `glab mr` has approve and revoke and no changes-requested state; report unsupported |
 | `revoke` | `glab mr revoke <id>` |
 
-Anchor each comment according to what the finding recorded:
+Anchor by what the finding recorded:
 
 ```sh
 glab mr note create <id> --file <path> --line <n> < body.md      # line in the new version
@@ -30,18 +30,17 @@ glab mr note create <id> < body.md                               # no file ancho
 
 ## Flags That Bite
 
-The CLI marks `glab mr note` and all its subcommands EXPERIMENTAL. On `note list`, `-F` is `--output` and pairs with `--jq`. `--state` takes `all`, `resolved`, or `unresolved`, and `--type` takes `all`, `general`, `diff`, or `system`. Each discussion's `id` is the full discussion ID, and general and diff discussions both accept a `reply`, so a finding linked to either replies in place. `--reply` accepts a full ID or a prefix of at least 8 characters. A shorter prefix is an error to report, not something to pad. `--line` accepts a number or a range like `10:15`, but always pass a single number here.
-
-The project serves `refs/merge-requests/<iid>/head`, which is the MR's own head commit, so fork MRs fetch through `origin` without adding a remote. That ref name comes from GitLab's published docs, not the CLI. If the fetch fails, report git's error and stop. Never guess a similar ref name.
-
-`glab mr approve` takes no body flag; an approval has no message.
-
-`--line` and `--old-line` each need `--file` and can't be used together. `--file`, `--reply`, and `--unique` are mutually exclusive, so anchored comments can't use `--unique` and nothing prevents a double post. `--resolvable=false` can't be combined with `--file`. Leave it off, since each finding should be a resolvable thread.
-
-Comments land on the latest diff version. If `<head-sha>` isn't the MR's current `.sha`, stop and report instead of posting.
-
-Never resolve or unresolve a discussion. `note resolve` exists, but it never replaces an operation the user actually asked for.
-
-If a command fails, report the CLI's own error word for word instead of retrying with different flags. Never use a flag that isn't in the table.
-
-If `glab` is missing (`command not found`, exit 127), that is not an auth failure. Tell the user to install it from <https://gitlab.com/gitlab-org/cli> and stop.
+- `glab mr note` and all its subcommands are marked EXPERIMENTAL.
+- On `note list`, `-F` is `--output` and pairs with `--jq`. `--state` takes `all`, `resolved`, or `unresolved`; `--type` takes `all`, `general`, `diff`, or `system`.
+- Each discussion's `id` is the full discussion ID, and general and diff discussions both take a `reply`, so a finding linked to either replies in place.
+- `--reply` takes a full ID or a prefix of at least 8 characters; a shorter one is an error to report, not pad.
+- `--line` accepts a number or a `10:15` range; always pass a single number here.
+- `--line` and `--old-line` each need `--file` and can't be combined.
+- `--file`, `--reply`, and `--unique` are mutually exclusive, so anchored comments can't use `--unique` and nothing prevents a double post.
+- `--resolvable=false` can't combine with `--file`; leave it off, since each finding should be a resolvable thread.
+- `glab mr approve` takes no body flag; approvals have no message.
+- The project serves `refs/merge-requests/<iid>/head`, the MR's own head, so fork MRs fetch through `origin` with no extra remote. That ref name comes from GitLab's docs, not the CLI: if the fetch fails, report git's error and stop; never guess a neighbouring ref.
+- Comments land on the latest diff version: if `<head-sha>` isn't the MR's current `.sha`, stop and report instead of posting.
+- Never resolve or unresolve a discussion; `note resolve` never substitutes for an operation actually asked for.
+- On failure, report the CLI's own error verbatim rather than retrying with other flags, and never use a flag missing from the table.
+- `glab` missing (`command not found`, exit 127) isn't an auth failure: tell the user to install it from <https://gitlab.com/gitlab-org/cli> and stop.

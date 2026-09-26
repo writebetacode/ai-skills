@@ -1,6 +1,6 @@
 # GitLab Commands
 
-Read this when the tracker is GitLab. `SKILL.md` is already loaded. `glab` doesn't read description files, so bodies go through `"$(cat <path>)"` from the temp file.
+Read when the tracker is GitLab; `SKILL.md` is already loaded. `glab` reads no description file, so bodies go through `"$(cat <path>)"` from the temp file.
 
 | Operation | Command |
 | --- | --- |
@@ -17,16 +17,11 @@ Read this when the tracker is GitLab. `SKILL.md` is already loaded. `glab` doesn
 
 ## Flags That Bite
 
-`issue create` opens an editor, which hangs the run, unless you pass both `--title` and `--yes`.
-
-`glab` has no `@me`, so the assignee is the username from `whoami`. `glab api` has no `--jq` flag, so pipe it through `jq`. There is no `whoami` subcommand.
-
-There is no issue-type flag, so the type always goes in the body. There is no `--parent` either. The nearest equivalent is `--epic`, which takes an epic id and needs a paid tier. If it's rejected, report that instead of quietly dropping the parent.
-
-On `issue update`, an unprefixed `--assignee` *replaces* the whole set and drops everyone else. Prefix with `+` to add and `!` or `-` to remove. `--label` adds and `--unlabel` removes; there is no replacing form.
-
-`-F` on `issue list` is `--output-format` (`details`, `ids`, `urls`), while `--output` there is `-O`, and `-F` means something else again on other commands. Use long flag forms everywhere.
-
-If a command fails, report the CLI's own error instead of retrying with different flags. Never use a flag that isn't in the table.
-
-If `glab` is missing (`command not found`, exit 127), that is not an auth failure. Tell the user to install it from <https://gitlab.com/gitlab-org/cli> and stop.
+- `issue create` opens an editor and hangs unless given both `--title` and `--yes`.
+- No `@me`: the assignee is the `whoami` username. `glab api` has no `--jq`, so pipe through `jq`; there's no `whoami` subcommand.
+- No issue-type flag, so the type always goes in the body.
+- No `--parent`: the nearest is `--epic`, taking an epic id on a paid tier. Report a rejection rather than silently dropping the parent.
+- On `issue update`, an unprefixed `--assignee` *replaces* the whole set. Prefix `+` to add, `!` or `-` to remove. `--label` adds and `--unlabel` removes; there's no replacing form.
+- `-F` on `issue list` is `--output-format` (`details`, `ids`, `urls`), `--output` there is `-O`, and `-F` differs again elsewhere; use long flags everywhere.
+- On failure, report the CLI's own error rather than retrying with other flags, and never use a flag missing from the table.
+- `glab` missing (`command not found`, exit 127) isn't an auth failure: tell the user to install it from <https://gitlab.com/gitlab-org/cli> and stop.

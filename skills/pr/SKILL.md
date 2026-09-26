@@ -9,39 +9,39 @@ allowed-tools: "Bash(git ls-remote --heads origin:*), Bash(gh auth status:*), Ba
 
 ## Host
 
-Resolve the forge from the `origin` remote. Before running anything, read `${CLAUDE_SKILL_DIR}/github.md` for GitHub or `${CLAUDE_SKILL_DIR}/gitlab.md` for GitLab. It has the command for every operation named below. If that path arrives unexpanded, you are not in Claude Code: read the same file from the skill's installed directory instead (`~/.gemini/skills/pr/<file>.md` under Gemini CLI). If a self-hosted URL doesn't settle the forge, read both files and run each CLI's `repo-id`, then use the one that resolves. If both or neither resolve, ask the user. Once resolved, say "pull request" or "merge request" to match the host.
+Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` or `${CLAUDE_SKILL_DIR}/gitlab.md` before running anything; it has the command for every operation named below. If the path arrives unexpanded, you're not in Claude Code: read the same file from this skill's own installed directory instead (`~/.gemini/skills/pr/<file>.md` under Gemini CLI) rather than treating the reference as missing. If a self-hosted URL doesn't settle the forge, read both files and use whichever CLI's `repo-id` resolves; if both or neither do, ask. Once resolved, say "pull request" or "merge request" to match.
 
-If the CLI is missing, stop and tell the user which one to install, using the URL in the reference file. Never switch to the other forge's CLI or a raw `curl` against the API.
-
-Write every description to a temp file outside the repo and pass the file to the CLI. Never retype body text into a command.
+If the CLI is missing, stop and tell the user which one to install, with the URL from the reference file. Never switch to the other forge's CLI or raw `curl`.
 
 ## Workflow
 
-Run `auth` and stop if it fails. Gather in parallel: `git branch --show-current`, the remote URL, `whoami`, `git status --short`, and the branch's PR/MR through `view`. Warn about uncommitted changes.
+1. **Gather.** Run `auth`; stop on failure. In parallel: `git branch --show-current`, the remote URL, `whoami`, `git status --short`, and the branch's PR/MR via `view`. Warn about uncommitted changes.
+2. **Target branch.** From the arguments; otherwise match the branch-name prefix against other local branches; otherwise `git merge-base` against the default branch, found with `git symbolic-ref --short refs/remotes/origin/HEAD` (strip `origin/`), falling back to `HEAD branch:` from `git remote show origin` if that ref is missing. Never assume `main`.
+3. **Push the head.** The head is the current branch, always passed to `create` by name: the CLI default is whatever is checked out, which goes wrong when a stacked run has sibling branches in play. If `git ls-remote --heads origin <head>` is empty or shows a different SHA from the local one, run `git push -u origin <head>` before `create` or `update-description`; otherwise create fails and an update describes commits the reviewer can't see.
+4. **Title**, under 70 characters, covering all the changes: `<type>(<ticket>): <description>`, or `<type>: <description>` with no ticket.
+   - type: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, or `ci`, whichever describes the change as a whole, from the branch prefix or its commits, defaulting to `chore`.
+   - ticket: the one the Tickets section links, the first if several: a Jira key as written (`PROJ-123`) or a host issue as `#<n>`.
+   - description: a plain-English phrase in imperative mood, starting lowercase.
+5. **Body.** Fill in the Body Template and write it to a temp file outside the repo; never retype body text into a command.
+6. **Create or update.** Create: `create` with title, body path, base, head, and username, plus draft if "draft" is in the arguments. Update: `update-description` per the Update Path, and redraft the title against the changes as they now stand, running `title` if it differs from what `view` returned. Show the URL the CLI returns.
 
-Take the target branch from the arguments. Otherwise match the branch-name prefix against other local branches, and fall back to `git merge-base` against the default branch. Find the default branch with `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), or parse `HEAD branch:` from `git remote show origin` if that ref is missing. Never assume `main`.
-
-Pass the head (the current branch gathered above) to `create` by name. Never leave it to the CLI default, which is whatever is checked out and goes wrong when a stacked run has several sibling branches in play. Push the head yourself first: if `git ls-remote --heads origin <head>` is empty or shows a SHA other than the local one, run `git push -u origin <head>` before `create` or `update-description`. Otherwise create fails outright, and an update describes commits the reviewer can't see.
-
-Write the title as `<type>(<ticket>): <description>`, under 70 characters in total, covering all the changes. The type is one of `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `ci`, whichever describes the change as a whole, inferred from the branch prefix or the branch's commits and defaulting to `chore`. The ticket is the one the Tickets section links: a Jira key as written (`PROJ-123`) or a host issue as `#<n>`, the first one if there are several. With no ticket, drop the parentheses: `<type>: <description>`. The description is a plain-English phrase in imperative mood, starting lowercase. Fill in the Body Template, write it to a temp file, and run `create` with the title, body path, base, head, and username, adding draft if "draft" is in the arguments. To update, run `update-description` following the Update Path, and redraft the title against the changes as they now stand. If it differs from the title `view` returned, run `title` too. Show the URL the CLI returns.
-
-Run `draft` or `ready` only when asked ("mark it ready", "back to draft"). If `view` shows the PR is already in that state, say so instead of running it. If the same request also changes the description, update first and toggle second.
+Run `draft` or `ready` only when asked ("mark it ready", "back to draft"). If `view` shows it's already in that state, say so instead. If the same request changes the description, update first and toggle second.
 
 ## Update Path
 
-An update replaces the whole description, and bots, teammates, and earlier manual edits all live in that same field. You own only the fenced region. Fetch the current text with `description`, then find your region in this order:
+An update replaces the whole description, which bots, teammates, and manual edits also write into. You own only the fenced region. Fetch the current text with `description`, then find your region, first match wins:
 
 1. **Both markers present:** replace everything between them.
-2. **Markers missing or unpaired:** find the contiguous run of template sections starting at the first `## Tickets` heading and replace that run in place, including any `## Why` section from an older template. An unpaired opener is never a boundary, since a deleted closer would otherwise swallow the rest of the description.
-3. **Neither:** insert at the top. Only here, because inserting while a template-shaped run exists creates two bodies, and later updates compound it.
+2. **Markers missing or unpaired:** replace, in place, the contiguous run of template sections starting at the first `## Tickets`, including any `## Why` from an older template. An unpaired opener is never a boundary; a deleted closer would otherwise swallow the rest.
+3. **Neither:** insert at the top. Only here, since inserting beside a template-shaped run creates two bodies that later updates compound.
 
-Match markers on the token alone (`pr-body:start`, `pr-body:end`), ignoring whitespace inside the comment, because serializers respace HTML comments. Treat `mr-body:start` and `mr-body:end` as legacy equivalents and rewrite them to the canonical token on the next update.
+Match markers on the token alone (`pr-body:start`, `pr-body:end`), ignoring whitespace inside the comment, since serializers respace HTML comments. `mr-body:start` and `mr-body:end` are legacy equivalents; rewrite them to the canonical token on the next update.
 
-Everything outside your region stays byte-for-byte in place, whoever wrote it. Never reword, summarize, reformat, template-conform, move, or regenerate it. When a boundary is unclear, keep content rather than dropping it: a duplicated line can be fixed, deleted review feedback can't. Never skip an update or leave the description stale to avoid an awkward layout.
+Everything outside your region stays byte-for-byte in place, whoever wrote it: never reword, summarize, reformat, template-conform, move, or regenerate it. When a boundary is unclear, keep content rather than drop it; a duplicated line is fixable, deleted review feedback isn't. Never skip an update or leave the description stale to avoid an awkward layout.
 
 ## Body Template
 
-Use this exact structure, markers included. Leave out Breaking Changes and Dependencies when they don't apply. The reviewer has the diff, so the body orients them rather than restating it. Changes has at most ten bullets. If more files changed, roll the rest into one bullet per category giving the file count and what they have in common.
+Use this exact structure, markers included, leaving out Breaking Changes and Dependencies when they don't apply. The reviewer has the diff, so the body orients rather than restates. Changes has at most ten bullets; past that, roll the rest into one bullet per category with the file count and what they share.
 
 ```markdown
 <!-- pr-body:start -->
@@ -75,25 +75,22 @@ Use this exact structure, markers included. Leave out Breaking Changes and Depen
 
 ## Rules
 
-Always assign to the current user, using the assignee the reference file names. Never hardcode one.
+- Always assign to the current user, with the assignee the reference file names; never hardcode one.
+- Never reference a host-native issue without checking it with `issue-view` first.
+- Jira references are informational: neither forge closes a Jira issue on merge, so never put a closing keyword (`Closes`, `Fixes`, `Resolves`) before a Jira key.
+- Never write a remote command from memory; anything the reference file doesn't cover is unsupported.
+- If the forge refuses a draft/ready toggle, report it; never simulate the state another way.
+- Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
-Never reference a host-native issue without checking it with `issue-view` first. Jira references are for information only. Neither forge closes a Jira issue on merge, so never put a closing keyword (`Closes`, `Fixes`, `Resolves`) in front of a Jira key.
+**Push violation:** force-pushing the head, or pushing any branch but the head. If `git push -u origin <head>` is refused as non-fast-forward, the remote has commits you don't: report it and stop, since `--force` and `--force-with-lease` discard what a teammate or rebase put there. The same push to a branch the remote lacks or has behind the local head is acceptable.
 
-Never write a remote command from memory. Every command comes from the host's reference file, and an operation the file doesn't cover is reported as unsupported.
+**Title violation:** a title off `<type>(<ticket>): <description>`, or `<type>: <description>` when there is no ticket: a missing or unlisted type, a ticket the Tickets section doesn't link, a scope other than the ticket, or a description that is a raw branch name, ticket slug, kebab-case, or other machine-style identifier; rewrite it before create/update. `fix/auth-token-refresh`, `PROJ-123`, "Fix authentication token refresh on expired sessions", `feat(auth): refresh expired tokens`, and `fix(PROJ-123): PROJ-123` are violations, and so is a `Draft:` prefix, since the `draft` operation owns that state. `fix(PROJ-123): refresh auth tokens on expired sessions`, `fix(#42): stop double-charging empty carts`, and, with no ticket, `feat: add retry to webhook delivery` are acceptable.
 
-If the forge refuses a draft/ready toggle, report the refusal. Never simulate the state another way.
+**Body violation:** a fenced region off the template, which is Tickets, Summary, and Changes in that order in the given markdown. Freeform prose, generic layouts, and invented sections are violations to correct before create/update, `## Test Plan` and a reinstated `## Why` included, as is a region opening at `## Summary` without `## Tickets`. Tickets, Summary, and Changes in order, with Breaking Changes and Dependencies only where they apply, is acceptable. This covers the fenced region alone: content outside it that you didn't write is never a violation and is never trimmed or reshaped to fit.
 
-Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
+**Fence violation:** writing any content of your own outside the markers, on create or update. A `## Notes for Reviewers` section below `pr-body:end`, or any other note to the reviewer, is a violation; it belongs in Summary. A section of that name left by a teammate or bot is kept as written, not claimed.
 
-**Push violation:** force-pushing the head, or pushing any branch other than the head. If `git push -u origin <head>` is refused as non-fast-forward, the remote has commits the local branch doesn't: report it and stop, because `--force` and `--force-with-lease` throw away whatever a teammate or a rebase put there. The same push to a branch the remote lacks, or has behind the local head, is acceptable.
-
-**Title violation:** a title off `<type>(<ticket>): <description>`, or `<type>: <description>` when there is no ticket. That covers a missing or unlisted type, a ticket that the Tickets section doesn't link, a scope other than the ticket, and a description that is a raw branch name, ticket slug, kebab-case, or other machine-style identifier. `fix/auth-token-refresh`, `PROJ-123`, "Fix authentication token refresh on expired sessions", `feat(auth): refresh expired tokens`, and `fix(PROJ-123): PROJ-123` are violations, and so is a `Draft:` prefix, since the `draft` operation owns that state. `fix(PROJ-123): refresh auth tokens on expired sessions`, `fix(#42): stop double-charging empty carts`, and, with no ticket, `feat: add retry to webhook delivery` are acceptable.
-
-**Body violation:** a fenced region that departs from the template, which is Tickets, Summary, and Changes in that order in the given markdown. Freeform prose, generic layouts, and invented sections are violations, including `## Test Plan` and a reinstated `## Why`. A region that opens at `## Summary` without `## Tickets`, or contains either of those two sections, is a violation. Tickets, Summary, and Changes in order, with Breaking Changes and Dependencies only where they apply, is acceptable. This rule covers only the fenced region. Content outside it that you didn't write is never a violation, and must never be trimmed or reshaped to fit.
-
-**Fence violation:** writing any content of your own outside the markers, on create or update. Adding a `## Notes for Reviewers` section below `pr-body:end`, or any other note to the reviewer, is a violation; that belongs in Summary. A section with that name left by a teammate or a bot is kept as written and not claimed as yours.
-
-**Length violation:** a Summary longer than two sentences, a Changes bullet longer than one line, or more than ten Changes bullets. A bullet that needs a paragraph has reasoning that belongs in Summary or nowhere.
+**Length violation:** a Summary past two sentences, a Changes bullet past one line, or more than ten Changes bullets. A bullet needing a paragraph has reasoning that belongs in Summary or nowhere.
 
 ## User Input
 
