@@ -4,6 +4,8 @@ What `task install` puts on your machine, how to control it, and how to take it 
 
 Requires [Task](https://taskfile.dev) (`brew install go-task`) and [jq](https://jqlang.org) (`brew install jq`, used for the settings merge).
 
+The forge and tracker skills drive `gh`, `glab`, and `acli` but never install them. On GitLab, `/pr` and `/remote-issue` need glab 1.115.0 or newer, the first release whose `mr create`, `mr update`, `issue create`, and `issue update` take `--description-file`.
+
 ```bash
 git clone https://github.com/writebetacode/ai-skills
 cd ai-skills
@@ -61,16 +63,21 @@ Prompting every time:
 | Rule | Why |
 | --- | --- |
 | `git branch -d`, `git branch -D` | prompts per branch even though `git branch *` is allowed; backs up `/sdlc-complete`'s own confirmation |
-| `gh pr review`, `gh pr comment`, `glab mr note create`, `glab mr approve`, `glab mr revoke` | outward-facing and attributed to your account |
+| `gh pr review`, `glab mr approve`, `glab mr revoke` | set a review verdict attributed to your account |
 | `gh pr close/reopen`, `gh issue comment/edit/close/reopen`, `gh release edit/upload` | change the state of something that already exists |
 | `glab mr close/reopen`, `glab issue note/update/close/reopen`, `glab release upload` | the GitLab equivalents |
 | `acli jira workitem comment create/edit/transition/assign` | the Jira equivalents |
 
-Allowed: read-only git and forge queries — including the `git merge-tree` check `/sdlc-complete` runs before it proposes deleting a branch, and the `git symbolic-ref` every default-branch resolution starts from — plus `git fetch` and every `git worktree` subcommand, which is how `/pr-review` checks a PR out at `/tmp/pr-review-<repo-slug>-<number>` without touching your branch, plus `git commit` and `git push`, the create paths for PRs, issues, and releases (the skills confirm their content with you before dispatching), Go and pnpm build/test tooling, and `--version`/`--help` probes for the twelve CLIs this repo drives.
+Allowed:
 
-`git worktree` is allowed whole, forcing form included. That is a deliberate loosening rather than an oversight: `git worktree remove --force` discards uncommitted work in a worktree with no reflog entry, and it used to sit in `ask` for exactly that reason. Nothing in this repo runs it — `/pr-review` forbids forcing outright, on the grounds that a worktree git refuses to remove is one something has written to — so the guard now rests on the skill rather than the harness. Put both `Bash(git worktree remove --force *)` and `Bash(git worktree remove -f *)` back into `ask` if you want the prompt.
+- read-only git and forge queries, including the `git merge-tree` check `/sdlc-complete` runs before it proposes deleting a branch, and the `git symbolic-ref` every default-branch lookup starts from;
+- `git fetch` and every `git worktree` subcommand, which is how `/pr-review` checks a PR out at `/tmp/pr-review-<repo-slug>-<number>` without touching your branch;
+- `git commit`, `git push`, and the create commands for PRs, issues, and releases. `/remote-issue` and `/remote-release` confirm their content with you first; `/commit` and `/pr` act as soon as you ask;
+- Go and pnpm build and test tooling, and `--version`/`--help` probes for the twelve CLIs this repo drives.
 
-One asymmetry to know about: a blanket `Bash(gh api *)` sits in `allow` and covers GitHub's anchored-comment endpoint, so GitHub inline review comments do not prompt where GitLab's do. Narrow or remove that entry if you want them to match.
+`git worktree` is allowed whole, forcing form included. That is a deliberate loosening rather than an oversight: `git worktree remove --force` discards uncommitted work in a worktree with no reflog entry. Nothing in this repo runs it — `/pr-review` forbids forcing outright, on the grounds that a worktree git refuses to remove is one something has written to — so the guard now rests on the skill rather than the harness. Put both `Bash(git worktree remove --force *)` and `Bash(git worktree remove -f *)` back into `ask` if you want the prompt.
+
+Posting review comments does not prompt on either forge. `glab mr note create` and `gh pr comment` are allowed, and on GitHub the blanket `Bash(gh api *)` covers the batched review, anchored comments, and thread replies. The guard is `/pr-review`'s own rule that nothing posts without a request naming what to post. Approving and revoking still prompt. Put `Bash(glab mr note create *)` and `Bash(gh pr comment *)` back into `ask`, or narrow `Bash(gh api *)`, if you want a prompt per comment.
 
 ## Settings keys
 

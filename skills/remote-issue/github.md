@@ -1,8 +1,6 @@
 # GitHub Commands
 
-Read when the tracker is GitHub. The body template, the field mapping, and the title rules are already loaded from `SKILL.md` and are not repeated here.
-
-Descriptions always travel as file paths -- let `--body-file` pass the bytes, and never retype body text into a command.
+Read when the tracker is GitHub; `SKILL.md` is already loaded. Bodies go through `--body-file`.
 
 | Operation | Command |
 | --- | --- |
@@ -19,14 +17,10 @@ Descriptions always travel as file paths -- let `--body-file` pass the bytes, an
 
 ## Flags That Bite
 
-On `issue-create`, `--title` and `--body-file` are both mandatory -- without them `gh` discards the composed body and prompts interactively, hanging a non-interactive run. `-e, --editor` does the same and is never passed. `--assignee @me` works, so assignment needs no username lookup.
-
-GitHub issue types are an org-level feature many repos do not enable, so `--type` goes up only when the user asks for it explicitly; the body's `## Type` section carries it otherwise. A type the repo does not define is rejected by the API, and that rejection is reported rather than retried against a type picked here.
-
-`--reason` on `issue-close` accepts `completed`, `not planned`, or `duplicate` and nothing else.
-
-On `issue-edit`, the label and assignee flags are add/remove pairs rather than a replacing set; `--milestone`, `--type`, and `--parent` replace, each cleared by its own `--remove-*`. `--parent` names the parent from the child's side and takes an issue number or URL, so a sub-issue is attached by editing the child; `--add-sub-issue` and `--remove-sub-issue` do it from the parent's side instead, naming the child.
-
-Report the CLI's own error rather than retrying a failed command with different flags, and never invent a flag absent from the table above -- an operation it does not cover is unsupported.
-
-When `gh` is absent -- `command not found`, exit 127 -- that is not an auth failure: tell the user to install it from <https://cli.github.com> and stop.
+- `issue-create` needs both `--title` and `--body-file`, or `gh` drops the body and prompts, hanging the run. Never pass `-e, --editor`, which does the same.
+- `--assignee @me` works, so no username lookup is needed.
+- Issue types are an org-level feature many repos lack: pass `--type` only when asked, and let the body's `## Type` carry it otherwise. Report a rejected type rather than retrying with one you picked.
+- `--reason` on `issue-close` accepts only `completed`, `not planned`, or `duplicate`.
+- On `issue-edit`, labels and assignees are add/remove pairs; `--milestone`, `--type`, and `--parent` replace, each with its own `--remove-*`. `--parent` is set from the child, taking an issue number or URL; `--add-sub-issue` and `--remove-sub-issue` do it from the parent, naming the child.
+- On failure, report the CLI's own error rather than retrying with other flags, and never use a flag missing from the table.
+- `gh` missing (`command not found`, exit 127) isn't an auth failure: tell the user to install it from <https://cli.github.com> and stop.

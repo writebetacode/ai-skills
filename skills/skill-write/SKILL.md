@@ -8,13 +8,15 @@ argument-hint: "[what to write or revise]"
 
 ## Workflow
 
-Establish which artifact is being written first -- frontmatter, output path, and questions all differ. Where the conversation already contains the workflow being codified, take the steps, tool names, and corrections from it and confirm them, rather than asking cold for what is already on screen. Scope the rest by asking name, description, workflow steps, rules, and for an agent its tools, model, and effort. Then write the file and run `task install && task verify && task lint:md`, confirming all three exit 0 -- `lint:md` sits outside `verify` because it needs the network, so it never runs unless it is named. Close by reading back what the change added and checking it against the rules below: every other check here is aimed at what a change removed, so nothing but this pass looks at the new text.
-
-Update the docs in the same change. `CLAUDE.md` names which of the four owns what; a new skill or agent always touches `README.md`'s table plus whichever document covers its behaviour.
+1. Establish which artifact you're writing; frontmatter, path, and questions all differ.
+2. Scope it: name, description, workflow steps, rules, and for an agent its tools, model, and effort. Where the conversation already shows the workflow, take the steps, tool names, and corrections from it and confirm them instead of asking cold.
+3. Write the file, and update the docs in the same change. `CLAUDE.md` says which of the four documents owns what; a new skill or agent always touches `README.md`'s table plus the document covering its behaviour.
+4. Run `task install && task verify && task lint:md` and confirm all three exit 0. `lint:md` needs the network, so `verify` doesn't include it.
+5. Read back what the change added and check it against the rules below. Every other check here looks at what was removed, so this is the only pass over the new text.
 
 ## File Format
 
-`skills/<name>/SKILL.md`, ending with `## User Input` and `\$ARGUMENTS`. One file serves Claude Code and Gemini CLI both. The directory name is what the slash command resolves from; keep the `name` field equal to it, since `name` sets only the label shown in listings and a mismatch means the command and the listing disagree.
+`skills/<name>/SKILL.md` ends with `## User Input` and `\$ARGUMENTS`. One file serves both Claude Code and Gemini CLI. The slash command resolves from the directory name, and `name` only sets the listing label, so keep them equal.
 
 ```yaml
 ---
@@ -25,11 +27,10 @@ allowed-tools: "<Bash rules for the skill's read-only commands, omitted when it 
 ---
 ```
 
-`allowed-tools` pre-approves; it never restricts. Every other tool stays callable and the session's own permission rules still govern what is not listed, so a narrow grant costs a skill nothing. The grant covers only the turn that invoked the skill and clears on the user's next message, which is why it fits a skill's opening reconnaissance -- auth, view, diff, list -- and not the writes a later turn asks for. Grant the narrowest prefix that matches what the skill actually runs, down to the arguments where the command is fixed, and never a bare tool name: an operation the body never names does not belong in the grant, and a broad rule like `Bash(jq:*)` matches a redirect as readily as the pipeline it was added for.
+- **`allowed-tools`** pre-approves; it never restricts, and unlisted tools stay under the session's own permissions. The grant clears on the user's next message, so it suits opening reconnaissance (auth, view, diff, list), not writes a later turn asks for. Grant the narrowest prefix the skill actually runs, down to fixed arguments, never a bare tool name, and nothing the body doesn't name: `Bash(jq:*)` matches a redirect as easily as the pipeline it was added for.
+- **`argument-hint`** is always quoted. Unquoted, `[x]` is a YAML sequence and `[x] [y]` doesn't parse, which takes the whole frontmatter down: the skill loses its description and trigger, not just its hint.
 
-Quote `argument-hint`. Unquoted, `[x]` is a YAML flow sequence rather than a string, and `[x] [y]` does not parse at all -- taking the whole frontmatter down with it, so the skill loses its description and its trigger rather than just its hint.
-
-`agents/<name>/AGENT.md`, no `## User Input` section, Claude Code only.
+`agents/<name>/AGENT.md` has no `## User Input` section and is Claude Code only.
 
 ```yaml
 ---
@@ -41,85 +42,103 @@ effort: <low | medium | high | xhigh | max>
 ---
 ```
 
-Agents pin `model` and `effort` because they spawn cold with no session to inherit from. Weigh the model by task -- `opus` for design, architecture, and judgment; `sonnet` for routine coding and mechanical dispatch; `haiku` for read-only lookups -- and `effort` by reasoning load, `high` for most work, `xhigh` or `max` for subtle correctness. Omit `memory` entirely: its only values are `user`, `project`, and `local`, all of which persist a directory across sessions, and every agent here is spawned per task and re-reads its inputs. Scope `tools` narrowly; omit only to inherit every session tool. Withholding a tool is a real constraint, stronger than an instruction: an agent with no `Write` cannot author the payload it forwards.
+Agents spawn cold with no session to inherit, so they pin both:
 
-Give an agent a one-line Identity -- the disposition it argues from when a call is close.
+- **`model`** by task: `opus` for design, architecture, and judgment; `sonnet` for routine coding and mechanical dispatch; `haiku` for read-only lookups.
+- **`effort`** by reasoning load: `high` for most work, `xhigh` or `max` for subtle correctness.
+- **`tools`** scoped narrowly; omit only to inherit every session tool. Withholding a tool beats any instruction: an agent without `Write` can't write the payload it forwards.
+- **`memory`** omitted. Its values (`user`, `project`, `local`) all persist across sessions, and every agent here is spawned per task and re-reads its inputs.
 
-The spec carries fields this repo declines, and recording the decision is what stops it being re-argued as an oversight. Every skill here stays model-invocable rather than taking `disable-model-invocation`, because each already guards its own side effects and a user-only skill drops its description from context entirely, which is the one thing that decides whether it is ever reached. `\$ARGUMENTS` covers what these skills take, so `arguments` and its named placeholders go unused. `skills:` preloads a whole `SKILL.md` into an agent at spawn, which suits an agent needing a skill's body rather than a reference file beside it, and no agent here needs either. `hooks`, `paths`, `shell`, `isolation`, and `color` earn nothing yet.
+Give each agent a one-line Identity: the disposition it argues from when a call is close.
 
-`skills/<name>/<file>.md` for a reference file: no frontmatter, since it is not a skill and has no `name` to resolve. Open with one top-level heading and a lead line naming who reads it and what that reader already has loaded, so the file carries only what its own context lacks.
+Fields this repo declines, recorded so nobody re-adds them as an oversight:
+
+- `disable-model-invocation`: every skill already guards its own side effects, and a user-only skill drops its description from context, which is the only thing that gets it reached.
+- `arguments` and named placeholders: `\$ARGUMENTS` covers what these skills take.
+- `skills:` preloads a whole `SKILL.md` into an agent, which suits an agent needing a skill's body rather than a reference file beside it (read at its installed path); no agent here needs either.
+- `hooks`, `paths`, `shell`, `isolation`, `color`: nothing gained yet.
+
+A reference file is `skills/<name>/<file>.md` with no frontmatter. Open it with one top-level heading and a lead line naming who reads it and what that reader already has loaded, so it carries only what that context lacks.
 
 ## Triggering
 
-The description is the only part loaded before a skill fires, so it decides whether the skill is consulted at all and the body never gets a vote. Write it in two halves: what the skill does, then the contexts that should reach for it, in the words a user would type rather than the ones the skill uses internally. Skills under-fire far more often than they over-fire, so state the trigger wider than feels necessary and cover the prompts that describe the goal without naming the artifact.
+The description is the only part loaded before a skill fires, so it alone decides whether the skill is ever consulted. Write what the skill does, then when to reach for it, in the words a user would type. Skills under-fire far more than they over-fire: make the trigger wider than feels necessary, and cover prompts that state the goal without naming the artifact.
 
-A description competes with its siblings, not with silence. Before calling one done, write three or four prompts a real user would type -- including near-misses belonging to a neighbouring skill -- and check that the description sorts them. Siblings acting on the same object are where this bites: where one skill drafts a document and another publishes it, "get this ready to go out" has to land on exactly one, and it does so only because each description claims a verb the other never uses. A prompt that lands in both is fixed in the description, not left for the model to break the tie.
+Descriptions compete with their siblings. Before calling one done, write three or four realistic prompts, including near-misses belonging to a neighbouring skill, and check they sort correctly. Siblings acting on the same object need distinct verbs: if one skill drafts a document and another publishes it, "get this ready to go out" must land on exactly one. Fix a prompt that lands on both in the descriptions, not by leaving the model to break the tie.
 
 ## Token Efficiency
 
-Skills and agents are paid for on every invocation. Classify each sentence before writing or cutting it.
+Every invocation pays for every sentence. Classify each one:
 
-**Derivable -- leave it out.** What a current model produces from the task itself: rationale for a rule it would follow anyway, why an approach is correct, a constraint already stated elsewhere in the same file, step-by-step sequencing of an obvious procedure, hedging against mistakes these models do not make.
+- **Derivable, so cut it:** anything a current model produces from the task itself: rationale for a rule the model would follow anyway, why an approach is correct, a constraint already stated elsewhere in the file, sequencing of an obvious procedure, hedging against mistakes current models don't make.
+- **Specification, so keep it word for word:** anything that can't be derived because it's a fact about this setup or an arbitrary choice: templates and their section order, literal commands and flags, tool and agent names, paths and naming schemes, message and JSON contracts, status vocabularies, thresholds, and every constraint on a destructive or irreversible operation. Never paraphrase a command or reorder a template.
 
-**Specification -- keep verbatim.** What cannot be derived because it is a fact about this setup or an arbitrary choice: templates and their section order, literal commands and flags, tool and agent names, paths and naming schemes, message and JSON contracts, status vocabularies, thresholds, and every constraint on a destructive or irreversible operation. Never paraphrase a command or reorder a template.
-
-Rationale is not automatically derivable. Keep the sentence that resolves a case the rules do not list, or that sets the stake so a reader knows to stop rather than warn; cut the one that only re-explains a rule already given.
-
-Keep anything genuinely ambiguous between the categories -- losing capability costs more than the tokens save. Where one constraint could sit in either Workflow or Rules, put it where it is likelier to be followed; for a destructive operation that is the imperative-negative in Rules.
+Rationale isn't automatically derivable. Keep a sentence that resolves a case the rules don't list, or sets the stakes so a reader knows to stop rather than warn; cut one that only re-explains a rule. When unsure, keep it: lost capability costs more than tokens. Put a constraint where it's likeliest to be followed, which for a destructive operation is an imperative negative in Rules.
 
 ## Progressive Disclosure
 
-A skill's body loads whole on every invocation; a sibling `<name>.md` loads only when something reads it. Splitting one out trades tokens for a `Read` round-trip and the chance the model skips it and works from memory instead, so it pays only where a real path never reaches the block. Two gates open it and either is enough -- apply it wherever one does, and inline everything else.
+A skill's body loads in full every time; a sibling `<name>.md` loads only when read. A split saves tokens but costs a `Read` round-trip and risks the model skipping it and working from memory. Two gates open a split and either is enough: split wherever one opens, and inline everything else:
 
-**Cross-context.** The context that loads the skill is not the one that uses the block. A skill forbidden by its own rules from authoring, delegating that to an agent, pays for every template line it carries and fills in none of them, while the agent that does the authoring reads the whole `SKILL.md` to find them. No skill here is shaped that way any more -- the gate stands for one that is. A skill naming its own sibling points at `CLAUDE_SKILL_DIR` -- the variable in dollar-and-braces form -- followed by `/<file>.md`, which Claude Code expands to wherever the skill is installed. An agent gets no such substitution and needs the literal `~/.claude/skills/<name>/<file>.md`. Either way a repo-relative path resolves nowhere but the repo it was written in. Claude Code is what performs that substitution, so a skill installed to another runtime as well gets the literal string: pair the pointer with a fallback naming that runtime's own installed path -- `~/.gemini/skills/<name>/<file>.md` for the Gemini CLI this repo also installs to -- so the other runtime degrades to a working run rather than to the dead stop that "never run this from memory" would otherwise leave it in. Name the path rather than describing it as the skill's own directory, for the same reason the agent case names one: a reader that has to work out where it is searches instead of reading.
+- **Cross-context:** the context that loads the skill isn't the one that uses the block, e.g. a skill forbidden from authoring that delegates to an agent, paying for templates it never fills in. No skill here has that shape now; the gate stands for one that does.
+- **Selective bulk:** a block of about 1k tokens or more that a nameable mode never reaches. Measure first (`wc -c` on the section, divided by four); below that the pointer and round-trip cost more than they save. The forge skills are the model case: a run resolves GitHub or GitLab first, so the other CLI's reference is never opened. Sibling skills sharing one resolve-then-read shape follow their largest member, which is why `/pr` and `/remote-release` keep the split under 1k.
 
-**Selective bulk.** A block of roughly 1k tokens or more that a named mode never reaches -- one you can name, not one that might skip it. Measure before splitting: `wc -c` over the section, bytes over four. Under that floor the pointer prose and the round-trip eat the saving. The forge skills are the clean case: a run resolves GitHub or GitLab before it runs anything, so the other CLI's command reference is a file that mode provably never opens. Where sibling skills share one resolve-then-read shape, hold the whole family to what its largest member measures rather than splitting the ones over the floor and inlining the ones under it -- `/pr` and `/remote-release` skip well under 1k and keep the split anyway, because a shape a reader learns once across four skills is worth more than the few hundred tokens inlining two of them would save.
+Length alone opens neither gate. Check whether a section is derivable before extracting it, since cutting beats deferring. Never defer a block that must be reproduced byte-exact: a skipped read becomes a reconstruction from memory.
 
-Length alone opens neither gate. Check whether a section is derivable before extracting it, since cutting beats deferring, and never defer a block that has to be reproduced byte-exact -- a skipped read becomes a reconstruction from memory, which is what a verbatim format cannot survive.
+Paths to a split-out file:
 
-`task install` links every `*.md` beside `SKILL.md` and mirrors a `scripts/` or `assets/` directory beneath it, so a reference file is a flat `<name>.md` sibling and an executable belongs in `scripts/`. Reach a bundled script through that same variable plus `/scripts/<name>`, and pre-approve that exact path in `allowed-tools`, so repeated deterministic work runs without a prompt rather than being retyped as a command each time -- that `allowed-tools` substitution needs Claude Code 2.1.129 or newer, below which the rule stays literal, never matches, and prompts anyway. An agent has no equivalent -- only `AGENT.md` is linked -- so neither gate opens for one: it carries what it needs in that file, or reads an installed skill's reference file at `~/.claude/skills/<name>/<file>.md`.
+- A skill names its own sibling as `CLAUDE_SKILL_DIR` in dollar-and-braces form plus `/<file>.md`, which Claude Code expands to the installed location.
+- Only Claude Code expands it, so pair the pointer with the other runtime's installed path (`~/.gemini/skills/<name>/<file>.md` for Gemini CLI). Otherwise that runtime hits the dead stop "never run this from memory" leaves it in.
+- An agent gets no substitution and uses the literal `~/.claude/skills/<name>/<file>.md`.
+- Always name the path explicitly. A repo-relative path only resolves in this repo, and a reader left to work out a location searches instead of reading.
 
-Duplication between two files costs nothing at runtime, because skills load one at a time. Never split a file to remove text another file repeats -- the only cost is editing twice, and a shared file that must be read back is worse.
+`task install` links every `*.md` beside `SKILL.md` and mirrors a `scripts/` or `assets/` directory, so reference files are flat `<name>.md` siblings and executables go in `scripts/`. Reach a bundled script through the same variable plus `/scripts/<name>`, and pre-approve that exact path in `allowed-tools` so repeated deterministic work runs without a prompt; that substitution needs Claude Code 2.1.129 or newer, below which the rule stays literal and prompts anyway. Agents get only `AGENT.md` linked, so neither gate applies: an agent carries what it needs, or reads an installed skill's file at `~/.claude/skills/<name>/<file>.md`.
+
+Duplication across files costs nothing at runtime, because skills load one at a time. Never split a file to remove text another file repeats; editing twice is cheaper than a shared file that must be read back.
 
 ## Writing Style
 
-Prose paragraphs, not bullets: bullets fragment context and strip the connectives that carry intent. Tables and code blocks are the exception, and are the right form for command references and templates.
+Match the form to the content:
 
-State a hard constraint as a violation clause rather than as plain prose, in the shape the Clause violation below fixes. Examples are specification; they settle the boundary that prose leaves soft.
+- **Prose** for any rule with a condition, exception, or ordering. The connectives ("unless", "so", "but only") carry the logic, so never break such a rule into bullets of equal weight.
+- **Bullets or numbered steps** for flat, independent items: modes, checks, skip lists, files to read, field-by-field notes, a sequence of steps.
+- **Tables** for lookups across two or more attributes: commands per operation, fields per tracker, labels per consequence.
+- **Code blocks** for templates and literal commands.
 
-Write standing instructions, not steps to perform once. A rendered body enters the conversation as a single message and stays for the session, and Claude Code never re-reads the file on a later turn, so a rule phrased as work to do now stops applying the moment it is done. An `allowed-tools` grant is the exception that shows the shape: permissions clear on the next message while the instructions do not.
+State hard constraints as violation clauses, in the shape the Clause violation sets out. Examples are specification: they settle boundaries prose leaves vague.
 
-Define the failure paths. A skill that forbids a fallback but never says what to do when its dependency is absent leaves nothing between a forbidden workaround and a dead stop, and the workaround is what happens.
+Write standing instructions, not one-off steps. The body enters the conversation once and Claude Code never re-reads it, so a rule phrased as a task to do now stops applying once done. `allowed-tools` grants are the exception: they clear on the next message while instructions stay.
 
-Transcribe commands from the CLI itself, never from memory. Where a binary was unavailable and a published reference was used instead, say so in the file and instruct reporting the tool's own error rather than substituting a flag that looks close.
+Define failure paths. A skill that forbids a fallback but never says what to do when its dependency is missing leaves nothing between the forbidden workaround and a dead stop, and the workaround wins.
+
+Transcribe commands from the CLI itself, never from memory. If you had to use a published reference instead, say so in the file, and tell the reader to report the tool's own error rather than try a flag that looks close.
 
 ## Updating
 
-Read the current file first, and account for every behaviour the change removes -- name each one when reporting the change, so a removal is surfaced rather than discovered later. Cutting derivable prose is not a removal, as long as each specification item survives.
+Read the current file first. Name every behaviour the change removes when reporting it, so a removal is surfaced rather than discovered later. Cutting derivable prose isn't a removal as long as every specification item survives.
 
-After an edit that was meant to shorten, diff the rule-bearing sentences -- `never`, `must`, `always`, `violation:` -- against the original and account for every one that disappeared. Reworded is fine, relocated into a violation clause is fine, gone is a bug. Never take a commit message claiming a file was already tightened as evidence; check the file.
+After an edit meant to shorten, diff the rule-bearing sentences (`never`, `must`, `always`, `violation:`) against the original and account for each one that disappeared: reworded or moved into a violation clause is fine; gone is a bug. Never accept a commit message saying a file was already tightened as evidence; check the file.
 
 ## Rules
 
-Always ask scoping questions one at a time, and keep asking until nothing material is unsettled. Write the file once it is, without pausing for approval of the draft.
+Always ask scoping questions one at a time until nothing material is unsettled, then write the file without pausing for approval of the draft.
 
-Target 100 lines, counting everything outside the frontmatter, tables, and fenced blocks. Past that, check whether a section is derivable, then whether a gate in Progressive Disclosure opens, before deciding the skill is genuinely large.
+Aim for about 4k tokens of prose: bytes divided by four, counting everything outside frontmatter, tables, and fenced blocks. Count tokens, not lines, since a list runs to more lines than the paragraph it replaces while costing fewer tokens. Past that, check for derivable sections, then for an open disclosure gate, before deciding the skill is genuinely large.
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
-**Clause violation:** a violation clause turning on a judgment call that shows only what is forbidden. Where what counts is binary -- a finding without a number, a `model` key in a SKILL.md -- the label and the rule settle it and examples are derivable. Where it turns on reading an order, a diff, or a request, both halves are load-bearing: "running `merge` the order did not name" leaves a legitimate order looking equally refusable until "an order reading `op: merge` with `--squash` is run as written" is there beside it.
+**Clause violation:** a violation clause that turns on judgment but shows only the forbidden side. Where the rule is binary (a finding without a number, a `model` key in a SKILL.md), the label and rule settle it. Where it depends on reading an order, a diff, or a request, show both halves: "running `merge` the order did not name" makes a legitimate order look just as refusable until "an order reading `op: merge` with `--squash` is run as written" sits beside it.
 
 **Restatement violation:** a Role section paraphrasing the frontmatter description, which loads with the body anyway, or any constraint stated in both Workflow and Rules.
 
-**Model violation:** a `model` or `effort` key in a SKILL.md, or an AGENT.md pinning `model` without `effort`. The skills spec permits both on a skill and this repo declines them, so invoking one never changes the tier or the cost of the session it runs in; that is a house rule rather than a platform limit, and the reason has to travel with it or someone reinstates the key on the grounds that the spec allows it.
+**Model violation:** a `model` or `effort` key in a SKILL.md, or an AGENT.md pinning `model` without `effort`. The skills spec allows both on a skill; this repo declines them so invoking a skill never changes the tier or cost of the session it runs in. It's a house rule, not a platform limit, and the reason travels with it so nobody re-adds the key because the spec allows it.
 
-**Trigger violation:** a description that stops at what the skill does, or that names the artifact without the intent someone would arrive with. "Create a conventional commit from staged changes" alone is a violation, since nothing in it claims the prompt "commit this"; the same sentence followed by "Use when the user wants to commit staged changes with a properly formatted commit message" is acceptable.
+**Trigger violation:** a description that stops at what the skill does, or names the artifact without the intent a user arrives with. "Create a conventional commit from staged changes" alone is a violation, since nothing claims the prompt "commit this"; add "Use when the user wants to commit staged changes with a properly formatted commit message" and it's acceptable.
 
-**Contract violation:** renaming, reordering, or removing a section or field another file reads back by name, without following every reader in the same change. The Task File Format in `/sdlc-design` carries `## Acceptance Criteria`, which `/sdlc-implement` reads back and a signoff gate compares, so renaming it there alone is a violation; adding a section no reader indexes, or rewording the prose inside one, is not.
+**Contract violation:** renaming, reordering, or removing a section or field another file reads back by name without updating every reader in the same change. `/sdlc-design`'s Task File Format carries `## Acceptance Criteria`, which `/sdlc-implement` reads and a signoff gate compares, so renaming it in one place is a violation. Adding a section no reader indexes, or rewording prose inside one, is not.
 
-**Substitution violation:** writing a token in the form the runtime replaces, inside a sentence about the token rather than one using it -- the rule then renders as the user's own prompt, or as a path to whichever skill is loaded. The two fixes differ. A backslash escapes the arguments token, in prose and inside a code span alike, so `\$ARGUMENTS` is how to name it literally. `CLAUDE_SKILL_DIR` takes no escape -- the backslash survives and the variable expands anyway -- so name it bare, without its sigil, and describe the dollar-and-braces form in words. Live forms belong only where the substitution is wanted: the arguments token in the final `## User Input` section, and the braced variable in a path the skill actually reads.
+**Substitution violation:** writing a token in its live form in a sentence about the token rather than one using it; it then renders as the user's prompt or a path to whichever skill is loaded. A backslash escapes the arguments token, in prose and code spans alike, so `\$ARGUMENTS` names it literally. `CLAUDE_SKILL_DIR` can't be escaped (the backslash survives and it still expands), so name it bare and describe the dollar-and-braces form in words. Live forms belong only where substitution is wanted: the arguments token in the final `## User Input`, and the braced variable in a path the skill actually reads.
 
-**Disclosure violation:** extracting a block every path through the skill reads, or pointing a cross-context reader at a repo-relative path rather than the installed one. Splitting out a body template the skill fills in itself is a violation, since the context that composes the body is the one that loaded the template; splitting out templates a delegated agent fills in is acceptable, since the context that loads them is forbidden from using them.
+**Disclosure violation:** extracting a block every path through the skill reads, or pointing a cross-context reader at a repo-relative path. Splitting out a body template the skill fills in itself is a violation, since the context that loaded it composes the body; splitting out templates a delegated agent fills in is acceptable, since the loading context is forbidden from using them.
 
 ## User Input
 

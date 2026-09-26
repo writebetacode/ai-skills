@@ -7,58 +7,41 @@ allowed-tools: "Bash(gh auth status:*), Bash(gh repo view:*), Bash(gh release li
 
 # Remote Release
 
-One skill for both forges. What follows is host-agnostic; the commands live in the host's reference file.
-
 ## Host
 
-Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` for GitHub or `${CLAUDE_SKILL_DIR}/gitlab.md` for GitLab before running anything -- it carries the command for every operation named below. Where that path arrives unexpanded the runtime is not Claude Code: read the file of that name from this skill's own directory instead -- `~/.gemini/skills/remote-release/<file>.md` under Gemini CLI -- rather than treating the reference as missing. Where a self-hosted URL settles nothing, read both files and run each CLI's `repo-id`, taking the one that resolves; if both do or neither does, ask the user.
+Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` or `${CLAUDE_SKILL_DIR}/gitlab.md` before running anything; it has the command for every operation named below. If the path arrives unexpanded, you're not in Claude Code: read the same file from this skill's own installed directory instead (`~/.gemini/skills/remote-release/<file>.md` under Gemini CLI) rather than treating the reference as missing. If a self-hosted URL doesn't settle the forge, read both files and use whichever CLI's `repo-id` resolves; if both or neither do, ask.
 
-A missing CLI stops the run rather than being routed around: tell the user which one to install, with the URL from the reference file, never substitute the other forge's CLI or a raw `curl` against the API, and never tag or push on the way to a release that cannot then be published.
-
-Pass the release notes as a file path -- writing them to a temp file and letting the CLI read it is what keeps a body byte-exact and out of reach of shell quoting.
+If the CLI is missing, stop and tell the user which one to install, with the URL from the reference file. Never switch to the other forge's CLI or raw `curl`, and never tag or push toward a release that can't then be published.
 
 ## Workflow
 
-Run `auth`; stop on failure. Resolve the default branch via `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), falling back to `git remote show origin` parsed for `HEAD branch:`; never assume `main`. Check it out, `git pull`, and confirm `git status --short` is empty, naming what is in the way if it is not.
+1. **Prepare.** Run `auth`; stop on failure. Find the default branch with `git symbolic-ref --short refs/remotes/origin/HEAD` (strip `origin/`), falling back to `HEAD branch:` from `git remote show origin`; never assume `main`. Check it out, `git pull`, and confirm `git status --short` is empty, naming what's in the way if not.
+2. **Read the conventions from the repo, never from this file.** Tags via `git tag -l --sort=-v:refname`, recent releases via `release-list` and `release-view`. Match tag format, title prefix, body structure, and whether tags are annotated.
+3. **Resolve the version.** A version in the arguments wins, with its `v` prefix matched to existing tags. Otherwise take the latest tag by `--sort=-v:refname` (plain `sort` puts `v0.3.9` after `v0.3.10`), read `git log <latest>..HEAD --oneline`, and bump by the strongest change: breaking is major, any `feat` is minor, else patch; below `1.0.0`, breaking bumps minor. If nothing is past the latest tag, stop: there's nothing to release. State the version, the tag it follows, and the commit types behind it, and confirm before tagging.
+4. **Draft the notes.** Group commits and diffs by theme, not one line per commit, in the section structure of recent releases, and write the title in their voice with any prefix kept. Recent releases also set the length, even when long. With nothing to match (first release, or inconsistent history), write one sentence of context and one line per grouped item, plus the verification section where it applies and the changelog link. If recent releases have a verification section, write one honestly: what was actually exercised versus only inspected. Show version, title, and full body for edits.
+5. **End with the changelog range** in the form recent releases use, usually a final `**Full Changelog**: <compare-url>` line, starting from the tag the version was inferred from. Base URL from `git remote get-url origin`, SSH (`git@host:owner/repo.git`) converted to `https://host/owner/repo`. On a first release, leave it out rather than invent a range.
 
-**Establish conventions from the repo, never from this file.** Read existing tags with `git tag -l --sort=-v:refname` and recent releases with `release-list` and `release-view`. Match what you find: tag format, title prefix, body structure, whether tags are annotated. The patterns below describe the common case; the repo's actual history always wins.
+   | Host | Compare URL |
+   | --- | --- |
+   | GitHub | `<repo-url>/compare/<previous-tag>...<new-tag>` |
+   | GitLab | `<repo-url>/-/compare/<previous-tag>...<new-tag>` |
 
-**Resolve the version.** An explicit version in the arguments wins outright -- normalize its `v` prefix to match existing tags. Otherwise take the latest tag by `--sort=-v:refname` (never plain `sort`, which orders `v0.3.9` after `v0.3.10`), read `git log <latest>..HEAD --oneline`, and bump by the strongest change present: a breaking change majors, any `feat` minors, otherwise patch. Below `1.0.0`, breaking changes bump the minor. State the proposed version, the tag it follows, and the commit types that drove it, then confirm before tagging. If no commits separate HEAD from the latest tag, stop: there is nothing to release.
-
-**Draft the notes.** Read the commits and their diffs and group them by theme rather than listing them mechanically, matching the section structure of recent releases. Draft a title in the voice of existing release titles, preserving any prefix convention. Where recent releases carry a section on what was and was not verified, write one honestly: name what was actually exercised and what was only inspected. Show version, title, and full body, and let the user edit.
-
-Length follows the same rule as structure -- the repo's own releases set it, and are matched even where they run long. Where there is nothing to match, on a first release or against past notes too inconsistent to read a convention from, the default is one sentence of context, then one line per grouped item, plus the verification section where it applies and the changelog link below.
-
-**Close with the changelog range.** End the body with a compare link from the previous tag to the new one, matching the form recent releases use -- typically `**Full Changelog**: <compare-url>` as the last line. The previous tag is the one the version was inferred against, so the range covers exactly the commits described above it. Derive the base URL from `git remote get-url origin`, converting an SSH remote (`git@host:owner/repo.git`) to `https://host/owner/repo`, then build the path for the host:
-
-| Host | Compare URL |
-| --- | --- |
-| GitHub | `<repo-url>/compare/<previous-tag>...<new-tag>` |
-| GitLab | `<repo-url>/-/compare/<previous-tag>...<new-tag>` |
-
-GitLab puts `/-/` before the route and GitHub does not, so a link built for the wrong forge 404s. On a first release there is no previous tag: omit the link rather than inventing a range.
-
-**Publish on confirmation.** Create an annotated tag (`git tag -a <version> -m <title>`) when the repo's recent tags are annotated, a lightweight one when they are not; `git cat-file -t "$(git rev-parse <tag>)"` reports `tag` for annotated and `commit` for lightweight -- the one place the undereferenced form is wanted, since it inspects the tag object itself.
-
-Everywhere else dereference: on an annotated tag `git rev-parse <tag>` returns that object, so compare and report `<tag>^{commit}`. Confirm it equals the resolved default branch's tip before publishing, and stop if it does not -- a branch behind its remote looks identical to one up to date, and tagging there ships the last release's tree under a new version.
-
-Push the tag, always, before creating the release. The forges fail opposite ways when it is missing and the reference files are written so neither hides it: `gh` refuses the create outright, while `glab` would otherwise create the tag itself from a ref and mask the failed push. Then write the drafted body to a temp file outside the repo and run `release-create` with the tag, title, and notes path -- plus the target branch on GitHub, which GitLab does not take. Pass GitHub's `--generate-notes` only when the drafted body is meant to carry gh's commit list beneath it; GitLab has no equivalent. Display the release URL the CLI returns.
+6. **Tag.** Annotated (`git tag -a <version> -m <title>`) if recent tags are, lightweight otherwise; `git cat-file -t "$(git rev-parse <tag>)"` reports `tag` or `commit`, the one place to use the undereferenced form. Everywhere else use `<tag>^{commit}`, since `git rev-parse` on an annotated tag returns the tag object. Confirm `<tag>^{commit}` equals the default branch's tip and stop if not: a branch behind its remote looks up to date, and tagging there ships the last release's tree under a new version.
+7. **Publish.** Always push the tag first: `gh` refuses a release for a missing tag, but `glab` would create the tag itself and hide the failed push. Write the body to a temp file outside the repo (never retype notes into a command) and run `release-create` with tag, title, and notes path, plus the target branch on GitHub. Add `--generate-notes` (GitHub only) only if the body should carry gh's commit list under it. Show the release URL.
 
 ## Rules
 
-Never publish without an explicit confirmation covering the final version, title, and body together. Never tag from a branch other than the resolved default branch, or from a dirty tree. Never invent a version that skips or reorders the sequence.
+- Never tag or publish without one explicit confirmation covering the final version, title, and body together.
+- Never tag from anything but the resolved default branch, or from a dirty tree.
+- Never pick a version that skips or reorders the sequence.
+- Never reuse a tag: check `git rev-parse --verify <version>` and stop if it resolves. Keep `--verify`, since without it a miss prints the name back and only the exit code tells you. On GitLab, creating against a tag that has a release overwrites its name and notes instead of failing.
+- Never claim in notes that anything was tested, verified, or exercised unless you can point to it happening; describe inspected-only work as inspected. Release notes are a public, lasting record.
+- Never write a remote command from memory; anything the reference file doesn't cover is unsupported.
+- Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
-Never reuse an existing tag -- check with `git rev-parse --verify <version>` first and stop if it resolves. Keep `--verify`: the bare form prints the tag name back on a miss and exits non-zero, which reads like a hit to anyone not checking the exit code. On GitLab this is load-bearing rather than tidy: creating against a tag that already has a release overwrites its name and notes instead of failing.
+**Version violation:** a tag breaking the repo's format: a missing or extra `v`, a truncated `MAJOR.MINOR.PATCH`, or a number not following the latest tag. After `v1.4.2`, `1.4.3`, `v1.5`, and `v1.6.0` are violations; `v1.4.3` and `v1.5.0` are acceptable.
 
-Never claim in release notes that something was tested, verified, or exercised unless that actually happened in a way you can point to; describe inspected-only work as inspected. A release note is a public durable record, and an overstated one is worse than a terse one.
-
-Never compose a remote command from memory -- every one comes from the host's reference file, and an operation it does not cover is reported as unsupported rather than improvised.
-
-Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
-
-**Version violation:** any tag that breaks the repo's existing format -- a missing or added `v` prefix, a truncated `MAJOR.MINOR.PATCH`, or a number that does not follow the latest tag -- must be corrected before tagging. Against a latest tag of `v1.4.2`, `1.4.3` drops the prefix, `v1.5` truncates, and `v1.6.0` skips the sequence; `v1.4.3` and `v1.5.0` are acceptable.
-
-**Title violation:** any title that drops the repo's established prefix convention, or that restates the version number instead of describing the release, must be rewritten before publishing. Where recent releases read `Release v1.4.2 -- <description>`, both `v1.4.3` and `Release v1.4.3` are violations, naming the version and describing nothing; `Release v1.4.3 -- narrower glab permissions and a follow-up review mode` is acceptable.
+**Title violation:** a title that drops the repo's prefix convention, or states the version instead of describing the release. Where recent titles read `Release v1.4.2 -- <description>`, `v1.4.3` and `Release v1.4.3` are violations; `Release v1.4.3 -- narrower glab permissions and a follow-up review mode` is acceptable.
 
 ## User Input
 
