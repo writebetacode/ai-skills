@@ -26,12 +26,12 @@ If the CLI is missing, stop and tell the user which one to install, with the URL
    | GitHub | `<repo-url>/compare/<previous-tag>...<new-tag>` |
    | GitLab | `<repo-url>/-/compare/<previous-tag>...<new-tag>` |
 
-6. **Tag, only after the final confirmation** of version, title, and body together. Annotated (`git tag -a <version> -m <title>`) if recent tags are, lightweight otherwise; `git cat-file -t "$(git rev-parse <tag>)"` reports `tag` or `commit`, the one place to use the undereferenced form. Everywhere else use `<tag>^{commit}`, since `git rev-parse` on an annotated tag returns the tag object. Confirm `<tag>^{commit}` equals the default branch's tip and stop if not: a branch behind its remote looks up to date, and tagging there ships the last release's tree under a new version.
+6. **Tag.** Annotated (`git tag -a <version> -m <title>`) if recent tags are, lightweight otherwise; `git cat-file -t "$(git rev-parse <tag>)"` reports `tag` or `commit`, the one place to use the undereferenced form. Everywhere else use `<tag>^{commit}`, since `git rev-parse` on an annotated tag returns the tag object. Confirm `<tag>^{commit}` equals the default branch's tip and stop if not: a branch behind its remote looks up to date, and tagging there ships the last release's tree under a new version.
 7. **Publish.** Always push the tag first: `gh` refuses a release for a missing tag, but `glab` would create the tag itself and hide the failed push. Write the body to a temp file outside the repo (never retype notes into a command) and run `release-create` with tag, title, and notes path, plus the target branch on GitHub. Add `--generate-notes` (GitHub only) only if the body should carry gh's commit list under it. Show the release URL.
 
 ## Rules
 
-- Never publish without one explicit confirmation covering the final version, title, and body together.
+- Never tag or publish without one explicit confirmation covering the final version, title, and body together.
 - Never tag from anything but the resolved default branch, or from a dirty tree.
 - Never pick a version that skips or reorders the sequence.
 - Never reuse a tag: check `git rev-parse --verify <version>` and stop if it resolves. Keep `--verify`, since without it a miss prints the name back and only the exit code tells you. On GitLab, creating against a tag that has a release overwrites its name and notes instead of failing.

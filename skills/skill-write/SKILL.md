@@ -122,7 +122,7 @@ After an edit meant to shorten, diff the rule-bearing sentences (`never`, `must`
 
 Always ask scoping questions one at a time until nothing material is unsettled, then write the file without pausing for approval of the draft.
 
-Aim for 100 lines, counting everything outside frontmatter, tables, and fenced blocks. Past that, check for derivable sections, then for an open disclosure gate, before deciding the skill is genuinely large.
+Aim for about 4k tokens of prose: bytes divided by four, counting everything outside frontmatter, tables, and fenced blocks. Count tokens, not lines, since a list runs to more lines than the paragraph it replaces while costing fewer tokens. Past that, check for derivable sections, then for an open disclosure gate, before deciding the skill is genuinely large.
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 

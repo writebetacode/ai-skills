@@ -9,7 +9,7 @@ allowed-tools: "Bash(git symbolic-ref:*), Bash(git remote show:*), Bash(git log:
 
 Flow: **[design]** -> implement -> complete
 
-A task has exactly one parent. If it needs two bases, it isn't one task yet: split it until it has one.
+A task has exactly one parent. If it needs two bases, it isn't one task yet: send it back to decomposition until it is.
 
 ## Session Start
 
@@ -49,7 +49,7 @@ All seven are absolute:
 - **NN-ordering:** task and epic NN-prefixes match actual run order: 01 first, no gaps, no reordering. Single-epic projects use `01-`.
 - **Graph cross-check:** prose agrees with the dependency graph; flag any disagreement.
 - **AC sanity:** reject an AC that prescribes test infrastructure ("tests connect to the DB directly") without a sanctioned integration strategy, or duplicates existing project code.
-- **PRD wiring:** no `prd.md` without a `spec.md` citing it; wire it in per FR or delete it.
+- **PRD wiring:** if `prd.md` exists, every epic's `spec.md` cites it and traces each FR to it; wire in any spec that doesn't, or delete a `prd.md` nothing cites.
 - **ADR coverage:** every cross-cutting decision is recorded in `adr.md` or `docs/adrs/`.
 
 Before signoff, write `plans/.markdownlint.jsonc` from the Lint Config Format if missing; markdownlint's defaults flag the unwrapped prose and Gherkin placeholders this flow writes on purpose. At signoff, generate `MANIFEST.md` from its template and record signoff in the plan. End with: "Design complete. Run `/sdlc-implement` to begin."
@@ -89,7 +89,7 @@ Neither slug gets a date prefix; the date is added only on archive.
 
 ## PRD and ADR Handling
 
-- `prd.md` is optional: write one only for user-facing product requirements worth separating from the technical spec (what, not how). If it exists, every epic's `spec.md` cites it under `## Dependencies` ("PRD: prd.md") and traces each FR to a PRD section by quoted phrase or heading.
+- `prd.md` is optional: write one only for user-facing product requirements worth separating from the technical spec (what, not how). If it exists, every epic's `spec.md` must cite it under `## Dependencies` ("PRD: prd.md") and trace each FR to a PRD section by quoted phrase or heading.
 - `adr.md` is a required running log, one heading per project-level decision with context, decision, and consequences.
 - A decision that should outlive the project (naming conventions, a cross-cutting framework choice, a data contract family) is promoted to `docs/adrs/<YYYYMMDD>-<slug>.md` in the host repo and noted in `adr.md`.
 

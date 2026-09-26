@@ -82,7 +82,7 @@ Mark every AC `[x]`, move the plan.md Status along (Todo -> In Progress -> Done)
 
 ## Mid-Flight Revision and Abandon Task
 
-Route to `/sdlc-design` (its Mid-Flight Revision section keeps, revises, or voids tasks) on a **requirement change** (review feedback changing what to build, not how the code looks) or an **unbuildable task**. Stash work in progress (never commit a partial green), run `/sdlc-design` scoped to the change, and resume only after the user confirms the revised plan.
+Route to `/sdlc-design` (its Mid-Flight Revision section keeps, revises, or voids tasks) on a **requirement change** (review feedback changing what to build, not a code tweak) or an **unbuildable task**. Stash work in progress (never commit a partial green), run `/sdlc-design` scoped to the change, and resume only after the user confirms the revised plan.
 
 Also route there rather than deciding here: a factual or structural **ambiguity** (naming, contract, technology choice), or an AC that duplicates existing project code or prescribes unsanctioned test infrastructure. An edit growing past the spec sentence it implements is **scope drift**: rule it an in-scope refinement here, or send it to `/sdlc-design` as a requirements change. Never quietly widen scope to make a blocker go away.
 

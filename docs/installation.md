@@ -4,6 +4,8 @@ What `task install` puts on your machine, how to control it, and how to take it 
 
 Requires [Task](https://taskfile.dev) (`brew install go-task`) and [jq](https://jqlang.org) (`brew install jq`, used for the settings merge).
 
+The forge and tracker skills drive `gh`, `glab`, and `acli` but never install them. On GitLab, `/pr` and `/remote-issue` need glab 1.115.0 or newer, the first release whose `mr create`, `mr update`, `issue create`, and `issue update` take `--description-file`.
+
 ```bash
 git clone https://github.com/writebetacode/ai-skills
 cd ai-skills

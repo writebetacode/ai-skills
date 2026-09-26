@@ -1,6 +1,6 @@
 # GitLab Commands
 
-Read when the tracker is GitLab; `SKILL.md` is already loaded. `glab` reads no description file, so bodies go through `"$(cat <path>)"` from the temp file.
+Read when the tracker is GitLab; `SKILL.md` is already loaded. Descriptions go through `--description-file`, which needs glab 1.115.0 or newer. `glab issue note` has no file flag, so a comment body goes through `"$(cat <path>)"` from the temp file.
 
 | Operation | Command |
 | --- | --- |
@@ -8,9 +8,9 @@ Read when the tracker is GitLab; `SKILL.md` is already loaded. `glab` reads no d
 | `repo-id` | `glab repo view --output json --jq .path_with_namespace` |
 | `whoami` | `glab api user \| jq -r .username` |
 | `issue-view` | `glab issue view <n> --output json --jq '{iid,title,state,web_url}'` |
-| `issue-create` | `glab issue create --yes --title <title> --description "$(cat <body-file>)" --assignee <username>`, plus `--label` and `--epic` when asked |
+| `issue-create` | `glab issue create --yes --title <title> --description-file <body-file> --assignee <username>`, plus `--label` and `--epic` when asked |
 | `issue-list` | `glab issue list --output json --per-page <n>` |
-| `issue-edit` | `glab issue update <n>`, plus `--title`, `--description "$(cat <path>)"`, `--label`, `--unlabel`, `--assignee`, and `--milestone` as named |
+| `issue-edit` | `glab issue update <n>`, plus `--title`, `--description-file <path>`, `--label`, `--unlabel`, `--assignee`, and `--milestone` as named |
 | `issue-comment` | `glab issue note <n> --message "$(cat <body-file>)"` |
 | `issue-close` | `glab issue close <n>` |
 | `issue-reopen` | `glab issue reopen <n>` |
@@ -24,4 +24,5 @@ Read when the tracker is GitLab; `SKILL.md` is already loaded. `glab` reads no d
 - On `issue update`, an unprefixed `--assignee` *replaces* the whole set. Prefix `+` to add, `!` or `-` to remove. `--label` adds and `--unlabel` removes; there's no replacing form.
 - `-F` on `issue list` is `--output-format` (`details`, `ids`, `urls`), `--output` there is `-O`, and `-F` differs again elsewhere; use long flags everywhere.
 - On failure, report the CLI's own error rather than retrying with other flags, and never use a flag missing from the table.
+- `Unknown flag: --description-file` means glab is older than 1.115.0: tell the user to upgrade it and stop.
 - `glab` missing (`command not found`, exit 127) isn't an auth failure: tell the user to install it from <https://gitlab.com/gitlab-org/cli> and stop.
