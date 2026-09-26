@@ -1,8 +1,6 @@
 # GitHub Commands
 
-Read when the forge resolves to GitHub. The verdict mapping, finding numbering, and the Voice rules are already loaded from `SKILL.md` and are not repeated here.
-
-Write each comment body to a temp file outside the repo and let `--body-file` or `@<path>` pass the bytes.
+Read this when the forge is GitHub. `SKILL.md` is already loaded. Bodies go through `--body-file` or `@<path>`.
 
 | Operation | Command |
 | --- | --- |
@@ -20,7 +18,7 @@ Write each comment body to a temp file outside the repo and let `--body-file` or
 | `approve` | `gh pr review <id> --approve` |
 | `revoke` | no CLI equivalent -- see Dismissal below |
 
-Anchored comments have no first-class command and go through the API. `commit_id` is required and must be the head SHA that was read:
+Anchored comments go through the API. `commit_id` is required and must be the head SHA you read:
 
 ```sh
 # anchored line: side=RIGHT for the new version, LEFT for a removed line
@@ -33,19 +31,19 @@ gh api repos/{owner}/{repo}/pulls/<n>/comments \
 
 ## Flags That Bite
 
-`{owner}` and `{repo}` are placeholders `gh api` fills from the working directory -- pass them literally. `-F` types its value and reads from a file when it starts with `@`; `-f` is always a raw string. So `line` takes `-F`, `side` takes `-f`. Every comment is anchored to one line, so `start_line` and `start_side` are never passed.
+Pass `{owner}` and `{repo}` literally; `gh api` fills them in from the working directory. `-F` types its value and reads a file when the value starts with `@`, while `-f` is always a raw string. So `line` takes `-F` and `side` takes `-f`. Every comment anchors to one line, so never pass `start_line` or `start_side`.
 
-`gh pr diff` has no `--raw`; plain is the unified diff. `--json` fields are camelCase and the head SHA is `headRefOid`.
+`gh pr diff` has no `--raw`; the plain output is the unified diff. `--json` fields are camelCase, and the head SHA is `headRefOid`.
 
-`refs/pull/<n>/head` is served by the base repo and is the PR's own head commit rather than a preview of the merge, so a PR opened from a fork fetches through `origin` with no fork remote added. FETCH_HEAD after that fetch equals `headRefOid`; check the SHA out by name anyway, since any later fetch overwrites FETCH_HEAD.
+The base repo serves `refs/pull/<n>/head`, which is the PR's own head commit rather than a merge preview, so fork PRs fetch through `origin` without adding a remote. After the fetch, FETCH_HEAD equals `headRefOid`, but check out the SHA by name anyway, since any later fetch overwrites FETCH_HEAD.
 
-Comments post immediately, each its own thread, with no CLI-side double-post guard. A stale `commit_id` is rejected rather than relocated: if `<head-sha>` is not the PR's current `headRefOid`, stop and report rather than posting, since the anchors were read against a diff that is no longer current.
+Comments post immediately, each as its own thread, and nothing stops a double post. A stale `commit_id` is rejected, not relocated. If `<head-sha>` isn't the PR's current `headRefOid`, stop and report instead of posting.
 
-`reply` has no `gh` subcommand and its endpoint is transcribed from the REST reference rather than from `gh --help`; report the API's own error verbatim rather than substituting a path that looks close. That same reference, rather than an observed run, is the source for two behaviours stated elsewhere in this file -- a stale `commit_id` being rejected instead of relocated, above, and one bad entry failing an entire batched review, under Batched Review -- since neither can be exercised without posting to a real PR. Report what the API actually returns if either differs, and never retry around it. `reply` takes the id of a thread's first comment -- the entry `thread-list` returns with a null `in_reply_to_id` -- per that same reference. `comment-list` returns the PR's general conversation comments, which have no reply endpoint, so a finding linked to one is linked by its `html_url` rather than threaded; the endpoint was confirmed against `gh` 2.100.0 on a read. The review-comment listing carries no resolution state -- resolved and unresolved threads are a GraphQL concept on GitHub -- so report the state as unavailable rather than inferring it.
+`reply` has no `gh` subcommand. Its endpoint, and the fact that it takes the id of the thread's first comment (the `thread-list` entry with a null `in_reply_to_id`), come from the REST reference, not from `gh --help`. Two other behaviours here also come from that reference and haven't been tested against a real PR: a stale `commit_id` being rejected, and one bad entry failing a whole batched review. If the API behaves differently, report what it actually returns, word for word. Never retry around it or try a similar-looking path. `comment-list` returns general conversation comments, which have no reply endpoint, so a finding linked to one uses its `html_url` (endpoint confirmed against `gh` 2.100.0 on a read). The review-comment listing has no resolution state, since resolved threads only exist in GitHub's GraphQL API, so report the state as unavailable.
 
 ## Batched Review
 
-One review carrying every anchored comment and the verdict, in a single call, with no `body`:
+One review with every anchored comment and the verdict, in a single call, with no `body`:
 
 ```sh
 gh api --method POST repos/{owner}/{repo}/pulls/<n>/reviews --input <json-file>
@@ -61,7 +59,7 @@ gh api --method POST repos/{owner}/{repo}/pulls/<n>/reviews --input <json-file>
 }
 ```
 
-`--input` is the one path where a body does not travel as a file: it goes inside a JSON string. Bodies carry newlines, backticks, and sometimes a fenced quote, so build that file with `jq --rawfile`, one per body, and never type a body into the JSON by hand:
+Here the bodies go inside JSON strings instead of being passed as files. Build the JSON file with `jq --rawfile`, one per body, and never type a body into the JSON by hand:
 
 ```sh
 jq -n --rawfile b2 <body-file-2> \
@@ -69,21 +67,21 @@ jq -n --rawfile b2 <body-file-2> \
     comments:[{path:"<path>", line:12, side:"RIGHT", body:$b2}]}' > <json-file>
 ```
 
-`--rawfile` reads the file as one string and escapes it, so what arrives is the file's bytes -- checked byte-for-byte through jq 1.8.2 on a body carrying a fence, a tab, and embedded double quotes. Where `jq` is absent, say so and post the findings one at a time with `comment` rather than hand-escaping the payload.
+`--rawfile` reads the file as one escaped string, so the bytes arrive unchanged. This was checked with jq 1.8.2 on a body containing a code fence, a tab, and double quotes. If `jq` is missing, say so and post the findings one at a time with `comment`. Never hand-escape the payload.
 
-Every entry in `comments[]` needs a path and a line: `subject_type=file` is not accepted here, so a file-level or unanchored finding posts on its own through `comment` once the review has landed, never in `body`. The REST reference lists `body` as required for `REQUEST_CHANGES` and `COMMENT`, and whether a non-empty `comments[]` satisfies that has not been exercised against a real PR: where the API rejects the missing body, report its error and stop, and never add a summary to get past it. One rejected entry fails the whole review -- report it and stop, never resubmit without the offending comment, since a review missing a finding the report listed is not the review that was ordered.
+Every entry in `comments[]` needs a path and a line. `subject_type=file` isn't accepted here, so file-level and unanchored findings are posted separately with `comment` after the review lands, never in `body`. The REST reference lists `body` as required for `REQUEST_CHANGES` and `COMMENT`, and it hasn't been tested whether a non-empty `comments[]` is enough. If the API rejects the missing body, report the error and stop. Never add a summary to get past it. If one entry is rejected, the whole review fails: report it and stop. Never resubmit without the rejected comment, because a review missing a finding from the report isn't the review that was requested.
 
 ## Dismissal
 
-GitHub has no revoke. Dismissing needs the review id and elevated access:
+GitHub has no revoke. Dismissing a review needs its id and elevated access:
 
 ```sh
 gh api repos/{owner}/{repo}/pulls/<n>/reviews --jq '.[] | {id,user:.user.login,state}'
 gh api --method PUT repos/{owner}/{repo}/pulls/<n>/reviews/<review-id>/dismissals -f message=<reason>
 ```
 
-If the id is ambiguous or access is refused, report it unsupported rather than dismissing a review the user did not name.
+If the id is ambiguous or access is refused, report it as unsupported. Never dismiss a review the user didn't name.
 
-Report the CLI's own error rather than retrying a failed command with different flags, and never invent a flag absent from the table above -- an operation it does not cover is unsupported.
+If a command fails, report the CLI's own error instead of retrying with different flags. Never use a flag that isn't in the table.
 
-When `gh` is absent -- `command not found`, exit 127 -- that is not an auth failure: tell the user to install it from <https://cli.github.com> and stop.
+If `gh` is missing (`command not found`, exit 127), that is not an auth failure. Tell the user to install it from <https://cli.github.com> and stop.

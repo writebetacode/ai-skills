@@ -1,8 +1,6 @@
 # GitLab Commands
 
-Read when the forge resolves to GitLab. The body template, the update path, and the title and assignment rules are already loaded from `SKILL.md` and are not repeated here.
-
-Descriptions reach `glab` through `"$(cat <path>)"` -- neither `--description` nor `note create -m` reads a file -- so the composed body still lives in a temp file and is never retyped into a command.
+Read this when the forge is GitLab. `SKILL.md` is already loaded. `glab` doesn't read description files, so bodies go through `"$(cat <path>)"` from the temp file.
 
 | Operation | Command |
 | --- | --- |
@@ -23,16 +21,16 @@ Descriptions reach `glab` through `"$(cat <path>)"` -- neither `--description` n
 
 ## Flags That Bite
 
-`--yes` is mandatory on create -- without it `glab` blocks on an interactive confirmation and the run hangs.
+`--yes` is required on create. Without it, `glab` waits for an interactive confirmation and the run hangs.
 
-`glab` has no `@me`, so an assignee is a username from `whoami`, and `glab api` is the one command in the table with no `--jq` flag: pipe its JSON through `jq` and read `.username`, rather than reaching for a `whoami` subcommand that does not exist.
+`glab` has no `@me`, so the assignee is the username from `whoami`. `glab api` has no `--jq` flag, so pipe it through `jq`. There is no `whoami` subcommand.
 
-`--wip` is a documented alias for `--draft`, not a third state. GitLab keeps the flag in a `Draft:` title prefix, so a title from `view` carries it and `.draft` is what reports the state.
+`--wip` is an alias for `--draft`, not a third state. GitLab stores draft as a `Draft:` title prefix, so the title from `view` includes it. Read the state from `.draft`.
 
-On `mr update`, `--assignee` and `--reviewer` *replace* the existing set unless prefixed -- `+` adds, `!` or `-` removes -- so an unprefixed username silently drops everyone else. `--label` adds and `--unlabel` removes; there is no replacing form.
+On `mr update`, an unprefixed `--assignee` or `--reviewer` *replaces* the whole set and drops everyone else. Prefix with `+` to add and `!` or `-` to remove. `--label` adds and `--unlabel` removes; there is no replacing form.
 
-Beware `-F`: it is `--output` on `mr list` and means something else on sibling commands, so use long forms everywhere. List and view take `--output json` with `--jq`, not a `--json` field list.
+`-F` is `--output` on `mr list` and means something else on other commands, so use long flag forms everywhere. List and view take `--output json` with `--jq`, not a `--json` field list.
 
-Report the CLI's own error rather than retrying a failed command with different flags, and never invent a flag absent from the table above -- an operation it does not cover is unsupported.
+If a command fails, report the CLI's own error instead of retrying with different flags. Never use a flag that isn't in the table.
 
-When `glab` is absent -- `command not found`, exit 127 -- that is not an auth failure: tell the user to install it from <https://gitlab.com/gitlab-org/cli> and stop.
+If `glab` is missing (`command not found`, exit 127), that is not an auth failure. Tell the user to install it from <https://gitlab.com/gitlab-org/cli> and stop.

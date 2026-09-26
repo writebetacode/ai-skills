@@ -1,8 +1,6 @@
 # Jira Commands
 
-Read when the tracker is Jira. The body template, the field mapping, and the title rules are already loaded from `SKILL.md` and are not repeated here.
-
-Jira calls them work items, not issues, and the CLI follows suit (`acli jira workitem`); the user may say either. Descriptions always travel as file paths -- let `--description-file` pass the bytes, and never retype description text into a command.
+Read this when the tracker is Jira. `SKILL.md` is already loaded. Jira and `acli jira workitem` say "work item", and the user may say either that or "issue". Descriptions go through `--description-file`.
 
 | Operation | Command |
 | --- | --- |
@@ -17,26 +15,26 @@ Jira calls them work items, not issues, and the CLI follows suit (`acli jira wor
 | `issue-assign` | `acli jira workitem assign --key <key> --assignee <assignee> --yes --json`, plus `--remove-assignee` when asked |
 | `issue-delete` | `acli jira workitem delete --key <key> --yes --json` |
 
-Project key, work item type, and summary are required on create and never invented -- ask the user rather than guessing. On a successful create, the new work item key and URL come from the `--json` output and there is no other way to learn them.
+The new work item's key and URL are only available from the `--json` output of the create.
 
 ## Flags That Bite
 
-`--description` takes inline text, `--description-file` reads a file; both accept plain text or ADF, and plain text is what this skill sends unless the user asks for ADF. Never substitute `--from-file` (which reads *both* summary and description) or `--from-json` (a whole work item definition) for `--description-file`: each silently takes over fields that were set explicitly.
+`--description` takes inline text and `--description-file` reads a file. Both accept plain text or ADF; send plain text unless the user asks for ADF. Never use `--from-file` (reads summary and description) or `--from-json` (a whole work item) instead of `--description-file`, because each silently overrides fields you set explicitly.
 
-`--project` is the project *key* (`PROJ`), not the display name. `--assignee` accepts an email, an account ID, `@me`, or `default`. `--type` is the work item type name as that project defines it (`Epic`, `Story`, `Task`, `Bug`); a type the project lacks is rejected by the API, and that rejection is reported rather than retried against a type picked here.
+`--project` takes the project *key* (`PROJ`), not the display name. `--assignee` accepts an email, an account ID, `@me`, or `default`. `--type` is a work item type name the project defines (`Epic`, `Story`, `Task`, `Bug`). If the API rejects the type, report it instead of retrying with one you picked.
 
-There is no `--priority` flag -- priority reaches Jira through `--from-json` or a later `edit`, so priority belongs in the description. Do not quietly drop it.
+There is no `--priority` flag. Priority can only be set through `--from-json` or a later edit, so put it in the description. Never drop it.
 
-`-e, --editor` hangs a non-interactive run; never pass it. `--generate-json` writes a sample template and creates nothing.
+Never pass `-e, --editor`, which hangs the run. `--generate-json` writes a sample template and creates nothing.
 
-Authentication is per Atlassian account and site. If `auth` reports no account, or one for a site other than the one being filed against, stop and report -- `acli jira auth login` and `acli jira auth switch` are the user's to run.
+Auth is per Atlassian account and site. If `auth` shows no account, or an account on a different site from the one you're filing against, stop and report it. `acli jira auth login` and `acli jira auth switch` are for the user to run.
 
-`edit`, `transition`, `assign`, and `delete` prompt for confirmation without `--yes` and hang a non-interactive run. `--status` on `transition` is the target status name as that project's workflow defines it, and a status the workflow lacks is rejected -- report that rather than retrying against a name picked here. Each also accepts `--jql` and `--filter`, which apply the operation to *every* work item the query returns. On `comment create`, `--body-file` is `-F` and takes plain text or ADF; `--edit-last` rewrites the previous comment instead of adding one, so it goes only where the user asks for it.
+`edit`, `transition`, `assign`, and `delete` prompt for confirmation, and hang, unless given `--yes`. `--status` on `transition` is a status name from the project's workflow. If the workflow rejects it, report that instead of retrying with a name you picked. All four also accept `--jql` and `--filter`, which apply the operation to *every* matching work item. On `comment create`, `--body-file` is `-F` and takes plain text or ADF. `--edit-last` rewrites the previous comment instead of adding one, so use it only when the user asks.
 
-**Verification note.** These commands are transcribed from `acli` 1.3.22-stable. If an invocation is rejected as unknown the local version differs: report the CLI's own error verbatim rather than substituting a flag that looks close.
+**Verification note.** These commands come from `acli` 1.3.22-stable. If a command is rejected as unknown, the local version is different: report the CLI's own error word for word instead of trying a similar-looking flag.
 
-**Irreversible violation:** running `issue-delete`, or scoping any write with `--jql` or `--filter` where the user named a key. Jira has no undelete, and a query-scoped write hits every match at once, so a mistyped JQL transitions or deletes a backlog rather than a ticket. "Clear out the stale tickets" is a violation to bring back as ambiguous; a delete of a named key, confirmed by the user, is acceptable.
+**Irreversible violation:** running `issue-delete`, or scoping any write with `--jql` or `--filter` when the user named a key. Jira has no undelete, and a query-scoped write hits every match at once, so a JQL typo can transition or delete a whole backlog. "Clear out the stale tickets" is too ambiguous to act on, so ask. Deleting a named key after the user confirms is acceptable.
 
-Report the CLI's own error rather than retrying a failed command with different flags, and never invent a flag absent from the table above -- an operation it does not cover is unsupported.
+If a command fails, report the CLI's own error instead of retrying with different flags. Never use a flag that isn't in the table.
 
-When `acli` is absent -- `command not found`, exit 127 -- that is not an auth failure: tell the user to install it from <https://developer.atlassian.com/cloud/acli/> and stop.
+If `acli` is missing (`command not found`, exit 127), that is not an auth failure. Tell the user to install it from <https://developer.atlassian.com/cloud/acli/> and stop.

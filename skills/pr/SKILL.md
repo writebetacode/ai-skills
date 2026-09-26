@@ -7,45 +7,41 @@ allowed-tools: "Bash(git ls-remote --heads origin:*), Bash(gh auth status:*), Ba
 
 # PR
 
-One skill for both forges. What follows is host-agnostic; the commands live in the host's reference file.
-
 ## Host
 
-Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` for GitHub or `${CLAUDE_SKILL_DIR}/gitlab.md` for GitLab before running anything -- it carries the command for every operation named below. Where that path arrives unexpanded the runtime is not Claude Code: read the file of that name from this skill's own directory instead -- `~/.gemini/skills/pr/<file>.md` under Gemini CLI -- rather than treating the reference as missing. Where a self-hosted URL settles nothing, read both files and run each CLI's `repo-id`, taking the one that resolves; if both do or neither does, ask the user rather than guessing. Say "pull request" or "merge request" to match the host once resolved.
+Resolve the forge from the `origin` remote. Before running anything, read `${CLAUDE_SKILL_DIR}/github.md` for GitHub or `${CLAUDE_SKILL_DIR}/gitlab.md` for GitLab. It has the command for every operation named below. If that path arrives unexpanded, you are not in Claude Code: read the same file from the skill's installed directory instead (`~/.gemini/skills/pr/<file>.md` under Gemini CLI). If a self-hosted URL doesn't settle the forge, read both files and run each CLI's `repo-id`, then use the one that resolves. If both or neither resolve, ask the user. Once resolved, say "pull request" or "merge request" to match the host.
 
-A missing CLI stops the run rather than being routed around: tell the user which one to install, with the URL from the reference file, and never reach for the other forge's CLI or a raw `curl` against the API.
+If the CLI is missing, stop and tell the user which one to install, using the URL in the reference file. Never switch to the other forge's CLI or a raw `curl` against the API.
 
-Pass every description as a file path -- write the composed body to a temp file outside the repo and let the CLI read it. Retyping body text into a command is what breaks a description that has to arrive byte-exact.
+Write every description to a temp file outside the repo and pass the file to the CLI. Never retype body text into a command.
 
 ## Workflow
 
-Run `auth` first; stop on failure. Gather in parallel: `git branch --show-current`, the remote URL, `whoami`, `git status --short`, and the branch's PR/MR state via `view`. Warn on uncommitted changes.
+Run `auth` and stop if it fails. Gather in parallel: `git branch --show-current`, the remote URL, `whoami`, `git status --short`, and the branch's PR/MR through `view`. Warn about uncommitted changes.
 
-Resolve the target branch from arguments, or auto-detect by matching branch-name prefix against other local branches, falling back to `git merge-base` against the repo's default branch -- resolve it via `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), or `git remote show origin` parsed for `HEAD branch:` if that ref is missing. Never assume `main`: the repo may default to `develop`, `master`, or `trunk`.
+Take the target branch from the arguments. Otherwise match the branch-name prefix against other local branches, and fall back to `git merge-base` against the default branch. Find the default branch with `git symbolic-ref --short refs/remotes/origin/HEAD` (strip the leading `origin/`), or parse `HEAD branch:` from `git remote show origin` if that ref is missing. Never assume `main`.
 
-The head is the current branch gathered above, and travels to `create` by name rather than being left to the CLI default. Both forges default it to whatever is checked out, which is silently wrong the moment the session has moved on -- and a stacked run has several sibling branches alive at once, so a PR opened from the wrong one still looks right. Naming it also costs `gh` the prompt it would otherwise raise to push an unpushed branch, so the skill pushes for itself: read the remote head with `git ls-remote --heads origin <head>`, and where that comes back empty or carrying a SHA other than the local one, run `git push -u origin <head>` before `create` or `update-description`. A create against a head the remote lacks fails outright, and an update against a stale one describes commits the reviewer cannot see.
+Pass the head (the current branch gathered above) to `create` by name. Never leave it to the CLI default, which is whatever is checked out and goes wrong when a stacked run has several sibling branches in play. Push the head yourself first: if `git ls-remote --heads origin <head>` is empty or shows a SHA other than the local one, run `git push -u origin <head>` before `create` or `update-description`. Otherwise create fails outright, and an update describes commits the reviewer can't see.
 
-Draft a human-readable title under 70 characters covering the combined changes. Compose the description from the template, write it to a temp file, then run `create` with the title, body path, base, head, and username -- adding draft when "draft" appears in the arguments -- or `update-description` following the Update Path below. An update redrafts the title too, against the combined changes as they now stand: where it differs from the one `view` reported, run `title` alongside the description. Display the URL the CLI returns.
+Write a human-readable title under 70 characters covering all the changes. Fill in the Body Template, write it to a temp file, and run `create` with the title, body path, base, head, and username, adding draft if "draft" is in the arguments. To update, run `update-description` following the Update Path, and redraft the title against the changes as they now stand. If it differs from the title `view` returned, run `title` too. Show the URL the CLI returns.
 
-Run `draft` or `ready` only when the request asks for the move: "mark it ready", "back to draft". `view` already reported the current state, so a move that would change nothing is reported instead of run. Where the same request also revises the description, update first and toggle after, since marking ready is what puts the body in front of reviewers.
+Run `draft` or `ready` only when asked ("mark it ready", "back to draft"). If `view` shows the PR is already in that state, say so instead of running it. If the same request also changes the description, update first and toggle second.
 
 ## Update Path
 
-Updating replaces the description wholesale, and reviewer bots, teammates, and prior manual edits all write into that same field. You own the fenced region and nothing else. Run `description` to fetch the current text, then locate your region, in this order:
+An update replaces the whole description, and bots, teammates, and earlier manual edits all live in that same field. You own only the fenced region. Fetch the current text with `description`, then find your region in this order:
 
-1. **Both markers present** -- replace everything between them.
-2. **Markers absent or unpaired** -- find the contiguous run of template sections from the first `## Tickets` heading and replace that run in place. A previous update owned it whether it predates the markers or lost them since, and a `## Why` section from an earlier version of the template is part of that run and goes with it. An unpaired opener never acts as a boundary; a hand-deleted closer would otherwise swallow the rest of the description.
-3. **Neither** -- insert at the top. Only here: inserting while a template-shaped run exists is what produces two bodies, and later updates compound it.
+1. **Both markers present:** replace everything between them.
+2. **Markers missing or unpaired:** find the contiguous run of template sections starting at the first `## Tickets` heading and replace that run in place, including any `## Why` section from an older template. An unpaired opener is never a boundary, since a deleted closer would otherwise swallow the rest of the description.
+3. **Neither:** insert at the top. Only here, because inserting while a template-shaped run exists creates two bodies, and later updates compound it.
 
-Match markers on the token alone -- `pr-body:start`, `pr-body:end` -- ignoring whitespace inside the comment, since serializers respace HTML comments in transit. Recognize `mr-body:start` and `mr-body:end` as legacy equivalents from earlier versions of this skill, and rewrite them to the canonical token on the next update. Rule 2 is what survives a serializer that strips markers outright.
+Match markers on the token alone (`pr-body:start`, `pr-body:end`), ignoring whitespace inside the comment, because serializers respace HTML comments. Treat `mr-body:start` and `mr-body:end` as legacy equivalents and rewrite them to the canonical token on the next update.
 
-Everything outside your region survives byte-for-byte, in place, whoever wrote it: never reword, resummarize, reformat, template-conform, relocate, or regenerate it from the diff. On an ambiguous boundary, carry content forward rather than drop it -- a duplicated line is recoverable, deleted review feedback is not. Never skip an update or leave the description stale to avoid an awkward layout.
+Everything outside your region stays byte-for-byte in place, whoever wrote it. Never reword, summarize, reformat, template-conform, move, or regenerate it. When a boundary is unclear, keep content rather than dropping it: a duplicated line can be fixed, deleted review feedback can't. Never skip an update or leave the description stale to avoid an awkward layout.
 
 ## Body Template
 
-Use this exact structure, fence markers included. Omit Breaking Changes and Dependencies when not applicable. The markers delimit the region this skill owns and rewrites on update; everything outside them is preserved untouched.
-
-The reviewer has the diff, so the body orients rather than restates it. Changes carries at most ten bullets; where the change touches more files than that, roll the remainder into one bullet per category naming the file count and what they share.
+Use this exact structure, markers included. Leave out Breaking Changes and Dependencies when they don't apply. The reviewer has the diff, so the body orients them rather than restating it. Changes has at most ten bullets. If more files changed, roll the rest into one bullet per category giving the file count and what they have in common.
 
 ```markdown
 <!-- pr-body:start -->
@@ -79,25 +75,25 @@ The reviewer has the diff, so the body orients rather than restates it. Changes 
 
 ## Rules
 
-Always assign to the current user: `@me` on GitHub, a `whoami` username on GitLab, which has no `@me`. The reference file owns that difference -- pass the assignee it names and never hardcode one.
+Always assign to the current user, using the assignee the reference file names. Never hardcode one.
 
-Never reference a host-native issue without validating it via `issue-view` first. Jira references are informational only -- neither forge closes a Jira issue on merge, so never apply a closing keyword (`Closes`, `Fixes`, `Resolves`) to a Jira key.
+Never reference a host-native issue without checking it with `issue-view` first. Jira references are for information only. Neither forge closes a Jira issue on merge, so never put a closing keyword (`Closes`, `Fixes`, `Resolves`) in front of a Jira key.
 
-Never compose a remote command from memory -- every one comes from the host's reference file, and an operation it does not cover is reported as unsupported rather than improvised.
+Never write a remote command from memory. Every command comes from the host's reference file, and an operation the file doesn't cover is reported as unsupported.
 
-A toggle the forge refuses is reported as it stands, never simulated by other means: converting to draft is plan-dependent on GitHub.
+If the forge refuses a draft/ready toggle, report the refusal. Never simulate the state another way.
 
 Restrict generated output -- commits, PRs, issues, and files you write -- to ASCII; never include AI attribution or "Co-Authored-By" lines.
 
-**Push violation:** forcing a head onto the remote, or pushing any branch but the head. `git push -u origin <head>` refused as non-fast-forward means the remote branch carries commits the local one does not: report the refusal and stop, since `--force` and `--force-with-lease` discard whatever a teammate or a rebase put there. That same `git push -u origin <head>` against a branch the remote lacks, or one it has behind the local head, is acceptable.
+**Push violation:** force-pushing the head, or pushing any branch other than the head. If `git push -u origin <head>` is refused as non-fast-forward, the remote has commits the local branch doesn't: report it and stop, because `--force` and `--force-with-lease` throw away whatever a teammate or a rebase put there. The same push to a branch the remote lacks, or has behind the local head, is acceptable.
 
-**Title violation:** any title that is not a plain-English, human-readable sentence -- raw branch names, ticket slugs, kebab-case, or machine-style identifiers must be rewritten before create/update. `fix/auth-token-refresh` or `PROJ-123` are violations, as is a `Draft:` prefix written here to mark state the `draft` operation owns; "Fix authentication token refresh on expired sessions" is acceptable.
+**Title violation:** a title that isn't a plain-English sentence, such as a raw branch name, ticket slug, kebab-case, or other machine-style identifier. `fix/auth-token-refresh` and `PROJ-123` are violations, and so is a `Draft:` prefix, since the `draft` operation owns that state. "Fix authentication token refresh on expired sessions" is acceptable.
 
-**Body violation:** any body off the exact template -- Tickets, Summary, and Changes in that order using the prescribed markdown. Freeform prose, generic layouts, and invented sections must be corrected before create/update, `## Test Plan` and a reinstated `## Why` among them. A fenced region opening at `## Summary` with no `## Tickets`, or carrying either of those two sections, is a violation; one running Tickets, Summary, and Changes in that order, with Breaking Changes and Dependencies present only where they apply, is acceptable. This governs the fenced region alone: content outside it that you did not write is never a violation whatever its shape, and must not be trimmed or template-conformed to satisfy this rule.
+**Body violation:** a fenced region that departs from the template, which is Tickets, Summary, and Changes in that order in the given markdown. Freeform prose, generic layouts, and invented sections are violations, including `## Test Plan` and a reinstated `## Why`. A region that opens at `## Summary` without `## Tickets`, or contains either of those two sections, is a violation. Tickets, Summary, and Changes in order, with Breaking Changes and Dependencies only where they apply, is acceptable. This rule covers only the fenced region. Content outside it that you didn't write is never a violation, and must never be trimmed or reshaped to fit.
 
-**Fence violation:** composing any content of your own outside the markers, on create or on update -- the body you write is the fenced region and nothing else. Appending a `## Notes for Reviewers` section below `pr-body:end`, or any other commentary addressed to the reviewer, is a violation on both paths; what would go in one belongs in Summary, and a section of that name left there by a teammate or a bot is preserved as written rather than claimed as yours.
+**Fence violation:** writing any content of your own outside the markers, on create or update. Adding a `## Notes for Reviewers` section below `pr-body:end`, or any other note to the reviewer, is a violation; that belongs in Summary. A section with that name left by a teammate or a bot is kept as written and not claimed as yours.
 
-**Length violation:** a Summary past two sentences, a Changes bullet running longer than one line, or a Changes list past ten bullets. The body is read before the diff and never instead of it, so a bullet that needs a paragraph after it is a bullet whose reasoning belongs in Summary or nowhere.
+**Length violation:** a Summary longer than two sentences, a Changes bullet longer than one line, or more than ten Changes bullets. A bullet that needs a paragraph has reasoning that belongs in Summary or nowhere.
 
 ## User Input
 

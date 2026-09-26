@@ -1,8 +1,6 @@
 # GitHub Commands
 
-Read when the forge resolves to GitHub. The body template, the update path, and the title and assignment rules are already loaded from `SKILL.md` and are not repeated here.
-
-Bodies always travel as file paths -- let `--body-file` pass the bytes, and never retype body text into a command.
+Read this when the forge is GitHub. `SKILL.md` is already loaded. Bodies go through `--body-file`.
 
 | Operation | Command |
 | --- | --- |
@@ -24,14 +22,14 @@ Bodies always travel as file paths -- let `--body-file` pass the bytes, and neve
 
 ## Flags That Bite
 
-`--json` fields are camelCase and the head SHA is `headRefOid`. `--assignee @me` works, so assignment needs no username lookup.
+`--json` fields are camelCase, and the head SHA is `headRefOid`. `--assignee @me` works, so no username lookup is needed.
 
-Converting to draft is plan-dependent: `gh pr ready --undo` is refused on accounts where `gh pr ready` succeeds. Report the refusal as it stands rather than simulating the state another way.
+Converting to draft depends on the plan: some accounts refuse `gh pr ready --undo` even though `gh pr ready` works.
 
-On `edit`, the label, assignee, and reviewer flags are add/remove pairs rather than a replacing set, so removing one means naming it in `--remove-*`; `--milestone` does replace, and `--remove-milestone` clears it.
+On `edit`, labels, assignees, and reviewers are add/remove pairs, so removing one means naming it in `--remove-*`. `--milestone` replaces, and `--remove-milestone` clears it.
 
-Naming `--head` costs `gh` the prompt it would otherwise raise to push an unpushed branch, so a head the remote does not have comes back as an error rather than a prompt -- which is why `SKILL.md` has the branch pushed before `create` runs.
+With `--head` named, `gh` doesn't offer to push an unpushed branch. A head missing from the remote comes back as an error, which is why the head is pushed before `create`.
 
-Report the CLI's own error rather than retrying a failed command with different flags, and never invent a flag absent from the table above -- an operation it does not cover is unsupported.
+If a command fails, report the CLI's own error instead of retrying with different flags. Never use a flag that isn't in the table.
 
-When `gh` is absent -- `command not found`, exit 127 -- that is not an auth failure: tell the user to install it from <https://cli.github.com> and stop.
+If `gh` is missing (`command not found`, exit 127), that is not an auth failure. Tell the user to install it from <https://cli.github.com> and stop.

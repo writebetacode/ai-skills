@@ -1,8 +1,6 @@
 # GitHub Commands
 
-Read when the forge resolves to GitHub. Version resolution, the notes draft, the compare link, and the tagging rules are already loaded from `SKILL.md` and are not repeated here.
-
-Release notes always travel as a file path -- let `--notes-file` pass the bytes, and never retype notes text into a command.
+Read this when the forge is GitHub. `SKILL.md` is already loaded.
 
 | Operation | Command |
 | --- | --- |
@@ -17,12 +15,10 @@ Release notes always travel as a file path -- let `--notes-file` pass the bytes,
 
 ## Flags That Bite
 
-Keep `--verify-tag` on create: it aborts when the tag is not on the remote, turning a silently failed tag push into a refusal rather than a release pointing at nothing. `--generate-notes` appends GitHub's own commit list beneath the supplied body, so pass it only when the drafted body is meant to carry it. `--target` is GitHub's alone; GitLab takes no equivalent.
+Keep `--verify-tag` on create. It aborts when the tag isn't on the remote, so a failed tag push becomes a refusal instead of a release pointing at nothing. `--generate-notes` appends GitHub's commit list under the supplied body. `gh release delete` prompts unless given `--yes`, and `--cleanup-tag` deletes the git tag along with the release.
 
-`gh release delete` prompts without `--yes`, and `--cleanup-tag` takes the git tag with the release.
+If a command fails, report the CLI's own error instead of retrying with different flags. Never use a flag that isn't in the table.
 
-Report the CLI's own error rather than retrying a failed command with different flags, and never invent a flag absent from the table above -- an operation it does not cover is unsupported.
+**Irreversible violation:** running `release-delete` or passing `--cleanup-tag` when the user didn't ask for exactly that. The forge can't undo a deleted release or tag, and `--cleanup-tag` removes the tag a published release points to. "Clean this release up" is too ambiguous to act on, so ask. "Delete the v1.4.3 release and its tag", once confirmed, is acceptable.
 
-**Irreversible violation:** running `release-delete`, or passing `--cleanup-tag`, without the user asking for that in those terms. A deleted release and a deleted tag are not undone by the forge, and `--cleanup-tag` destroys the tag a published release pointed at. "Clean this release up" is a violation to bring back as ambiguous; "delete the v1.4.3 release and its tag", confirmed, is acceptable.
-
-When `gh` is absent -- `command not found`, exit 127 -- that is not an auth failure: tell the user to install it from <https://cli.github.com> and stop. Never tag or push on the way to a release that cannot then be published.
+If `gh` is missing (`command not found`, exit 127), that is not an auth failure. Tell the user to install it from <https://cli.github.com> and stop.
