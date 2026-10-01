@@ -1,6 +1,6 @@
 # ai-skills
 
-Opinionated skills for Claude Code and Gemini CLI, covering the parts of everyday development that go better with a fixed procedure: commits, pull requests, code review, issues, releases, and a spec-driven SDLC flow.
+Opinionated skills for Claude Code, covering the parts of everyday development that go better with a fixed procedure: commits, pull requests, code review, issues, releases, and a spec-driven SDLC flow.
 
 ## Quick start
 
@@ -12,7 +12,7 @@ cd ai-skills
 task install
 ```
 
-Everything is symlinked into `~/.claude` and `~/.gemini`, so edits in the repo take effect without reinstalling. Everything installs by default — see [Installation](docs/installation.md) to opt out of pieces, and to review what the install writes to your Claude Code settings.
+Everything is symlinked into `~/.claude`, so edits in the repo take effect without reinstalling. Everything installs by default — see [Installation](docs/installation.md) to opt out of pieces, and to review what the install writes to your Claude Code settings.
 
 ## Skills
 

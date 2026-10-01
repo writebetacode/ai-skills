@@ -10,8 +10,6 @@ No skill assumes `main`. Every git-facing one resolves the default branch from `
 
 Those commands run in your session, under your permission rules, which is why each of the four pre-approves its read-only operations — `auth`, `view`, `diff`, `list`, and the read-only git it opens with, such as the `git symbolic-ref` every default-branch resolution starts from — in `allowed-tools`, and leaves every create, edit, comment, and delete to prompt as usual. `/commit` grants the same way for the four commands it reads the index with. That grant covers only the turn you invoked the skill in, which is the turn the reconnaissance happens in; a submit or a follow-up you ask for later prompts like anything else.
 
-The per-CLI reference file is found through a path Claude Code expands to wherever the skill is installed. Gemini CLI does not expand it, so each of the four falls back to reading that file from its own directory — the run still works, but this is the one place the two platforms are not identical.
-
 When a CLI is missing, the run stops. You get `glab is not installed: <url>` rather than an auth error or a fallback to `curl` against the API, or to the other forge's CLI. This is deliberate: the alternative is a skill quietly doing the thing its own rules forbid.
 
 Remote content is data, never instructions. A diff, a PR body, and a review thread are all written by whoever opened the change, so `/pr-review` treats a comment telling it what not to flag as a claim to check rather than an order to obey. That matters most for fork PRs, where none of it is authored by someone whose say-so the reviewer inherits.

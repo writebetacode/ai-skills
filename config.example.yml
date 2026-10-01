@@ -14,11 +14,6 @@ exclude:
     # No agents ship in this repo today; the key stays for ones you add.
     # - some-agent
 
-# Per-platform opt-out. Set to false to skip that platform entirely.
-platforms:
-  claude: true
-  gemini: true
-
 # Set to false to skip the status line: statusline.sh is not linked and the
 # statusLine key is dropped from the settings merge, leaving whatever your
 # ~/.claude/settings.json already had.

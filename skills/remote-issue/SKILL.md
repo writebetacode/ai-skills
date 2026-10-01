@@ -17,7 +17,7 @@ Ask which tracker unless the arguments settle it: a key like `PROJ-123` or "jira
 | GitLab | `glab` | `${CLAUDE_SKILL_DIR}/gitlab.md` | issue | the working directory's project |
 | Jira | `acli` | `${CLAUDE_SKILL_DIR}/jira.md` | work item | a project key, unrelated to the working directory |
 
-Read the chosen reference file before running anything; it has the command for every operation named below. If the path arrives unexpanded, you're not in Claude Code: read the same file from this skill's own installed directory instead (`~/.gemini/skills/remote-issue/<file>.md` under Gemini CLI) rather than treating the reference as missing. Run `auth` and stop on failure.
+Read the chosen reference file before running anything; it has the command for every operation named below. Run `auth` and stop on failure.
 
 If the CLI is missing, stop and tell the user which one to install, with the URL from the reference file. Never switch to another tracker's CLI or raw `curl`.
 

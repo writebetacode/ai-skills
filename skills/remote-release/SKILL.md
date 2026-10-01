@@ -9,7 +9,7 @@ allowed-tools: "Bash(gh auth status:*), Bash(gh repo view:*), Bash(gh release li
 
 ## Host
 
-Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` or `${CLAUDE_SKILL_DIR}/gitlab.md` before running anything; it has the command for every operation named below. If the path arrives unexpanded, you're not in Claude Code: read the same file from this skill's own installed directory instead (`~/.gemini/skills/remote-release/<file>.md` under Gemini CLI) rather than treating the reference as missing. If a self-hosted URL doesn't settle the forge, read both files and use whichever CLI's `repo-id` resolves; if both or neither do, ask.
+Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` or `${CLAUDE_SKILL_DIR}/gitlab.md` before running anything; it has the command for every operation named below. If a self-hosted URL doesn't settle the forge, read both files and use whichever CLI's `repo-id` resolves; if both or neither do, ask.
 
 If the CLI is missing, stop and tell the user which one to install, with the URL from the reference file. Never switch to the other forge's CLI or raw `curl`, and never tag or push toward a release that can't then be published.
 

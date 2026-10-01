@@ -16,7 +16,7 @@ argument-hint: "[what to write or revise]"
 
 ## File Format
 
-`skills/<name>/SKILL.md` ends with `## User Input` and `\$ARGUMENTS`. One file serves both Claude Code and Gemini CLI. The slash command resolves from the directory name, and `name` only sets the listing label, so keep them equal.
+`skills/<name>/SKILL.md` ends with `## User Input` and `\$ARGUMENTS`. The slash command resolves from the directory name, and `name` only sets the listing label, so keep them equal.
 
 ```yaml
 ---
@@ -30,7 +30,7 @@ allowed-tools: "<Bash rules for the skill's read-only commands, omitted when it 
 - **`allowed-tools`** pre-approves; it never restricts, and unlisted tools stay under the session's own permissions. The grant clears on the user's next message, so it suits opening reconnaissance (auth, view, diff, list), not writes a later turn asks for. Grant the narrowest prefix the skill actually runs, down to fixed arguments, never a bare tool name, and nothing the body doesn't name: `Bash(jq:*)` matches a redirect as easily as the pipeline it was added for.
 - **`argument-hint`** is always quoted. Unquoted, `[x]` is a YAML sequence and `[x] [y]` doesn't parse, which takes the whole frontmatter down: the skill loses its description and trigger, not just its hint.
 
-`agents/<name>/AGENT.md` has no `## User Input` section and is Claude Code only.
+`agents/<name>/AGENT.md` has no `## User Input` section.
 
 ```yaml
 ---
@@ -87,7 +87,6 @@ Length alone opens neither gate. Check whether a section is derivable before ext
 Paths to a split-out file:
 
 - A skill names its own sibling as `CLAUDE_SKILL_DIR` in dollar-and-braces form plus `/<file>.md`, which Claude Code expands to the installed location.
-- Only Claude Code expands it, so pair the pointer with the other runtime's installed path (`~/.gemini/skills/<name>/<file>.md` for Gemini CLI). Otherwise that runtime hits the dead stop "never run this from memory" leaves it in.
 - An agent gets no substitution and uses the literal `~/.claude/skills/<name>/<file>.md`.
 - Always name the path explicitly. A repo-relative path only resolves in this repo, and a reader left to work out a location searches instead of reading.
 
