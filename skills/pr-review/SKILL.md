@@ -16,7 +16,7 @@ allowed-tools: "Bash(gh auth status:*), Bash(gh repo view:*), Bash(gh pr view:*)
 
 ## Host
 
-Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` or `${CLAUDE_SKILL_DIR}/gitlab.md` before running anything; it has the command for every operation named here and in `posting.md`. If the path arrives unexpanded, you're not in Claude Code: read the same file (and `posting.md`, `ticket.md`) from this skill's own installed directory instead (`~/.gemini/skills/pr-review/<file>.md` under Gemini CLI) rather than treating the reference as missing. If a self-hosted URL doesn't settle the forge, read both files and use whichever CLI's `repo-id` resolves; if both or neither do, ask. Once resolved, say "pull request" or "merge request" to match.
+Resolve the forge from the `origin` remote, then read `${CLAUDE_SKILL_DIR}/github.md` or `${CLAUDE_SKILL_DIR}/gitlab.md` before running anything; it has the command for every operation named here and in `posting.md`. If a self-hosted URL doesn't settle the forge, read both files and use whichever CLI's `repo-id` resolves; if both or neither do, ask. Once resolved, say "pull request" or "merge request" to match.
 
 If the CLI is missing, stop and tell the user which one to install, with the URL from the reference file. Never switch to the other forge's CLI or raw `curl`.
 

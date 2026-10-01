@@ -3,7 +3,7 @@ version: '3'
 vars:
   # Shared config reader, inlined into any task that needs exclusion logic.
   # Parses config.yml without requiring yq: reads the `exclude:` block's
-  # `skills:`/`agents:` list items and the `platforms:` booleans.
+  # `skills:`/`agents:` list items.
   CONFIG_READER: |
     _cfg_check_syntax() {
       # Inline lists (skills: [a, b]) are valid YAML but not supported by the
@@ -46,23 +46,6 @@ vars:
       done
       return 1
     }
-    platform_enabled() {
-      # $1 = claude|gemini -- true unless config.yml sets it false
-      [ -f config.yml ] || return 0
-      awk -v want="$1" '
-        /^[^[:space:]#]/ { top=$1; sub(":.*","",top); inp=(top=="platforms"); next }
-        !inp { next }
-        {
-          line=$0
-          sub(/[[:space:]]*#.*$/, "", line)
-          if (match(line, "^[[:space:]]+" want ":")) {
-            val=line; sub("^[[:space:]]+" want ":[[:space:]]*", "", val)
-            gsub(/[[:space:]]/, "", val)
-            if (val == "false") exit 1
-          }
-        }
-      ' config.yml
-    }
     statusline_enabled() {
       # true unless config.yml sets `statusline: false` at the top level
       [ -f config.yml ] || return 0
@@ -87,7 +70,6 @@ tasks:
       - task: config:show
       - task: uninstall
       - task: install:claude
-      - task: install:gemini
       - task: install:lsp
       - |
         echo "INSTALLED run 'task verify' to check"
@@ -149,14 +131,12 @@ tasks:
         else
           echo "CONFIG excluding: nothing"
         fi
-        platform_enabled claude || echo "CONFIG platform claude: disabled"
-        platform_enabled gemini || echo "CONFIG platform gemini: disabled"
         statusline_enabled || echo "CONFIG statusline: disabled"
 
   clean:stale:
     internal: true
     silent: true
-    desc: Remove stale symlinks in ~/.claude and ~/.gemini pointing to this repo
+    desc: Remove stale symlinks in ~/.claude pointing to this repo
     cmds:
       - |
         {{.CONFIG_READER}}
@@ -184,7 +164,7 @@ tasks:
           rmdir "$(dirname "$f")" 2>/dev/null || true
           echo "REMOVED $f ($reason)"
         }
-        for dir in "$HOME/.claude/skills/"*/ "$HOME/.gemini/skills/"*/; do
+        for dir in "$HOME/.claude/skills/"*/; do
           [ -d "$dir" ] || continue
           # Every *.md, not just SKILL.md: a skill may ship reference files
           # alongside it, and a renamed or deleted one leaves a broken link.
@@ -197,7 +177,7 @@ tasks:
             [ -d "$sub" ] && rmdir "$sub" 2>/dev/null || true
           done
         done
-        for dir in "$HOME/.claude/agents/"*/ "$HOME/.gemini/agents/"*/; do
+        for dir in "$HOME/.claude/agents/"*/; do
           [ -d "$dir" ] || continue
           for f in "$dir"*.md; do remove_stale "$f" "$(basename "$dir")" agents; done
         done
@@ -210,7 +190,6 @@ tasks:
     cmds:
       - |
         {{.CONFIG_READER}}
-        platform_enabled claude || { echo "SKIP claude platform (disabled in config.yml)"; exit 0; }
         for dir in skills/*/; do
           name=$(basename "$dir")
           if is_excluded "$name" skills; then echo "SKIP $name skill (excluded)"; continue; fi
@@ -233,7 +212,6 @@ tasks:
         done
       - |
         {{.CONFIG_READER}}
-        platform_enabled claude || exit 0
         # Linked before the settings merge below, so the statusLine command in
         # settings.json never points at a script that isn't there yet.
         if ! statusline_enabled; then
@@ -244,7 +222,6 @@ tasks:
         fi
       - |
         {{.CONFIG_READER}}
-        platform_enabled claude || exit 0
         if [ -f "claude/settings.json" ]; then
           command -v jq >/dev/null 2>&1 || { echo "ERR jq is required to merge settings.json (brew install jq)"; exit 1; }
           target="$HOME/.claude/settings.json"
@@ -283,7 +260,6 @@ tasks:
         fi
       - |
         {{.CONFIG_READER}}
-        platform_enabled claude || exit 0
         for dir in agents/*/; do
           [ -d "$dir" ] || continue
           name=$(basename "$dir")
@@ -291,32 +267,6 @@ tasks:
           mkdir -p "$HOME/.claude/agents/$name"
           ln -sf "$(pwd)/${dir}AGENT.md" "$HOME/.claude/agents/$name/AGENT.md"
           echo "LINKED $name agent"
-        done
-
-  install:gemini:
-    internal: true
-    silent: true
-    desc: Symlink skills into ~/.gemini (agents are Claude Code only)
-    deps: [clean:stale]
-    cmds:
-      - |
-        {{.CONFIG_READER}}
-        platform_enabled gemini || { echo "SKIP gemini platform (disabled in config.yml)"; exit 0; }
-        for dir in skills/*/; do
-          name=$(basename "$dir")
-          if is_excluded "$name" skills; then continue; fi
-          mkdir -p "$HOME/.gemini/skills/$name"
-          for src in "$dir"*.md; do
-            ln -sf "$(pwd)/$src" "$HOME/.gemini/skills/$name/$(basename "$src")"
-          done
-          for sub in scripts assets; do
-            [ -d "$dir$sub" ] || continue
-            find "$dir$sub" -type f | while read -r src; do
-              rel="${src#$dir}"
-              mkdir -p "$HOME/.gemini/skills/$name/$(dirname "$rel")"
-              ln -sf "$(pwd)/$src" "$HOME/.gemini/skills/$name/$rel"
-            done
-          done
         done
 
   uninstall:
@@ -368,7 +318,7 @@ tasks:
             case "$target" in "$repo"/*) rm -f "$f"; rmdir "$(dirname "$f")" 2>/dev/null || true; echo "REMOVED $f" ;; esac
           fi
         }
-        for dir in "$HOME/.claude/skills/"*/ "$HOME/.gemini/skills/"*/ "$HOME/.claude/agents/"*/ "$HOME/.gemini/agents/"*/; do
+        for dir in "$HOME/.claude/skills/"*/ "$HOME/.claude/agents/"*/; do
           for f in "$dir"*.md; do remove_link "$f"; done
         done
         remove_link "$HOME/.claude/statusline.sh"
@@ -395,7 +345,7 @@ tasks:
       - task: doctor
 
   doctor:
-    desc: Report skills/agents installed in ~/.claude and ~/.gemini that this repo does not manage
+    desc: Report skills/agents installed in ~/.claude that this repo does not manage
     silent: true
     cmds:
       - |
@@ -426,13 +376,10 @@ tasks:
           fi
           return 1
         }
-        for base in "$HOME/.claude" "$HOME/.gemini"; do
-          [ -d "$base/skills" ] || continue
-          for dir in "$base/skills/"*/; do
-            [ -d "$dir" ] || continue
-            empty_dir "$dir" && continue
-            for f in "$dir"*.md; do report "$f" skills "$(basename "$dir")"; done
-          done
+        for dir in "$HOME/.claude/skills/"*/; do
+          [ -d "$dir" ] || continue
+          empty_dir "$dir" && continue
+          for f in "$dir"*.md; do report "$f" skills "$(basename "$dir")"; done
         done
         for dir in "$HOME/.claude/agents/"*/; do
           [ -d "$dir" ] || continue
@@ -485,14 +432,12 @@ tasks:
             rel="${src#$dir}"
             if is_excluded "$name" skills; then
               absent "$HOME/.claude/skills/$name/$rel"
-              absent "$HOME/.gemini/skills/$name/$rel"
               continue
             fi
-            if platform_enabled claude; then check "$HOME/.claude/skills/$name/$rel"; fi
-            if platform_enabled gemini; then check "$HOME/.gemini/skills/$name/$rel"; fi
+            check "$HOME/.claude/skills/$name/$rel"
           done
         done
-        if platform_enabled claude 2>/dev/null && [ -f "claude/settings.json" ]; then
+        if [ -f "claude/settings.json" ]; then
           if jq -e '.spinnerVerbs' "$HOME/.claude/settings.json" >/dev/null 2>&1; then
             echo "OK  $HOME/.claude/settings.json (merged)"
           else
@@ -500,7 +445,7 @@ tasks:
             failed=1
           fi
         fi
-        if platform_enabled claude 2>/dev/null && [ -f "claude/statusline.sh" ]; then
+        if [ -f "claude/statusline.sh" ]; then
           if statusline_enabled; then
             check "$HOME/.claude/statusline.sh"
           else
@@ -514,6 +459,6 @@ tasks:
             absent "$HOME/.claude/agents/$name/AGENT.md"
             continue
           fi
-          if platform_enabled claude; then check "$HOME/.claude/agents/$name/AGENT.md"; fi
+          check "$HOME/.claude/agents/$name/AGENT.md"
         done
         exit $failed
